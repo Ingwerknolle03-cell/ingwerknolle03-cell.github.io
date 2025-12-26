@@ -69,6 +69,25 @@ input {
     margin-bottom: 15px;
     text-align: left;
 }
+
+.feedback {
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.feedback.correct {
+    color: green;
+}
+
+.feedback.wrong {
+    color: red;
+}
+
+.correct-answer {
+    color: green;
+    font-weight: bold;
+    margin-left: 10px;
+}
 </style>
 </head>
 <body>
@@ -87,49 +106,23 @@ input {
     <br>
     <button id="submitBtn">Prüfen</button>
     <button id="skipBtn">Überspringen</button>
+    <div id="feedback" class="feedback"></div>
 </div>
 
 <script>
 const challenges = [
-    {
-        question: "Setze die Variable x auf 10",
-        check: input => input.trim() === "10",
-        explanation: "x = 10"
-    },
-    {
-        question: "Welche Ausgabe ergibt print('Hello' + 'World')?",
-        check: input => input.trim() === "HelloWorld",
-        explanation: "print('Hello' + 'World')"
-    },
-    {
-        question: "Schreibe True wenn 5 > 3, sonst False",
-        check: input => input.trim().toLowerCase() === "true",
-        explanation: "5 > 3 ergibt True"
-    },
-    {
-        question: "Setze die Liste numbers auf [1, 2, 3]",
-        check: input => input.trim() === "1,2,3",
-        explanation: "numbers = [1,2,3] (für Input einfach 1,2,3)"
-    },
-    {
-        question: "Was ergibt len('Python')?",
-        check: input => input.trim() === "6",
-        explanation: "len('Python') = 6"
-    },
-    {
-        question: "Was ist das Ergebnis von 3 * 4?",
-        check: input => input.trim() === "12",
-        explanation: "3 * 4 = 12"
-    },
-    {
-        question: "Wenn x = 5, was ergibt x > 2?",
-        check: input => input.trim().toLowerCase() === "true",
-        explanation: "5 > 2 = True"
-    },
+    { question: "Setze die Variable x auf 10", check: input => input.trim() === "10", explanation: "x = 10" },
+    { question: "Welche Ausgabe ergibt print('Hello' + 'World')?", check: input => input.trim() === "HelloWorld", explanation: "print('Hello' + 'World')" },
+    { question: "Schreibe True wenn 5 > 3, sonst False", check: input => input.trim().toLowerCase() === "true", explanation: "5 > 3 ergibt True" },
+    { question: "Setze die Liste numbers auf [1, 2, 3]", check: input => input.trim() === "1,2,3", explanation: "numbers = [1,2,3] (für Input einfach 1,2,3)" },
+    { question: "Was ergibt len('Python')?", check: input => input.trim() === "6", explanation: "len('Python') = 6" },
+    { question: "Was ist das Ergebnis von 3 * 4?", check: input => input.trim() === "12", explanation: "3 * 4 = 12" },
+    { question: "Wenn x = 5, was ergibt x > 2?", check: input => input.trim().toLowerCase() === "true", explanation: "5 > 2 = True" },
 ];
 
 let score = 0;
 let asked = [];
+let currentChallenge = null;
 
 function startSimulation() {
     document.getElementById('startScreen').style.display = 'none';
@@ -146,11 +139,13 @@ function getRandomChallenge() {
     return challenges[realIdx];
 }
 
-let currentChallenge = null;
-
 function showChallenge() {
     const challenge = getRandomChallenge();
     currentChallenge = challenge;
+    const feedbackDiv = document.getElementById('feedback');
+    feedbackDiv.innerHTML = '';
+    feedbackDiv.className = 'feedback';
+
     if(!challenge) {
         document.getElementById('question').innerText = `Simulation beendet! Du hast ${score} Punkte erreicht.`;
         document.getElementById('userInput').style.display = 'none';
@@ -164,14 +159,21 @@ function showChallenge() {
 
 document.getElementById('submitBtn').addEventListener('click', () => {
     const input = document.getElementById('userInput').value;
+    const feedbackDiv = document.getElementById('feedback');
+
     if(currentChallenge.check(input)) {
         score++;
-        alert("Richtig!");
+        feedbackDiv.innerHTML = `Richtig ✅ <span class="correct-answer">Antwort: ${currentChallenge.explanation}</span>`;
+        feedbackDiv.classList.add('correct');
     } else {
-        alert("Falsch!");
+        feedbackDiv.innerHTML = `Falsch ❌ <span class="correct-answer">Richtige Antwort: ${currentChallenge.explanation}</span><br>Du hast eingegeben: ${input}`;
+        feedbackDiv.classList.add('wrong');
     }
+
     document.getElementById('score').innerText = score;
-    showChallenge();
+
+    // Nach kurzer Verzögerung zur nächsten Frage wechseln
+    setTimeout(showChallenge, 2000);
 });
 
 document.getElementById('skipBtn').addEventListener('click', () => {
@@ -180,3 +182,4 @@ document.getElementById('skipBtn').addEventListener('click', () => {
 </script>
 </body>
 </html>
+
