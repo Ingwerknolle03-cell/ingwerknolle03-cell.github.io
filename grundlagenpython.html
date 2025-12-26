@@ -3,246 +3,231 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Python Grundlagen Quiz</title>
+<title>Python Lern-Quiz & Handbuch</title>
 <style>
-    body {
-        font-family: 'Arial', sans-serif;
-        background: linear-gradient(120deg, #84fab0, #8fd3f4);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
-    }
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(120deg, #84fab0, #8fd3f4);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 50px 0;
+    margin: 0;
+}
 
-    .container {
-        background: white;
-        padding: 30px;
-        border-radius: 25px;
-        box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-        width: 450px;
-        text-align: center;
-        animation: fadeIn 1s;
-    }
+.container {
+    background: white;
+    padding: 30px;
+    border-radius: 25px;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    width: 700px;
+    max-width: 95%;
+    text-align: left;
+    animation: fadeIn 1s;
+}
 
-    @keyframes fadeIn {
-        from { opacity: 0; transform: scale(0.9);}
-        to { opacity: 1; transform: scale(1);}
-    }
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95);}
+    to { opacity: 1; transform: scale(1);}
+}
 
-    h1 {
-        color: #ff6f61;
-        margin-bottom: 20px;
-    }
+h1, h2, h3 {
+    color: #ff6f61;
+}
 
-    button {
-        background-color: #6a11cb;
-        color: white;
-        border: none;
-        padding: 12px 25px;
-        margin: 10px;
-        border-radius: 12px;
-        cursor: pointer;
-        font-size: 16px;
-        transition: 0.3s;
-    }
+h1 { text-align: center; margin-bottom: 20px; }
+h2 { margin-top: 20px; border-bottom: 2px solid #ff6f61; padding-bottom: 5px; }
+h3 { margin-top: 15px; color: #6a11cb; }
 
-    button:hover {
-        background-color: #2575fc;
-    }
+ul { margin-left: 20px; }
+code { background: #f3f3f3; padding: 2px 5px; border-radius: 4px; }
 
-    .tip-btn {
-        background-color: #ffb347;
-        color: #333;
-    }
+.button-container {
+    text-align: center;
+    margin-top: 20px;
+}
 
-    .tip-btn:hover {
-        background-color: #ffcc70;
-    }
+button {
+    background-color: #6a11cb;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    margin: 5px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+}
 
-    .answer-btn.correct { background-color: #4caf50; }
-    .answer-btn.wrong { background-color: #f44336; }
+button:hover { background-color: #2575fc; }
 
-    .score {
-        font-size: 18px;
-        margin-bottom: 20px;
-        color: #555;
-    }
+.section {
+    margin-bottom: 15px;
+}
 
-    .question {
-        font-size: 20px;
-        margin-bottom: 20px;
-    }
+.toc a {
+    color: #2575fc;
+    text-decoration: none;
+}
+.toc a:hover { text-decoration: underline; }
 
-    .handbook {
-        text-align: left;
-        margin-bottom: 20px;
-    }
+.highlight { background-color: #ffefd5; padding: 3px 5px; border-radius: 5px; }
 </style>
 </head>
 <body>
 
-<div class="container" id="startScreen">
-    <h1>Willkommen zum Python Lern-Quiz!</h1>
-    <p>Was möchtest du tun?</p>
-    <button onclick="showHandbook()">Handbuch lesen</button>
-    <button onclick="startQuiz()">Quiz starten</button>
-</div>
-
-<div class="container" id="handbookScreen" style="display:none;">
+<div class="container" id="handbookScreen">
     <h1>Python Handbuch</h1>
-    <div class="handbook">
+
+    <h2>Inhaltsverzeichnis</h2>
+    <div class="toc">
         <ul>
-            <li><b>Strings:</b> Text in Anführungszeichen, z.B. "Hallo Welt"</li>
-            <li><b>Integer:</b> Ganze Zahlen, z.B. 5, 42</li>
-            <li><b>Boolean:</b> Wahr/Falsch, z.B. True oder False</li>
-            <li><b>If-Abfrage:</b> Prüft eine Bedingung, z.B. <code>if x > 5:</code></li>
-            <li><b>While-Schleife:</b> Wiederholt Code solange Bedingung wahr ist</li>
-            <li><b>len():</b> Gibt die Länge eines Objekts zurück</li>
-            <li><b>Kommentare:</b> Mit # schreiben</li>
+            <li><a href="#basics">1. Grundlagen</a></li>
+            <li><a href="#variables">2. Variablen & Datentypen</a></li>
+            <li><a href="#operators">3. Operatoren</a></li>
+            <li><a href="#conditions">4. Bedingungen (if)</a></li>
+            <li><a href="#loops">5. Schleifen (for & while)</a></li>
+            <li><a href="#functions">6. Funktionen</a></li>
+            <li><a href="#lists">7. Listen & Dictionaries</a></li>
+            <li><a href="#strings">8. Strings</a></li>
+            <li><a href="#modules">9. Module & Bibliotheken</a></li>
+            <li><a href="#tips">10. Tipps & Best Practices</a></li>
         </ul>
     </div>
-    <button onclick="startQuiz()">Quiz starten</button>
-</div>
 
-<div class="container" id="quizScreen" style="display:none;">
-    <h1>Python Lern-Quiz</h1>
-    <div class="score">Punkte: <span id="score">0</span></div>
-    <div class="question" id="question">Lade Frage...</div>
-    <div id="answers"></div>
-    <button class="tip-btn" id="tipBtn">Tipp</button>
-    <button id="nextBtn" style="display:none;">Nächste Frage</button>
+    <h2 id="basics">1. Grundlagen</h2>
+    <div class="section">
+        <ul>
+            <li><b>Kommentare:</b> Mit <code>#</code> schreiben, z.B. <code># Das ist ein Kommentar</code></li>
+            <li><b>Einrückung:</b> Python verwendet Einrückung statt geschweifter Klammern</li>
+            <li><b>Print:</b> <code>print("Hallo Welt")</code> gibt Text aus</li>
+            <li><b>Python Version prüfen:</b> <code>python --version</code></li>
+        </ul>
+    </div>
+
+    <h2 id="variables">2. Variablen & Datentypen</h2>
+    <div class="section">
+        <ul>
+            <li><b>Integer:</b> Ganze Zahlen, z.B. <code>x = 5</code></li>
+            <li><b>Float:</b> Dezimalzahlen, z.B. <code>pi = 3.14</code></li>
+            <li><b>String:</b> Text in Anführungszeichen, z.B. <code>name = "Anna"</code></li>
+            <li><b>Boolean:</b> Wahr/Falsch, z.B. <code>is_active = True</code></li>
+        </ul>
+    </div>
+
+    <h2 id="operators">3. Operatoren</h2>
+    <div class="section">
+        <ul>
+            <li>Arithmetische Operatoren: <code>+, -, *, /, %, **, //</code></li>
+            <li>Vergleichsoperatoren: <code>==, !=, >, <, >=, <=</code></li>
+            <li>Logische Operatoren: <code>and, or, not</code></li>
+            <li>Zuweisung: <code>=, +=, -=, *=, /=</code></li>
+        </ul>
+    </div>
+
+    <h2 id="conditions">4. Bedingungen (if)</h2>
+    <div class="section">
+        <ul>
+            <li>Syntax: <code>if Bedingung:</code></li>
+            <li>Optional: <code>elif</code> und <code>else</code></li>
+            <li>Beispiel:
+                <pre>
+x = 10
+if x > 5:
+    print("Groß")
+else:
+    print("Klein")
+                </pre>
+            </li>
+        </ul>
+    </div>
+
+    <h2 id="loops">5. Schleifen (for & while)</h2>
+    <div class="section">
+        <ul>
+            <li><b>for-Schleife:</b> Iteration über eine Liste oder Range
+                <pre>
+for i in range(5):
+    print(i)
+                </pre>
+            </li>
+            <li><b>while-Schleife:</b> Wiederholt solange Bedingung True
+                <pre>
+x = 0
+while x &lt; 5:
+    print(x)
+    x += 1
+                </pre>
+            </li>
+        </ul>
+    </div>
+
+    <h2 id="functions">6. Funktionen</h2>
+    <div class="section">
+        <ul>
+            <li>Definition: <code>def meine_funktion():</code></li>
+            <li>Beispiel:
+                <pre>
+def add(a, b):
+    return a + b
+
+print(add(3,4))  # 7
+                </pre>
+            </li>
+        </ul>
+    </div>
+
+    <h2 id="lists">7. Listen & Dictionaries</h2>
+    <div class="section">
+        <ul>
+            <li><b>Liste:</b> <code>numbers = [1,2,3]</code></li>
+            <li>Zugriff: <code>numbers[0]</code></li>
+            <li><b>Dictionay:</b> <code>person = {"name":"Anna", "age":25}</code></li>
+            <li>Zugriff: <code>person["name"]</code></li>
+        </ul>
+    </div>
+
+    <h2 id="strings">8. Strings</h2>
+    <div class="section">
+        <ul>
+            <li>Verkettung: <code>"Hallo " + "Welt"</code></li>
+            <li>Länge: <code>len("Hallo")</code></li>
+            <li>Indexing: <code>s[0]</code> für erstes Zeichen</li>
+            <li>Formatierung: <code>f"Name: {name}"</code></li>
+        </ul>
+    </div>
+
+    <h2 id="modules">9. Module & Bibliotheken</h2>
+    <div class="section">
+        <ul>
+            <li>Import: <code>import math</code></li>
+            <li>Benutzen: <code>math.sqrt(16)</code></li>
+            <li>Eigene Module erstellen mit <code>.py</code> Dateien</li>
+        </ul>
+    </div>
+
+    <h2 id="tips">10. Tipps & Best Practices</h2>
+    <div class="section">
+        <ul>
+            <li>Kommentare für Übersichtlichkeit nutzen</li>
+            <li>Variablen sinnvoll benennen</li>
+            <li>Einrückung korrekt verwenden</li>
+            <li>Regelmäßig testen und debuggen</li>
+            <li>Dokumentation und Online-Ressourcen lesen</li>
+        </ul>
+    </div>
+
+    <div class="button-container">
+        <button onclick="startQuiz()">Zum Quiz</button>
+    </div>
 </div>
 
 <script>
-const questions = [
-    {
-        question: "Welcher Datentyp ist: 'Hallo Welt'?",
-        answers: [
-            { text: "String", correct: true },
-            { text: "Integer", correct: false },
-            { text: "Boolean", correct: false },
-        ],
-        tip: "Es ist eine Reihe von Buchstaben in Anführungszeichen."
-    },
-    {
-        question: "Was ergibt True?",
-        answers: [
-            { text: "5 > 3", correct: true },
-            { text: "2 == 5", correct: false },
-            { text: "'abc' == 'def'", correct: false },
-        ],
-        tip: "Denk daran, dass 5 größer als 3 ist."
-    },
-    {
-        question: "Wie beginnt man eine if-Abfrage?",
-        answers: [
-            { text: "if Bedingung:", correct: true },
-            { text: "while Bedingung:", correct: false },
-            { text: "for i in range():", correct: false },
-        ],
-        tip: "Du prüfst zuerst eine Bedingung."
-    },
-    {
-        question: "Wie startet man eine while-Schleife?",
-        answers: [
-            { text: "while Bedingung:", correct: true },
-            { text: "if Bedingung:", correct: false },
-            { text: "for i in range():", correct: false },
-        ],
-        tip: "Solange etwas wahr ist, soll die Schleife laufen."
-    },
-    {
-        question: "Was macht 'len()' in Python?",
-        answers: [
-            { text: "Gibt die Länge eines Objekts zurück", correct: true },
-            { text: "Vergleicht zwei Werte", correct: false },
-            { text: "Startet eine Schleife", correct: false },
-        ],
-        tip: "Du willst wissen, wie viele Elemente etwas hat."
-    },
-    {
-        question: "Wie schreibt man einen Kommentar?",
-        answers: [
-            { text: "# Das ist ein Kommentar", correct: true },
-            { text: "// Das ist ein Kommentar", correct: false },
-            { text: "<!-- Kommentar -->", correct: false },
-        ],
-        tip: "Spinnennetze sind fast durchsichtig, sodass die Konsole sie nicht sieht. # sieht doch fast aus wie ein Spinnennetz."
-    },
-    {
-        question: "Was macht '==' in Python?",
-        answers: [
-            { text: "Prüft auf Gleichheit", correct: true },
-            { text: "Weist einen Wert zu", correct: false },
-            { text: "Addiert zwei Zahlen", correct: false },
-        ],
-        tip: "Doppelte Gleichzeichen prüfen, ob zwei Dinge gleich sind."
-    }
-];
-
-let score = 0;
-let askedQuestions = [];
-
-function showHandbook() {
-    document.getElementById('startScreen').style.display = 'none';
-    document.getElementById('handbookScreen').style.display = 'block';
-}
-
 function startQuiz() {
-    document.getElementById('startScreen').style.display = 'none';
-    document.getElementById('handbookScreen').style.display = 'none';
-    document.getElementById('quizScreen').style.display = 'block';
-    showQuestion();
+    window.location.href = "#quizScreen";
 }
-
-function getRandomQuestion() {
-    let remainingQuestions = questions.filter((_, i) => !askedQuestions.includes(i));
-    if (remainingQuestions.length === 0) return null;
-    let idx = Math.floor(Math.random() * remainingQuestions.length);
-    let realIdx = questions.indexOf(remainingQuestions[idx]);
-    askedQuestions.push(realIdx);
-    return questions[realIdx];
-}
-
-function showQuestion() {
-    document.getElementById('nextBtn').style.display = 'none';
-    const q = getRandomQuestion();
-    if (!q) {
-        document.getElementById('question').innerText = `Tägliches Quiz beendet! Heut hast du ${score} Punkte erreicht.`;
-        document.getElementById('answers').innerHTML = '';
-        document.getElementById('tipBtn').style.display = 'none';
-        return;
-    }
-
-    document.getElementById('question').innerText = q.question;
-    document.getElementById('answers').innerHTML = '';
-
-    q.answers = q.answers.sort(() => Math.random() - 0.5);
-    q.answers.forEach(answer => {
-        const btn = document.createElement('button');
-        btn.innerText = answer.text;
-        btn.classList.add('answer-btn');
-        btn.addEventListener('click', () => selectAnswer(answer.correct, btn));
-        document.getElementById('answers').appendChild(btn);
-    });
-
-    document.getElementById('tipBtn').onclick = () => alert("Tipp: " + q.tip);
-}
-
-function selectAnswer(correct, btn) {
-    if(correct) {
-        score++;
-        btn.classList.add('correct');
-    } else {
-        btn.classList.add('wrong');
-    }
-    document.getElementById('score').innerText = score;
-    Array.from(document.getElementById('answers').children).forEach(button => button.disabled = true);
-    document.getElementById('nextBtn').style.display = 'block';
-}
-
-document.getElementById('nextBtn').addEventListener('click', showQuestion);
 </script>
+
 </body>
 </html>
+
