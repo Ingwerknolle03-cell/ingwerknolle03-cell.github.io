@@ -32,10 +32,7 @@ body {
     to { opacity: 1; transform: scale(1);}
 }
 
-h1, h2, h3 {
-    color: #ff6f61;
-}
-
+h1, h2, h3 { color: #ff6f61; }
 h1 { text-align: center; margin-bottom: 20px; }
 h2 { margin-top: 20px; border-bottom: 2px solid #ff6f61; padding-bottom: 5px; }
 h3 { margin-top: 15px; color: #6a11cb; }
@@ -43,11 +40,7 @@ h3 { margin-top: 15px; color: #6a11cb; }
 ul { margin-left: 20px; }
 code { background: #f3f3f3; padding: 2px 5px; border-radius: 4px; }
 
-.button-container {
-    text-align: center;
-    margin-top: 20px;
-}
-
+.button-container { text-align: center; margin-top: 20px; }
 button {
     background-color: #6a11cb;
     color: white;
@@ -59,60 +52,125 @@ button {
     font-size: 16px;
     transition: 0.3s;
 }
-
 button:hover { background-color: #2575fc; }
 
-.tip-btn {
-    background-color: #ffb347;
-    color: #333;
-}
-
-.tip-btn:hover {
-    background-color: #ffcc70;
-}
+.tip-btn { background-color: #ffb347; color: #333; }
+.tip-btn:hover { background-color: #ffcc70; }
 
 .answer-btn.correct { background-color: #4caf50; color: white; }
 .answer-btn.wrong { background-color: #f44336; color: white; }
 
-.score {
-    font-size: 18px;
-    margin-bottom: 20px;
-    color: #555;
-}
-
-.question {
-    font-size: 20px;
-    margin-bottom: 20px;
-}
-
-.toc a {
-    color: #2575fc;
-    text-decoration: none;
-}
+.score { font-size: 18px; margin-bottom: 20px; color: #555; }
+.question { font-size: 20px; margin-bottom: 20px; }
+.toc a { color: #2575fc; text-decoration: none; }
 .toc a:hover { text-decoration: underline; }
-
-.feedback {
-    margin-top: 10px;
-    font-weight: bold;
-}
-
-#tipDisplay {
-    margin-top: 10px;
-    font-style: italic;
-    color: #555;
-}
+.feedback { margin-top: 10px; font-weight: bold; }
 </style>
 </head>
 <body>
 
-<!-- Handbuch -->
-<div class="container" id="handbookScreen">
-    <h1>Python Handbuch</h1>
-
-    <!-- hier kommt der rest vom Handbuch genauso wie vorher -->
-
+<!-- Startbildschirm -->
+<div class="container" id="startScreen">
+    <h1>Willkommen zum Python Lern-Quiz!</h1>
+    <p>Wähle, was du zuerst machen möchtest:</p>
     <div class="button-container">
-        <button onclick="startQuiz()">Zum Quiz</button>
+        <button onclick="showHandbook()">Handbuch ansehen</button>
+        <button onclick="startQuiz()">Quiz starten</button>
+    </div>
+</div>
+
+<!-- Handbuch -->
+<div class="container" id="handbookScreen" style="display:none;">
+    <h1>Python Handbuch</h1>
+    <h2>Inhaltsverzeichnis</h2>
+    <div class="toc">
+        <ul>
+            <li><a href="#basics">1. Grundlagen</a></li>
+            <li><a href="#variables">2. Variablen & Datentypen</a></li>
+            <li><a href="#operators">3. Operatoren</a></li>
+            <li><a href="#conditions">4. Bedingungen (if)</a></li>
+            <li><a href="#loops">5. Schleifen</a></li>
+            <li><a href="#functions">6. Funktionen</a></li>
+            <li><a href="#lists">7. Listen & Dictionaries</a></li>
+            <li><a href="#strings">8. Strings</a></li>
+            <li><a href="#modules">9. Module</a></li>
+            <li><a href="#tips">10. Tipps</a></li>
+        </ul>
+    </div>
+    <h2 id="basics">1. Grundlagen</h2>
+    <ul>
+        <li>Kommentare: <code># Kommentar</code></li>
+        <li>Einrückung wichtig</li>
+        <li>Print: <code>print("Hallo Welt")</code></li>
+    </ul>
+    <h2 id="variables">2. Variablen & Datentypen</h2>
+    <ul>
+        <li>Integer: <code>x = 5</code></li>
+        <li>Float: <code>pi = 3.14</code></li>
+        <li>String: <code>name = "Anna"</code></li>
+        <li>Boolean: <code>is_active = True</code></li>
+    </ul>
+    <h2 id="operators">3. Operatoren</h2>
+    <ul>
+        <li>+ , - , * , / , %, ** , //</li>
+        <li>== , != , > , < , >= , <=</li>
+        <li>and , or , not</li>
+    </ul>
+    <h2 id="conditions">4. Bedingungen</h2>
+    <pre>
+x = 10
+if x > 5:
+    print("Groß")
+else:
+    print("Klein")
+    </pre>
+    <h2 id="loops">5. Schleifen</h2>
+    <pre>
+for i in range(5):
+    print(i)
+
+x = 0
+while x &lt; 5:
+    print(x)
+    x += 1
+    </pre>
+    <h2 id="functions">6. Funktionen</h2>
+    <pre>
+def add(a, b):
+    return a + b
+
+print(add(3,4))  # 7
+    </pre>
+    <h2 id="lists">7. Listen & Dictionaries</h2>
+    <pre>
+numbers = [1,2,3]
+print(numbers[0])
+
+person = {"name":"Anna","age":25}
+print(person["name"])
+    </pre>
+    <h2 id="strings">8. Strings</h2>
+    <pre>
+"Hallo " + "Welt"
+len("Hallo")
+s[0]
+f"Name: {name}"
+    </pre>
+    <h2 id="modules">9. Module & Bibliotheken</h2>
+    <pre>
+import math
+math.sqrt(16)
+    </pre>
+    <h2 id="tips">10. Tipps & Best Practices</h2>
+    <ul>
+        <li>Kommentare verwenden</li>
+        <li>Variablen sinnvoll benennen</li>
+        <li>Einrückung korrekt</li>
+        <li>Regelmäßig testen</li>
+        <li>Dokumentation lesen</li>
+    </ul>
+    <div class="button-container">
+        <button onclick="startQuiz()">Quiz starten</button>
     </div>
 </div>
 
@@ -122,29 +180,46 @@ button:hover { background-color: #2575fc; }
     <div class="score">Punkte: <span id="score">0</span></div>
     <div class="question" id="question">Lade Frage...</div>
     <div id="answers"></div>
-    <div id="tipDisplay"></div>
     <div id="feedback" class="feedback"></div>
-    <button class="tip-btn" id="tipBtn">Tipp</button>
-    <button id="nextBtn" style="display:none;">Nächste Frage</button>
+    <div class="button-container">
+        <button class="tip-btn" id="tipBtn">Tipp anzeigen</button>
+        <button id="nextBtn" style="display:none;">Nächste Frage</button>
+    </div>
 </div>
 
 <script>
-// Fragen hier einfügen wie vorher
-const questions = [
-    // ... deine Fragen ...
-];
-
-let score = 0;
-let askedQuestions = [];
-let currentQuestion = null;
-let questionTimeout = null;
+// Screens
+function showHandbook() {
+    document.getElementById('startScreen').style.display = 'none';
+    document.getElementById('handbookScreen').style.display = 'block';
+}
 
 function startQuiz() {
+    document.getElementById('startScreen').style.display = 'none';
     document.getElementById('handbookScreen').style.display = 'none';
     document.getElementById('quizScreen').style.display = 'block';
     showQuestion();
 }
 
+// Quizfragen
+const questions = [
+  {question:"Was ist das Ergebnis von 3 + 2 * 2?", answers:[{text:"7", correct:true},{text:"10", correct:false},{text:"8", correct:false},{text:"9", correct:false}], tip:"Denke an Punkt-vor-Strich-Rechnung."},
+  {question:"Welche Variable ist korrekt benannt?", answers:[{text:"mein_name", correct:true},{text:"2name", correct:false},{text:"mein-name", correct:false},{text:"mein name", correct:false}], tip:"Variablen dürfen nicht mit Zahlen anfangen und keine Leerzeichen enthalten."},
+  {question:"Welche Ausgabe erzeugt print(len('Python'))?", answers:[{text:"6", correct:true},{text:"5", correct:false},{text:"7", correct:false},{text:"8", correct:false}], tip:"Zähle die Buchstaben in 'Python'."},
+  {question:"Welches Zeichen wird für Kommentare genutzt?", answers:[{text:"#", correct:true},{text:"//", correct:false},{text:"/* */", correct:false},{text:"<!-- -->", correct:false}], tip:"In Python beginnt ein Kommentar mit #."},
+  {question:"Was ergibt True and False?", answers:[{text:"False", correct:true},{text:"True", correct:false},{text:"0", correct:false},{text:"1", correct:false}], tip:"Bei 'and' müssen beide Bedingungen True sein."},
+  {question:"Wie erstellt man eine Liste mit Zahlen 1 bis 5?", answers:[{text:"[1,2,3,4,5]", correct:true},{text:"(1,2,3,4,5)", correct:false},{text:"{1,2,3,4,5}", correct:false},{text:"range(5)", correct:false}], tip:"Listen werden mit eckigen Klammern erstellt."},
+  {question:"Wie prüft man, ob x gleich 10 ist?", answers:[{text:"x == 10", correct:true},{text:"x = 10", correct:false},{text:"x != 10", correct:false},{text:"x >= 10", correct:false}], tip:"Doppelte Gleichzeichen prüfen Gleichheit."},
+  {question:"Welche Schleife nutzt man, wenn man unbekannt oft wiederholen will?", answers:[{text:"while", correct:true},{text:"for", correct:false},{text:"if", correct:false},{text:"switch", correct:false}], tip:"While-Schleife läuft solange Bedingung True ist."},
+  {question:"Wie gibt man den ersten Buchstaben eines Strings s aus?", answers:[{text:"s[0]", correct:true},{text:"s(0)", correct:false},{text:"s.first()", correct:false},{text:"s{0}", correct:false}], tip:"Python nutzt Indexing mit eckigen Klammern."},
+  {question:"Was passiert, wenn man print('5' + '3') ausführt?", answers:[{text:"53", correct:true},{text:"8", correct:false},{text:"TypeError", correct:false},{text:"5 3", correct:false}], tip:"Strings werden bei + verkettet, nicht addiert."}
+];
+
+let score = 0;
+let askedQuestions = [];
+let currentQuestion = null;
+
+// Quizfunktionen
 function getRandomQuestion() {
     let remaining = questions.filter((_, i) => !askedQuestions.includes(i));
     if (remaining.length === 0) return null;
@@ -155,13 +230,8 @@ function getRandomQuestion() {
 }
 
 function showQuestion() {
-    // Alte Timeout abbrechen
-    if (questionTimeout) clearTimeout(questionTimeout);
-
     document.getElementById('nextBtn').style.display = 'none';
     document.getElementById('feedback').innerHTML = '';
-    document.getElementById('tipDisplay').innerHTML = '';
-
     const q = getRandomQuestion();
     currentQuestion = q;
     const answersDiv = document.getElementById('answers');
@@ -174,7 +244,6 @@ function showQuestion() {
     }
 
     document.getElementById('question').innerText = q.question;
-
     q.answers = q.answers.sort(() => Math.random() - 0.5);
     q.answers.forEach(answer => {
         const btn = document.createElement('button');
@@ -184,15 +253,12 @@ function showQuestion() {
         answersDiv.appendChild(btn);
     });
 
-    // Tipp im Div anzeigen
     document.getElementById('tipBtn').onclick = () => {
-        document.getElementById('tipDisplay').innerHTML = `<i>Tipp:</i> ${q.tip}`;
+        document.getElementById('feedback').innerHTML = `<b>Tipp:</b> ${q.tip}`;
     };
 }
 
 function selectAnswer(btn, q) {
-    if (questionTimeout) clearTimeout(questionTimeout);
-
     const buttons = Array.from(document.getElementById('answers').children);
     buttons.forEach(b => {
         b.disabled = true;
@@ -204,19 +270,11 @@ function selectAnswer(btn, q) {
 
     document.getElementById('score').innerText = score;
     document.getElementById('feedback').innerHTML = `Richtige Antwort: <b>${q.answers.find(a => a.correct).text}</b>`;
-    document.getElementById('nextBtn').style.display = 'block';
-
-    // Automatisch nach 5 Sekunden zur nächsten Frage
-    questionTimeout = setTimeout(showQuestion, 5000);
+    document.getElementById('nextBtn').style.display = 'inline-block';
 }
 
-// Wenn man auf "Nächste Frage" klickt, sofort weiter und Timeout abbrechen
-document.getElementById('nextBtn').addEventListener('click', () => {
-    if (questionTimeout) clearTimeout(questionTimeout);
-    showQuestion();
-});
+document.getElementById('nextBtn').addEventListener('click', showQuestion);
 </script>
 
 </body>
 </html>
-
