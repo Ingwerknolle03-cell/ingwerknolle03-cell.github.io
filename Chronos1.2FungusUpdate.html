@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<title>Chronos</title>
+<style>
+  /* Grundlayout */
+  body {
+    margin: 0; padding: 0;
+    font-family: monospace;
+    background: #111;
+    color: #0f0;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+  #mainPanel {
+    flex: 2.5;
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    border-right: 2px solid #0f0;
+    box-sizing: border-box;
+  }
+  #sidePanel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #000;
+    border-left: 2px solid #0f0;
+    padding: 15px;
+    box-sizing: border-box;
+    gap: 12px; /* Abstand zwischen den Sektionen */
+  }
+  h1, h2 {
+    margin: 0 0 10px 0;
+  }
+  #log {
+    flex: 1;
+    background: #000;
+    border: 1px solid #0f0;
+    padding: 10px;
+    margin-bottom: 10px;
+    overflow-y: auto;
+    white-space: pre-line;
+    font-size: 14px;
+  }
+  #tableContainer {
+    background: #000;
+    border: 1px solid #0f0;
+    padding: 8px;
+    font-size: 14px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #0f0;
+  }
+  th, td {
+    border: 1px solid #0f0;
+    padding: 4px 6px;
+    text-align: left;
+  }
+
+  /* Pflanzen- und Tier-Sektionen im SidePanel */
+  #plantsSection, #animalsSection {
+    border: 1px solid #0f0;
+    padding: 10px;
+    flex: 1; /* gleich hohe Boxen */
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    overflow-y: auto;
+  }
+  #plantsSection h2, #animalsSection h2 {
+    margin-bottom: 10px;
+    font-weight: bold;
+    font-size: 1.2em;
+  }
+  #plantsButtons, #animalsButtons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    overflow-y: auto;
+  }
+
+  /* Buttons */
+  button.ecoButton {
+    background: #111;
+    border: 1px solid #0f0;
+    color: #0f0;
+    padding: 6px 10px;
+    font-size: 13px;
+    cursor: pointer;
+    min-width: 110px;
+    user-select: none;
+    text-align: center;
+  }
+  button.ecoButton:hover {
+    background: #0a0;
+  }
+
+  /* Steuerungs-Buttons Container */
+  #controlButtons {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  #controlButtons button {
+    background: #0a0;
+    color: #000;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-family: monospace;
+    font-weight: bold;
+  }
+
+  #controlButtons button:hover {
+    background: #070;
+  }
+
+  /* Zeitgeschwindigkeit-Auswahl */
+  #timeSpeed {
+    position: fixed;
+    top: 8px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    color: #0a0;
+    font-size: 12px;
+    font-family: monospace;
+    opacity: 0.3;
+    cursor: pointer;
+    outline: none;
+    user-select: none;
+  }
+  #timeSpeed:hover {
+    opacity: 1;
+  }
+
+  /* Scrollbars dunkel/grün */
+  #plantsButtons::-webkit-scrollbar,
+  #animalsButtons::-webkit-scrollbar,
+  #log::-webkit-scrollbar,
+  #tableContainer::-webkit-scrollbar {
+    width: 10px;
+  }
+  #plantsButtons::-webkit-scrollbar-thumb,
+  #animalsButtons::-webkit-scrollbar-thumb,
+  #log::-webkit-scrollbar-thumb,
+  #tableContainer::-webkit-scrollbar-thumb {
+    background-color: #064006;
+    border-radius: 5px;
+  }
+  #plantsButtons::-webkit-scrollbar-track,
+  #animalsButtons::-webkit-scrollbar-track,
+  #log::-webkit-scrollbar-track,
+  #tableContainer::-webkit-scrollbar-track {
+    background: #001000;
+  }
+</style>
+</head>
+<body>
+
+<div id="mainPanel" role="main" aria-label="Hauptbereich Kronos Ökosystem">
+  <h1>Chronos</h1>
+  <div id="log" aria-live="polite" aria-label="Welt Log"></div>
+  <div id="tableContainer" aria-label="Ökosystem Übersicht">
+    <table>
+      <thead>
+        <tr><th>Typ</th><th>Name</th><th>Anzahl</th></tr>
+      </thead>
+      <tbody id="ecoTableBody"></tbody>
+    </table>
+  </div>
+
+  <div id="controlButtons">
+    <button id="saveBtn" title="Spiel speichern (Datei exportieren)">
+      Speichern
+    </button>
+    <button id="loadBtn" title="Spiel laden (Datei importieren)">
+      Laden
+    </button>
+    <button id="startStopBtn" title="Simulation starten / stoppen">
+      Aufblühen
+    </button>
+  </div>
+  <input type="file" id="fileInput" style="display:none;" accept=".json" />
+</div>
+
+<div id="sidePanel" role="complementary" aria-label="Pflanzen und Tiere hinzufügen">
+  <section id="plantsSection" role="region" aria-label="Pflanzen hinzufügen">
+    <h2>Pflanzen hinzufügen</h2>
+    <div id="plantsButtons" role="list"></div>
+  </section>
+  <section id="animalsSection" role="region" aria-label="Tiere hinzufügen">
+    <h2>Tiere hinzufügen</h2>
+    <div id="animalsButtons" role="list"></div>
+  </section>
+</div>
+
+<select id="timeSpeed" title="Zeitgeschwindigkeit" aria-label="Zeitgeschwindigkeit">
+  <option value="60000" selected>1 Jahr = 1 Minute </option>
+  <option value="31536000000">1 Jahr = 1 Jahr</option>
+</select>
+
+<script>
+(() => {
+  const log = document.getElementById('log');
+  const ecoTableBody = document.getElementById('ecoTableBody');
+  const plantsButtons = document.getElementById('plantsButtons');
+  const animalsButtons = document.getElementById('animalsButtons');
+  const timeSpeedSelect = document.getElementById('timeSpeed');
+  const saveBtn = document.getElementById('saveBtn');
+  const loadBtn = document.getElementById('loadBtn');
+  const fileInput = document.getElementById('fileInput');
+  const startStopBtn = document.getElementById('startStopBtn');
+
+  let interval = null;
+  let simulationRunning = true;
+
+  // Pflanzen 
+  const pflanzenListe = [
+    "Farne",
+    "Moose",
+    "Schachtelhalme",
+    "Palmen",
+    "Lilien",
+    "Kiefern",
+    "Eichen",
+    "Fichten",
+    "Gräser",
+    "Sumpfgräser",
+    "Kakteen",
+  ];
+
+  // Tiere 
+  const tierListe = [
+    "Blattläuse",
+    "Riesenlibellen",
+    "Isopoden",
+    "Plankton",
+    "Krebse",
+    "Fische",
+    "Spinnen",
+    "Echsen",
+    "Ameisen",
+    "Regenwürmer",
+    "Marienkäfer",
+    "Quallen",
+    "Vögel",
+    "Igel",
+    "Raupen",
+    "Käfer",
+    "Pilze"
+  ];
+
+  // Individuelle Wachstumsraten für Pflanzen
+  const pflanzenWachstumsraten = {
+    "Farne": 0.19,
+    "Moose": 0.18,
+    "Schachtelhalme": 0.1,
+    "Palmen": 0.1,
+    "Lilien": 0.1,
+    "Kiefern": 0.08,
+    "Eichen": 0.05,
+    "Fichten": 0.07,
+    "Gräser": 0.5,
+    "Sumpfgräser": 0.09,
+    "Kakteen": 0.05,
+  };
+
+  let welt = {
+    pflanzen: {},
+    tiere: {},
+    jahre: 0,
+    status: 'Karge Erde',
+  };
+
+  function logSchreiben(text) {
+    log.innerText += `[Jahr ${welt.jahre}] ${text}\n`;
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function tabelleAktualisieren() {
+    ecoTableBody.innerHTML = "";
+    Object.entries(welt.pflanzen).forEach(([name, anzahl]) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>Pflanze</td><td>${name}</td><td>${anzahl}</td>`;
+      ecoTableBody.appendChild(tr);
+    });
+    Object.entries(welt.tiere).forEach(([name, anzahl]) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>Tier</td><td>${name}</td><td>${anzahl}</td>`;
+      ecoTableBody.appendChild(tr);
+    });
+  }
+
+  function wachstum(name, art) {
+    const max = 1000;
+    const aktuell = (art === "pflanzen" ? welt.pflanzen[name] : welt.tiere[name]) || 0;
+
+    if (aktuell === 0) return 0;
+
+    // Blattläuse verdoppeln sich viel schneller
+    if (name === "Blattläuse") {
+      const zuwachs = aktuell; // Verdoppeln
+      return aktuell + zuwachs > max ? max - aktuell : zuwachs;
+    }
+
+    // Plankton verdoppelt sich viel schneller
+    if (name === "Plankton") {
+      const zuwachs = aktuell; // Verdoppeln
+      return aktuell + zuwachs > max ? max - aktuell : zuwachs;
+    }
+    
+    // Pflanzen wachsen individuell mit ihrer Rate
+    if (art === "pflanzen") {
+      const rate = pflanzenWachstumsraten[name] || 0.19; // Default 0.1 falls nicht definiert
+      const zuwachs = Math.floor(rate * aktuell * (1 - aktuell / max));
+      return zuwachs > 0 ? zuwachs : 0;
+    }
+
+    // Tiere wachsen pauschal mit 0.11
+    const rate = 0.18;
+    const zuwachs = Math.floor(rate * aktuell * (1 - aktuell / max));
+    return zuwachs > 0 ? zuwachs : 0;
+  }
+
+  function kreislaufInteraktionen() {
+    // Blattläuse schwächen Pflanzen
+    if (welt.tiere["Blattläuse"] && Object.values(welt.pflanzen).reduce((a,b)=>a+b,0) > 0) {
+      const pflanzenGesamt = Object.entries(welt.pflanzen)
+        .reduce((sum, [_, anzahl]) => sum + anzahl, 0);
+      const schadensrate = 0.05;
+      const schadenTotal = Math.floor(welt.tiere["Blattläuse"] * schadensrate);
+      if (schadenTotal > 0) {
+        Object.entries(welt.pflanzen).forEach(([pflanze, anzahl]) => {
+          const anteil = anzahl / pflanzenGesamt;
+          const verlust = Math.min(anzahl, Math.floor(schadenTotal * anteil));
+          if (verlust > 0) {
+            welt.pflanzen[pflanze] -= verlust;
+            logSchreiben(`Pflanzen ${pflanze} werden durch Blattläuse geschwächt (-${verlust}).`);
+          }
+        });
+      }
+    }
+
+    if (welt.pflanzen["Kakteen"]) {
+  const anderePflanzen = Object.keys(welt.pflanzen).filter(p => p !== "Kakteen");
+  const konkurrenz = anderePflanzen.reduce((sum, p) => sum + welt.pflanzen[p], 0);
+  if (konkurrenz < 80) {
+    const bonus = Math.min(5, 1000 - welt.pflanzen["Kakteen"]);
+    welt.pflanzen["Kakteen"] += bonus;
+    logSchreiben(`Kakteen nutzen die Leere und breiten sich aus (+${bonus}).`);
+  }
+}
+
+// Raupen fressen Eichen
+  if (welt.tiere["Raupen"] && welt.pflanzen["Eichen"]) {
+    const frassrate = 0.1;
+    const verlust = Math.min(welt.pflanzen["Eichen"], Math.floor(welt.tiere["Raupen"] * frassrate));
+    if (verlust > 0) {
+      welt.pflanzen["Eichen"] -= verlust;
+      logSchreiben(`Raupen fressen an den Eichen (-${verlust}).`);
+    }
+  }
+
+  // Gras geht ein, wenn zu viele Bäume da sind
+if (welt.pflanzen["Gräser"]) {
+  const baeume = (welt.pflanzen["Eichen"] || 0) + (welt.pflanzen["Palmen"] || 0) + (welt.pflanzen["Kakteen"] || 0) + (welt.pflanzen["Fichten"] || 0) + (welt.pflanzen["Kiefern"] || 0); // ggf. andere Bäume ergänzen
+  const gras = welt.pflanzen["Gräser"];
+  const gesamtPflanzen = Object.values(welt.pflanzen).reduce((a, b) => a + b, 0);
+
+  const baumAnteil = baeume / gesamtPflanzen;
+
+  if (baumAnteil > 0.4) { // Wenn mehr als 40% aller Pflanzen Bäume sind
+    const verlust = Math.floor(gras * 0.1); // 10% des Grases stirbt
+    if (verlust > 0) {
+      welt.pflanzen["Gräser"] -= verlust;
+      logSchreiben(`Zu viele Bäume verdrängen das Graß (-${verlust}).`);
+      if (welt.pflanzen["Gräser"] === 0) logSchreiben("Alles Graß ist verschwunden!");
+    }
+  }
+}
+
+  // Pilze schaden manchmal Kiefern (Parasiten)
+if (welt.tiere["Pilze"] && welt.pflanzen["Kiefern"]) {
+  const schadensChance = 0.3; // 30% Chance, dass Pilze schaden
+  if (Math.random() < schadensChance) {
+    const schadensrate = 0.1;
+    const geschadet = Math.min(welt.pflanzen["Kiefern"], Math.floor(welt.tiere["Pilze"] * schadensrate));
+    if (geschadet > 0) {
+      welt.pflanzen["Kiefern"] -= geschadet;
+      logSchreiben(`Pilze schaden Kiefern (-${geschadet}).`);
+      if (welt.pflanzen["Kiefern"] === 0) logSchreiben("Alle Kiefern sind ausgestorben!");
+    }
+  }
+}
+
+// Pilze helfen manchmal Kiefern (Symbiose)
+if (welt.tiere["Pilze"] && welt.pflanzen["Kiefern"]) {
+  const heilungsChance = 0.2; // 20% Chance, dass Pilze helfen
+  if (Math.random() < heilungsChance) {
+    const heilungsrate = 0.15;
+    const gewachsen = Math.floor(welt.tiere["Pilze"] * heilungsrate);
+    welt.pflanzen["Kiefern"] += gewachsen;
+    logSchreiben(`Pilze helfen Kiefern wachsen (+${gewachsen}).`);
+  }
+}
+
+// Pilze schaden manchmal Fichten (Parasiten)
+if (welt.tiere["Pilze"] && welt.pflanzen["Fichten"]) {
+  const schadensChance = 0.3; // 30% Chance, dass Pilze schaden
+  if (Math.random() < schadensChance) {
+    const schadensrate = 0.1;
+    const geschadet = Math.min(welt.pflanzen["Fichten"], Math.floor(welt.tiere["Pilze"] * schadensrate));
+    if (geschadet > 0) {
+      welt.pflanzen["Fichten"] -= geschadet;
+      logSchreiben(`Pilze schaden Fichten (-${geschadet}).`);
+      if (welt.pflanzen["Fichten"] === 0) logSchreiben("Alle Fichten sind ausgestorben!");
+    }
+  }
+}
+
+// Pilze helfen manchmal Fichten (Symbiose)
+if (welt.tiere["Pilze"] && welt.pflanzen["Fichten"]) {
+  const heilungsChance = 0.2; // 20% Chance, dass Pilze helfen
+  if (Math.random() < heilungsChance) {
+    const heilungsrate = 0.15;
+    const gewachsen = Math.floor(welt.tiere["Pilze"] * heilungsrate);
+    welt.pflanzen["Fichten"] += gewachsen;
+    logSchreiben(`Pilze helfen Fichten wachsen (+${gewachsen}).`);
+  }
+}
+
+ // Pilze schaden manchmal Eichen (Parasiten)
+if (welt.tiere["Pilze"] && welt.pflanzen["Eichen"]) {
+  const schadensChance = 0.3; // 30% Chance, dass Pilze schaden
+  if (Math.random() < schadensChance) {
+    const schadensrate = 0.1;
+    const geschadet = Math.min(welt.pflanzen["Eichen"], Math.floor(welt.tiere["Pilze"] * schadensrate));
+    if (geschadet > 0) {
+      welt.pflanzen["Eichen"] -= geschadet;
+      logSchreiben(`Pilze schaden Eichen (-${geschadet}).`);
+      if (welt.pflanzen["Eichen"] === 0) logSchreiben("Alle Eichen sind ausgestorben!");
+    }
+  }
+}
+
+// Pilze helfen manchmal Eichen (Symbiose)
+if (welt.tiere["Pilze"] && welt.pflanzen["Eichen"]) {
+  const heilungsChance = 0.2; // 20% Chance, dass Pilze helfen
+  if (Math.random() < heilungsChance) {
+    const heilungsrate = 0.15;
+    const gewachsen = Math.floor(welt.tiere["Pilze"] * heilungsrate);
+    welt.pflanzen["Eichen"] += gewachsen;
+    logSchreiben(`Pilze helfen Eichen wachsen (+${gewachsen}).`);
+  }
+}
+
+  // Krebse fressen Plankton
+if (welt.tiere["Krebse"] && welt.tiere["Plankton"]) {
+  const jagdrate = 0.15;
+  const gefressen = Math.min(welt.tiere["Plankton"], Math.floor(welt.tiere["Krebse"] * jagdrate));
+  if (gefressen > 0) {
+    welt.tiere["Plankton"] -= gefressen;
+    logSchreiben(`Krebse fressen Plankton (-${gefressen}).`);
+  }
+}
+
+// Fische fressen Krebse
+if (welt.tiere["Fische"] && welt.tiere["Krebse"]) {
+  const jagdrate = 0.1;
+  const gefressen = Math.min(welt.tiere["Krebse"], Math.floor(welt.tiere["Fische"] * jagdrate));
+  if (gefressen > 0) {
+    welt.tiere["Krebse"] -= gefressen;
+    logSchreiben(`Fische fressen Krebse (-${gefressen}).`);
+  }
+}
+
+// Vögel fressen Krebse
+if (welt.tiere["Vögel"] && welt.tiere["Krebse"]) {
+  const jagdrate = 0.08;
+  const gefressen = Math.min(welt.tiere["Krebse"], Math.floor(welt.tiere["Vögel"] * jagdrate));
+  if (gefressen > 0) {
+    welt.tiere["Krebse"] -= gefressen;
+    logSchreiben(`Vögel fressen Krebse (-${gefressen}).`);
+  }
+}
+
+
+  // Quallen fressen Plankton
+if (welt.tiere["Quallen"] && welt.tiere["Plankton"]) {
+  const jagdrate = 0.2;
+  const gefressen = Math.min(welt.tiere["Plankton"], Math.floor(welt.tiere["Quallen"] * jagdrate));
+  if (gefressen > 0) {
+    welt.tiere["Plankton"] -= gefressen;
+    logSchreiben(`Quallen fressen Plankton (-${gefressen}).`);
+  }
+}
+
+
+  // Quallen fressen Fische
+if (welt.tiere["Quallen"] && welt.tiere["Fische"]) {
+  const jagdrate = 0.1;
+  const gefressen = Math.min(welt.tiere["Fische"], Math.floor(welt.tiere["Quallen"] * jagdrate));
+  if (gefressen > 0) {
+    welt.tiere["Fische"] -= gefressen;
+    logSchreiben(`Quallen fressen Fische (-${gefressen}).`);
+  }
+}
+
+
+  // Vögel fressen Raupen
+if (welt.tiere["Vögel"] && welt.tiere["Raupen"]) {
+  const jagdrate = 0.2;
+  const gefressen = Math.min(welt.tiere["Raupen"], Math.floor(welt.tiere["Vögel"] * jagdrate));
+  if (gefressen > 0) {
+    welt.tiere["Raupen"] -= gefressen;
+    logSchreiben(`Vögel fressen Raupen (-${gefressen}).`);
+  }
+}
+
+// Vögel fressen Spinnen
+if (welt.tiere["Vögel"] && welt.tiere["Spinnen"]) {
+  const jagdrate = 0.2;
+  const gefressen = Math.min(welt.tiere["Spinnen"], Math.floor(welt.tiere["Vögel"] * jagdrate));
+  if (gefressen > 0) {
+    welt.tiere["Spinnen"] -= gefressen;
+    logSchreiben(`Vögel fressen Spinnen (-${gefressen}).`);
+  }
+}
+
+// Echsen fressen Spinnen
+if (welt.tiere["Echsen"] && welt.tiere["Spinnen"]) {
+  const jagdrate = 0.12;
+  const gefressen = Math.min(welt.tiere["Spinnen"], Math.floor(welt.tiere["Echsen"] * jagdrate));
+  if (gefressen > 0) {
+    welt.tiere["Spinnen"] -= gefressen;
+    logSchreiben(`Echsen fressen Spinnen (-${gefressen}).`);
+  }
+}
+
+// Echsen fressen Käfer
+if (welt.tiere["Echsen"] && welt.tiere["Käfer"]) {
+  const jagdrate = 0.1;
+  const gefressen = Math.min(welt.tiere["Käfer"], Math.floor(welt.tiere["Echsen"] * jagdrate));
+  if (gefressen > 0) {
+    welt.tiere["Käfer"] -= gefressen;
+    logSchreiben(`Echsen fressen Käfer (-${gefressen}).`);
+  }
+}
+
+// Echsen fressen Raupen
+if (welt.tiere["Echsen"] && welt.tiere["Raupen"]) {
+  const jagdrate = 0.08;
+  const gefressen = Math.min(welt.tiere["Raupen"], Math.floor(welt.tiere["Echsen"] * jagdrate));
+  if (gefressen > 0) {
+    welt.tiere["Raupen"] -= gefressen;
+    logSchreiben(`Echsen fressen Raupen (-${gefressen}).`);
+  }
+}
+
+// Echsen fressen Fliegen
+if (welt.tiere["Echsen"] && welt.tiere["Fliegen"]) {
+  const jagdrate = 0.07;
+  const gefressen = Math.min(welt.tiere["Fliegen"], Math.floor(welt.tiere["Echsen"] * jagdrate));
+  if (gefressen > 0) {
+    welt.tiere["Fliegen"] -= gefressen;
+    logSchreiben(`Echsen fressen Fliegen (-${gefressen}).`);
+  }
+}
+
+// Vögel fressen Echsen
+if (welt.tiere["Vögel"] && welt.tiere["Echsen"]) {
+  const jagdrate = 0.1;
+  const gefressen = Math.min(welt.tiere["Echsen"], Math.floor(welt.tiere["Vögel"] * jagdrate));
+  if (gefressen > 0) {
+    welt.tiere["Echsen"] -= gefressen;
+    logSchreiben(`Vögel fressen Echsen (-${gefressen}).`);
+  }
+}
+
+// Spinnen fressen Fliegen
+if (welt.tiere["Spinnen"] && welt.tiere["Fliegen"]) {
+  const jagdrate = 0.1;
+  const gefressen = Math.min(welt.tiere["Fliegen"], Math.floor(welt.tiere["Spinnen"] * jagdrate));
+  if (gefressen > 0) {
+    welt.tiere["Fliegen"] -= gefressen;
+    logSchreiben(`Spinnen fressen Fliegen (-${gefressen}).`);
+  }
+}
+
+// Spinnen fressen Raupen
+if (welt.tiere["Spinnen"] && welt.tiere["Raupen"]) {
+  const jagdrate = 0.08;
+  const gefressen = Math.min(welt.tiere["Raupen"], Math.floor(welt.tiere["Spinnen"] * jagdrate));
+  if (gefressen > 0) {
+    welt.tiere["Raupen"] -= gefressen;
+    logSchreiben(`Spinnen fressen Raupen (-${gefressen}).`);
+  }
+}
+
+  // Vögel fressen Raupen
+  if (welt.tiere["Vögel"] && welt.tiere["Raupen"]) {
+    const jagdrate = 0.2;
+    const gefressen = Math.min(welt.tiere["Raupen"], Math.floor(welt.tiere["Vögel"] * jagdrate));
+    if (gefressen > 0) {
+      welt.tiere["Raupen"] -= gefressen;
+      logSchreiben(`Vögel fressen Raupen (-${gefressen}).`);
+    }
+  }
+
+  // Vögel fressen Ameisen
+if (welt.tiere["Vögel"] && welt.tiere["Ameisen"]) {
+  const jagdrate = 0.15;
+  const gefressen = Math.min(welt.tiere["Ameisen"], Math.floor(welt.tiere["Vögel"] * jagdrate));
+  if (gefressen > 0) {
+    welt.tiere["Ameisen"] -= gefressen;
+    logSchreiben(`Vögel fressen Ameisen (-${gefressen}).`);
+  }
+}
+
+// Echsen fressen Ameisen
+if (welt.tiere["Echsen"] && welt.tiere["Ameisen"]) {
+  const jagdrate = 0.12;
+  const gefressen = Math.min(welt.tiere["Ameisen"], Math.floor(welt.tiere["Echsen"] * jagdrate));
+  if (gefressen > 0) {
+    welt.tiere["Ameisen"] -= gefressen;
+    logSchreiben(`Echsen fressen Ameisen (-${gefressen}).`);
+  }
+}
+
+// Spinnen fressen Ameisen
+if (welt.tiere["Spinnen"] && welt.tiere["Ameisen"]) {
+  const jagdrate = 0.1;
+  const gefressen = Math.min(welt.tiere["Ameisen"], Math.floor(welt.tiere["Spinnen"] * jagdrate));
+  if (gefressen > 0) {
+    welt.tiere["Ameisen"] -= gefressen;
+    logSchreiben(`Spinnen fressen Ameisen (-${gefressen}).`);
+  }
+}
+
+  // Vögel fressen Spinnen
+if (welt.tiere["Vögel"] && welt.tiere["Spinnen"]) {
+  const jagdrate = 0.2;
+  const gefressen = Math.min(welt.tiere["Spinnen"], Math.floor(welt.tiere["Vögel"] * jagdrate));
+  if (gefressen > 0) {
+    welt.tiere["Spinnen"] -= gefressen;
+    logSchreiben(`Vögel fressen Spinnen (-${gefressen}).`);
+  }
+}
+
+    // Ameisen profitieren von Blattläusen
+    if (welt.tiere["Ameisen"]) {
+      if (welt.tiere["Blattläuse"] && welt.tiere["Blattläuse"] > 0) {
+        const bonus = Math.min(welt.tiere["Blattläuse"] / 20, 10);
+        const bonusGanz = Math.floor(bonus);
+        if(bonusGanz > 0) {
+          welt.tiere["Ameisen"] += bonusGanz;
+          logSchreiben(`Ameisen profitieren vom Honigtau der Blattläuse (+${bonusGanz}).`);
+        }
+      } else {
+        const verlust = Math.floor(welt.tiere["Ameisen"] * 0.05);
+        if(verlust > 0) {
+          welt.tiere["Ameisen"] -= verlust;
+          logSchreiben(`Ameisen leiden ohne Blattläuse (-${verlust}).`);
+        }
+      }
+    }
+  }
+
+  function wachsen() {
+    welt.jahre++;
+
+    // Pflanzen wachsen
+    Object.keys(welt.pflanzen).forEach(pflanze => {
+      const zuwachs = wachstum(pflanze, "pflanzen");
+      if (zuwachs > 0) {
+        welt.pflanzen[pflanze] += zuwachs;
+        logSchreiben(`${pflanze} wachsen um ${zuwachs} an.`);
+      }
+    });
+
+    // Tiere wachsen
+    Object.keys(welt.tiere).forEach(tier => {
+      const zuwachs = wachstum(tier, "tiere");
+      if (zuwachs > 0) {
+        welt.tiere[tier] += zuwachs;
+        logSchreiben(`${tier} wachsen um ${zuwachs} an.`);
+      }
+    });
+
+    kreislaufInteraktionen();
+    tabelleAktualisieren();
+  }
+
+  function buttonErstellen(name, container, art) {
+    const btn = document.createElement("button");
+    btn.className = "ecoButton";
+    btn.innerText = name;
+    btn.setAttribute('role', 'listitem');
+    btn.title = `Füge ${name} hinzu`;
+
+    btn.onclick = () => {
+      if (art === "pflanzen") {
+        welt.pflanzen[name] = (welt.pflanzen[name] || 0) + 50;
+        logSchreiben(` ${name} erschaffen`);
+      } else {
+        welt.tiere[name] = (welt.tiere[name] || 0) + 10;
+        logSchreiben(` ${name} erschaffen`);
+      }
+      tabelleAktualisieren();
+    };
+
+    container.appendChild(btn);
+  }
+
+  // Buttons anlegen
+  pflanzenListe.forEach(pflanze => buttonErstellen(pflanze, plantsButtons, "pflanzen"));
+  tierListe.forEach(tier => buttonErstellen(tier, animalsButtons, "tiere"));
+
+  // Simulation starten
+  function startSimulation() {
+    if (interval) return;
+    interval = setInterval(() => {
+      wachsen();
+    }, timeSpeedSelect.value);
+    simulationRunning = true;
+    startStopBtn.innerText = "Einschlafen";
+    logSchreiben("Es bebt... Pflanzen und Lebewesen werden wachgerüttelt...");
+  }
+
+  // Simulation stoppen
+  function stopSimulation() {
+    if (interval) {
+      clearInterval(interval);
+      interval = null;
+      simulationRunning = false;
+      startStopBtn.innerText = "Aufblühen";
+      logSchreiben("Die Erde schläft ein...");
+    }
+  }
+
+  startStopBtn.onclick = () => {
+    if (simulationRunning) stopSimulation();
+    else startSimulation();
+  };
+
+  // Zeitgeschwindigkeit ändern
+  timeSpeedSelect.onchange = () => {
+    if (interval) {
+      clearInterval(interval);
+      interval = setInterval(wachsen, timeSpeedSelect.value);
+    }
+  };
+
+  // Spiel speichern
+  saveBtn.onclick = () => {
+    const daten = JSON.stringify(welt);
+    const blob = new Blob([daten], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = "chronos_save.json";
+    a.click();
+    URL.revokeObjectURL(url);
+    logSchreiben("Spiel gespeichert.");
+  };
+
+  // Spiel laden
+  loadBtn.onclick = () => {
+    fileInput.click();
+  };
+
+  fileInput.onchange = () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const daten = JSON.parse(e.target.result);
+        if (daten.pflanzen && daten.tiere && daten.jahre !== undefined) {
+          welt = daten;
+          logSchreiben("Spiel geladen.");
+          tabelleAktualisieren();
+        } else {
+          alert("Ungültige Spiel-Datei.");
+        }
+      } catch (err) {
+        alert("Fehler beim Laden der Datei.");
+      }
+    };
+    reader.readAsText(file);
+    fileInput.value = "";
+  };
+
+  // Initial starten
+  tabelleAktualisieren();
+  startSimulation();
+
+})();
+</script>
+
+</body>
+</html>
