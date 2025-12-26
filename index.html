@@ -3,55 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Im Ingweranzuchtshäuschen!</title>
+    <title>Smartzone Hub</title>
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+
     <style>
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 50px;
-        }
-        button {
-            font-size: 18px;
-            padding: 10px 20px;
-            margin: 10px;
-            cursor: pointer;
-        }
-        .button-container {
-            margin-bottom: 20px; /* Abstand zwischen Button + Text und nächsten Button */
-        }
-        .description {
-            font-size: 14px;
-            color: #555;
-            margin-top: 5px;
-        }
-        .footer-text {
-            margin-top: 50px;
-            font-size: 16px;
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f0f4f8;
             color: #333;
+        }
+
+        header {
+            text-align: center;
+            padding: 50px 20px 20px;
+            background: linear-gradient(90deg, #6a11cb, #2575fc);
+            color: white;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+
+        .accordion {
+            width: 90%;
+            max-width: 800px;
+            margin: 30px auto;
+        }
+
+        .accordion-item {
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .accordion-header {
+            padding: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1.2em;
+            background: #6a11cb;
+            color: white;
+            transition: background 0.3s;
+        }
+
+        .accordion-header:hover {
+            background: #2575fc;
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: #f9f9f9;
+        }
+
+        .accordion-content .button-container {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .accordion-content .button-container:last-child {
+            border-bottom: none;
+        }
+
+        button {
+            font-size: 16px;
+            padding: 10px 20px;
+            margin: 10px 0;
+            cursor: pointer;
+            border: none;
+            border-radius: 6px;
+            background: #6a11cb;
+            color: white;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #2575fc;
+        }
+
+        .footer-text {
+            text-align: center;
+            padding: 40px 20px;
+            font-size: 16px;
+            color: #555;
         }
     </style>
 </head>
 <body>
-    <h1>hallöchen, hab die Seite einfach mal smartzone genannt</h1>
-    
-    <div class="button-container">
-        <a href="vokabeltrainer.html"><button>spaßiger Vokabeltrainer</button></a>
-        <p class="description">Hier kannst du neue und alte Vokabeln und Aufgaben trainieren. Trenne vorne die Frage mit = dahinter der Antwort und dann Enter und dann wieder.</p>
+
+<header>
+    <h1>Smartzone Hub</h1>
+    <p>Alle meine Experimente übersichtlich an einem Ort</p>
+</header>
+
+<div class="accordion">
+
+    <!-- Lernspiele -->
+    <div class="accordion-item">
+        <div class="accordion-header">🎓 Lernspiele</div>
+        <div class="accordion-content">
+            <div class="button-container">
+                <a href="vokabeltrainer.html"><button>Spaßiger Vokabeltrainer</button></a>
+                <p>Hier kannst du neue und alte Vokabeln trainieren.</p>
+            </div>
+            <div class="button-container">
+                <a href="Vokabelabfrage.html"><button>Pure Vokabelabfrage</button></a>
+                <p>Einfach nur ein Vokabel-Lernspiel mit Import/Export.</p>
+            </div>
+        </div>
     </div>
 
-    <div class="button-container">
-        <a href="Vokabelabfrage.html"><button>pure Vokabelabfrage</button></a>
-        <p class="description">Einfach nur ein langweiliges Vokabellernspiel, lege mit + neue Vokabeln an und importiere danach einfach deine gewünschten Vok. aus dieser danach von dir exportierten Datei. Viel Leiden! </p>
+    <!-- Naturspiele -->
+    <div class="accordion-item">
+        <div class="accordion-header">🌿 Naturspiele</div>
+        <div class="accordion-content">
+            <div class="button-container">
+                <a href="Chronos1.2FungusUpdate.html"><button>CHRONOS V.1.2 Fungus Update</button></a>
+                <p>Baue ein Biotop. Trailer und Update Links sind in der Beschreibung.</p>
+            </div>
+        </div>
     </div>
 
-    <div class="button-container">
-        <a href="Chronos1.2FungusUpdate.html"><button>CHRONOS V. 1.2 Fungus Update</button></a>
-        <p class="description">Baue ein Biotop. Trailer: https://www.youtube.com/watch?v=OorJi74MGBk Update: https://www.youtube.com/watch?v=fUqiJeB1aic</p>
+    <!-- Später -->
+    <div class="accordion-item">
+        <div class="accordion-header">⏳ Später</div>
+        <div class="accordion-content">
+            <div class="button-container">
+                <p>Hier kommen zukünftige Experimente hin!</p>
+            </div>
+        </div>
     </div>
 
-    <!-- Am Ende unter allen Buttons Fließtext -->
-    <p class="footer-text">
-        Willkommen in Smartzone! Hier findest du alle meine Experimente an einem Ort. Viel Spaß beim Ausprobieren! Bin hier bloß am testen und daher ist sicher noch einiges ziemlich cringe. Erreichbar bin ich wenn ich Lust hab unter dieser Email: Ingwerknolle_03@proton.me
-    </p>
+</div>
+
+<p class="footer-text">
+    Willkommen in Smartzone! Viel Spaß beim Ausprobieren! Bei Fragen: Ingwerknolle_03@proton.me
+</p>
+
+<script>
+    const headers = document.querySelectorAll(".accordion-header");
+    headers.forEach(header => {
+        header.addEventListener("click", () => {
+            const content = header.nextElementSibling;
+            const isOpen = content.style.maxHeight && content.style.maxHeight !== "0px";
+            // Schließe alle anderen
+            document.querySelectorAll(".accordion-content").forEach(c => c.style.maxHeight = null);
+            if(!isOpen) {
+                content.style.maxHeight = content.scrollHeight + "px";
+            }
+        });
+    });
+</script>
+
 </body>
 </html>
+
