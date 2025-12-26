@@ -94,13 +94,13 @@ input {
 
 <div class="container" id="startScreen">
     <h1>Python Simulation</h1>
-    <p>Bereit für fortgeschrittene Python-Challenges?</p>
+    <p>Bereit für schwerere Python-Challenges?</p>
     <button onclick="startSimulation()">Start</button>
 </div>
 
 <div class="container" id="simScreen" style="display:none;">
     <h1>Python Simulation</h1>
-    <div class="score">Punkte: <span id="score">0</span></div>
+    <div class="score">Score: <span id="score">0</span></div>
     <div class="question" id="question">Lade Frage...</div>
     <input type="text" id="userInput" placeholder="Hier deinen Code oder Wert eingeben">
     <br>
@@ -171,9 +171,9 @@ document.getElementById('submitBtn').addEventListener('click', () => {
     }
 
     document.getElementById('score').innerText = score;
+    
+setTimeout(showChallenge, 5000); // 5000ms = 5 Sekunden
 
-    // Nach kurzer Verzögerung zur nächsten Frage wechseln
-    setTimeout(showChallenge, 2000);
 });
 
 document.getElementById('skipBtn').addEventListener('click', () => {
