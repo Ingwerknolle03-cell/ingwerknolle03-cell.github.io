@@ -14,8 +14,8 @@ body,html {margin:0;padding:0;overflow:hidden;background:#111;color:white;font-f
 #overlay button{margin:10px;padding:15px 20px;font-size:22px;border:none;border-radius:10px;cursor:pointer;}
 #scoreboard{position:absolute;top:10px;left:10px;font-size:26px;}
 #menu{position:absolute;top:10px;right:10px;background:#333;padding:15px;border-radius:15px;text-align:center;color:white;font-size:18px;z-index:10;}
-#menu input,#menu select{margin:5px;padding:5px;font-size:16px;width:140px;}
 #menu button{margin:5px;padding:8px 12px;font-size:16px;cursor:pointer;}
+</style>
 </head>
 <body>
 <canvas id="gameCanvas"></canvas>
@@ -26,7 +26,6 @@ body,html {margin:0;padding:0;overflow:hidden;background:#111;color:white;font-f
 </div>
 <div id="scoreboard"></div>
 
-
 <script>
 const canvas=document.getElementById("gameCanvas");
 const ctx=canvas.getContext("2d");
@@ -36,9 +35,9 @@ window.addEventListener("resize",resize); resize();
 
 // --- GAME VARIABLES ---
 let player={x:0,y:0,trail:[],size:25,length:5,segments:[]};
-let speed=5;
+let speed=5; // Standardwert
 let score=0;
-let difficulty="leicht";
+let difficulty="leicht"; // Standardwert
 let mapOffset={x:0,y:0};
 let keys={};
 let overlay=document.getElementById("overlay");
@@ -54,7 +53,7 @@ const AI_TYPES=[
   {name:"Claude",color:"pink",strength:3}
 ];
 let aiClusters=[];
-let activeCluster=null; // Cluster-Stop: nur ein Cluster gleichzeitig
+let activeCluster=null;
 
 // TASKS
 const tasks=[
@@ -72,10 +71,9 @@ const tasks=[
 
 // --- INIT ---
 function startGame(){
-  speed=parseInt(document.getElementById("speedInput").value);
-  difficulty=document.getElementById("difficultySelect").value;
+  // Inputs entfernt, Standardwerte genutzt
   generateInitialClusters(0);
-  setInterval(addRandomCluster,1000); // neue Cluster
+  setInterval(addRandomCluster,1000);
   requestAnimationFrame(gameLoop);
 }
 
@@ -141,18 +139,16 @@ function update(){
   mapOffset.x+=dx;
   mapOffset.y+=dy;
 
-  // player trail
   player.trail.push({x:player.x,y:player.y});
   while(player.trail.length>player.length) player.trail.shift();
 
-  // collision check nur, wenn kein Cluster aktiv
   if(!activeCluster){
     for(let cluster of aiClusters){
       for(let o of cluster.os){
         let px=cw/2;
         let py=ch/2;
         if(Math.hypot(px-(o.x-mapOffset.x),py-(o.y-mapOffset.y))<player.size){
-          activeCluster=cluster; // Cluster wird aktiv
+          activeCluster=cluster;
           showTask(cluster);
           return;
         }
@@ -164,7 +160,6 @@ function update(){
 function draw(){
   ctx.fillStyle="#222"; ctx.fillRect(0,0,cw,ch);
 
-  // draw AI clusters
   aiClusters.forEach(cluster=>{
     cluster.os.forEach(o=>{
       ctx.fillStyle=cluster.type.color;
@@ -172,17 +167,15 @@ function draw(){
     });
   });
 
-  // draw player worm
   for(let i=0;i<player.trail.length;i++){
     let p=player.trail[i];
     ctx.fillStyle="yellow";
     ctx.fillRect(cw/2-15+(i-player.trail.length/2),ch/2-15+(i-player.trail.length/2),30,30);
   }
 
-  // draw collected segments
   player.segments.forEach(seg=>{
     ctx.fillStyle=seg.color;
-    ctx.fillRect(cw/2-15+(seg.offsetX),ch/2-15+(seg.offsetY),30,30);
+    ctx.fillRect(cw/2-15+seg.offsetX,ch/2-15+seg.offsetY,30,30);
   });
 
   ctx.fillStyle="orange";
@@ -191,7 +184,6 @@ function draw(){
   scoreboard.innerHTML="Score: "+score;
 }
 
-// --- TASK ---
 function showTask(cluster){
   overlay.innerHTML="";
   overlay.style.display="block";
@@ -202,16 +194,15 @@ function showTask(cluster){
     btn.innerText=ans;
     btn.onclick=()=>{
       if(i===task.c){
-        cluster.os.forEach((o,j)=>{
+        cluster.os.forEach(o=>{
           player.segments.push({offsetX:o.x-cluster.x, offsetY:o.y-cluster.y, color:cluster.type.color});
         });
         score+=cluster.type.strength;
       }
       overlay.style.display="none";
-      // remove cluster
       let index=aiClusters.indexOf(cluster);
       if(index>-1) aiClusters.splice(index,1);
-      activeCluster=null; // Cluster-Stop deaktiviert, nächstes kann erscheinen
+      activeCluster=null;
     };
     overlay.appendChild(btn);
   });
@@ -248,3 +239,4 @@ startGame();
 </script>
 </body>
 </html>
+
