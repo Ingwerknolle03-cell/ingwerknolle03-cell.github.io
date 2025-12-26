@@ -1,206 +1,213 @@
 <!DOCTYPE html>
-<html>
+<html lang="de">
 <head>
-<meta charset="UTF-8">
-<title>vokabelabfrage</title>
-<style>
-body { margin:0; background:#111; color:white; font-family:sans-serif; }
-#top { padding:10px; background:#222; display:flex; gap:10px; align-items:center; }
-button { padding:6px 12px; }
-#answerInput { padding:6px; font-size:16px; width:200px; }
-#editorBox { display:none; position:fixed; top:10%; left:10%; width:80%; height:80%;
-             background:white; color:black; border-radius:8px; padding:10px; }
-#editor { width:100%; height:90%; font-size:16px; }
-#gameCanvas { width:100vw; height:80vh; background:black; display:block; }
-#redbar { width:100vw; height:40px; background:#550000; }
-#answerDisplay { position:fixed; bottom:50px; left:0; width:100%; text-align:center; font-size:22px; color:red; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vokabeltrainer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #1e3c72, #2a5298);
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      margin: 20px auto;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 600px;
+    }
+    .question {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    .answers button {
+      background: #ffffff20;
+      border: none;
+      color: white;
+      font-size: 18px;
+      padding: 10px 20px;
+      margin: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .answers button:hover {
+      background: #ffffff40;
+    }
+    #menu button {
+      margin: 5px;
+    }
+    .vocab-list {
+      margin-top: 20px;
+      text-align: left;
+    }
+    .vocab-item {
+      margin: 5px 0;
+    }
+    .vocab-item button {
+      margin-left: 10px;
+      background: #e74c3c;
+    }
+  </style>
 </head>
 <body>
+  <h1>Geiles Vokabel Game von MIRRR</h1>
 
-<div id="top">
-<button id="editBtn">TXT</button>
-<button id="speedBtn">Start</button>
-<input id="answerInput" placeholder="Antwort eingeben…">
-</div>
+  <div id="menu" class="card">
+    <button onclick="startQuiz()">📖 Vokabel-Quiz starten</button>
+    <button onclick="addWordPrompt()">➕ Neue Vokabel hinzufügen</button>
+    <button onclick="resetVocab()">🗑️ Alle Vokabeln löschen</button>
+    <button onclick="showVocabList()">📋 Vokabeln anzeigen & löschen</button>
+    <button onclick="exportVocab()">⬇️ Vokabeln exportieren</button>
+    <button onclick="importVocab()">⬆️ Vokabeln importieren</button>
+  </div>
 
-<div id="editorBox">
-<textarea id="editor" placeholder="Gib erst die Frage ein in eine Zeile, trenne dann in der Gleichen Zeile mit = die Frage von der dahinter folgenden Antwort"></textarea>
-<br>
-<button id="closeEditor">Speichern & Schließen</button>
-</div>
+  <div id="quiz" class="card" style="display: none">
+    <div class="question" id="questionText"></div>
+    <div class="answers" id="answers"></div>
+  </div>
 
-<canvas id="gameCanvas"></canvas>
-<div id="redbar"></div>
-<div id="answerDisplay"></div>
+  <div id="vocabList" class="card" style="display: none"></div>
 
-<script>
-let speed = 0;
-let vocab = [];
-let active = [];
-let canvas = document.getElementById("gameCanvas");
-let ctx = canvas.getContext("2d");
-let W,H;
+  <input type="file" id="importFile" style="display:none" />
 
-function resize(){
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight * 0.8;
-  W = canvas.width; H = canvas.height;
-}
-resize();
-window.onresize = resize;
+  <script>
+    let defaultVocab = [];
+    let vocab = JSON.parse(localStorage.getItem("vocab")) || defaultVocab;
 
-// --- TXT Editor ---
-document.getElementById("editBtn").onclick = ()=> {
-  document.getElementById("editorBox").style.display="block";
-};
-document.getElementById("closeEditor").onclick = ()=>{
-  let t = document.getElementById("editor").value.split(/\n/);
-  vocab=[];
-  for(let l of t){
-    let p = l.split("=");
-    if(p.length>=2){
-      vocab.push({q:p[0].trim(), a:p[1].trim()});
+    function saveVocab() {
+      localStorage.setItem("vocab", JSON.stringify(vocab));
     }
-  }
-  document.getElementById("editorBox").style.display="none";
-};
 
-// --- Speed Button ---
-document.getElementById("speedBtn").onclick = ()=>{
-  speed++;
-  if(speed>10) speed=0;
-  document.getElementById("speedBtn").innerText="Speed: "+speed;
-};
+    function shuffle(array) {
+      return array.sort(() => Math.random() - 0.5);
+    }
 
-// --- Antwort Eingabe (GEÄNDERT: entfernt immer das UNTERSTE passende Wort) ---
-document.getElementById("answerInput").addEventListener("keydown", function(e){
-  if(e.key === "Enter"){
-    let val = this.value.trim().toLowerCase();
+    function startQuiz() {
+      if (vocab.length < 1) {
+        customMessage("Bitte zuerst Vokabeln hinzufügen!", true);
+        return;
+      }
+      document.getElementById("menu").style.display = "none";
+      document.getElementById("quiz").style.display = "block";
+      document.getElementById("vocabList").style.display = "none";
+      askQuestion();
+    }
 
-    // Unterstes Element mit korrekter Antwort suchen
-    let targetIndex = -1;
-    let maxY = -1;
+    function askQuestion() {
+      let questionIndex = Math.floor(Math.random() * vocab.length);
+      let correct = vocab[questionIndex];
+      let options = shuffle([correct, ...shuffle(vocab).filter(v => v !== correct)].slice(0, 3));
 
-    for (let i = 0; i < active.length; i++) {
-      if (active[i].a.toLowerCase() === val && active[i].y > maxY) {
-        maxY = active[i].y;
-        targetIndex = i;
+      document.getElementById("questionText").innerText = `Was heißt "${correct.de}" ?`;
+      let answersDiv = document.getElementById("answers");
+      answersDiv.innerHTML = "";
+
+      options.forEach(option => {
+        let btn = document.createElement("button");
+        btn.innerText = option.la;
+        btn.onclick = () => {
+          if (option.la === correct.la) {
+            customMessage("✅ Richtig!");
+          } else {
+            customMessage(`❌ Falsch. Richtig ist: ${correct.la}`);
+          }
+          setTimeout(askQuestion, 1000);
+        };
+        answersDiv.appendChild(btn);
+      });
+    }
+
+    function addWordPrompt() {
+      let de = prompt("Vorgegebenes Wort:");
+      let la = prompt("Vorgeschlagenes Wort:");
+      if (de && la) {
+        vocab.push({ de, la });
+        saveVocab();
+        customMessage("Vokabel hinzugefügt!");
       }
     }
 
-    if (targetIndex !== -1) {
-      active.splice(targetIndex, 1);
+    function resetVocab() {
+      if (confirm("Bist du sicher, dass du ALLE Vokabeln löschen willst?")) {
+        vocab = [];
+        saveVocab();
+        customMessage("Vokabeln wurden gelöscht.");
+      }
     }
 
-    this.value = "";
-  }
-});
-
-// === TEXT UMBRECHEN ===
-function wrapText(text, x, y, maxWidth, lineHeight) {
-  let words = text.split(" ");
-  let line = "";
-  let lines = [];
-
-  for (let w of words) {
-    let testLine = line + w + " ";
-    let testWidth = ctx.measureText(testLine).width;
-
-    if (testWidth > maxWidth && line !== "") {
-      lines.push(line);
-      line = w + " ";
-    } else {
-      line = testLine;
-    }
-  }
-  lines.push(line);
-
-  for (let i = 0; i < lines.length; i++) {
-    ctx.fillText(lines[i], x, y + i * lineHeight);
-  }
-
-  return lines.length;
-}
-
-// --- Anti Overlap Check ---
-function isOverlapping(x, maxWidth){
-  for(let a of active){
-    let otherWidth = a.maxWidth;
-    if(!(x + maxWidth < a.x || x > a.x + otherWidth)) return true;
-  }
-  return false;
-}
-
-// --- Spawn ---
-function spawn(){
-  if(speed===0) return;
-  if(active.length >= speed) return;
-  if(vocab.length===0) return;
-
-  let v = vocab[Math.floor(Math.random()*vocab.length)];
-
-  let maxWidth = 180;
-
-  for(let tries=0; tries<20; tries++){
-    let x = Math.random() * (W - maxWidth - 20) + 10;
-    if(!isOverlapping(x, maxWidth)){
-      active.push({
-        q:v.q, a:v.a,
-        x:x,
-        y: 0,
-        maxWidth: maxWidth,
-        speed: H/5500000
+    function showVocabList() {
+      const listDiv = document.getElementById("vocabList");
+      listDiv.innerHTML = "<h3>📋Lukas seine Vokabeln</h3>";
+      vocab.forEach((v, index) => {
+        const entry = document.createElement("div");
+        entry.className = "vocab-item";
+        entry.innerHTML = `${v.de} – ${v.la} <button onclick="deleteWord(${index})">❌</button>`;
+        listDiv.appendChild(entry);
       });
-      return;
+      listDiv.style.display = "block";
+      document.getElementById("quiz").style.display = "none";
     }
-  }
-}
 
-// --- Game Loop ---
-function loop(ts){
-  ctx.clearRect(0,0,W,H);
-
-  if(active.length < speed && speed>0){
-    spawn();
-  }
-
-  ctx.fillStyle = "white";
-  ctx.font="20px sans-serif";
-
-  for(let i=active.length-1;i>=0;i--){
-    let a = active[i];
-
-    let lineHeight = 22;
-    let lineCount = wrapText(a.q, a.x, a.y, a.maxWidth, lineHeight);
-
-    a.y += a.speed * (H/2) * lineCount;
-
-    if(a.y > H){
-      flash();
-      showAnswer(a.a);
-      active.splice(i,1);
+    function deleteWord(index) {
+      vocab.splice(index, 1);
+      saveVocab();
+      showVocabList();
     }
-  }
 
-  requestAnimationFrame(loop);
-}
-requestAnimationFrame(loop);
+    function exportVocab() {
+      const blob = new Blob([JSON.stringify(vocab)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "vokabeln.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
 
-// --- Flash ---
-function flash(){
-  let rb = document.getElementById("redbar");
-  rb.style.background="#ff0000";
-  setTimeout(()=>rb.style.background="#550000",150);
-}
+    function importVocab() {
+      const fileInput = document.getElementById("importFile");
+      fileInput.click();
+      fileInput.onchange = () => {
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const data = JSON.parse(reader.result);
+            if (Array.isArray(data)) {
+              vocab = data;
+              saveVocab();
+              customMessage("Vokabeln importiert!");
+            } else {
+              customMessage("❌ Ungültiges Format", true);
+            }
+          } catch {
+            customMessage("❌ Fehler beim Einlesen der Datei", true);
+          }
+        };
+        reader.readAsText(file);
+      };
+    }
 
-// --- Show Answer ---
-function showAnswer(txt){
-  let ad = document.getElementById("answerDisplay");
-  ad.innerText = txt;
-  setTimeout(()=>{ if(ad.innerText===txt) ad.innerText=""; },10000);
-}
-</script>
-
+    function customMessage(text, isError = false) {
+      const msg = document.createElement("div");
+      msg.innerText = text;
+      msg.style.position = "fixed";
+      msg.style.top = "20px";
+      msg.style.left = "50%";
+      msg.style.transform = "translateX(-50%)";
+      msg.style.background = isError ? "#e74c3c" : "#2ecc71";
+      msg.style.padding = "10px 20px";
+      msg.style.borderRadius = "10px";
+      msg.style.color = "white";
+      msg.style.fontSize = "18px";
+      msg.style.zIndex = 9999;
+      document.body.appendChild(msg);
+      setTimeout(() => msg.remove(), 1500);
+    }
+  </script>
 </body>
 </html>
