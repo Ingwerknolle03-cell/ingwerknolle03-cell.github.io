@@ -16,13 +16,37 @@
             margin: 10px;
             cursor: pointer;
         }
+        .button-container {
+            margin-bottom: 20px; /* Abstand zwischen Button + Text und nächsten Button */
+        }
+        .description {
+            font-size: 14px;
+            color: #555;
+            margin-top: 5px;
+        }
+        .footer-text {
+            margin-top: 50px;
+            font-size: 16px;
+            color: #333;
+        }
     </style>
 </head>
 <body>
-    <h1>Experimenteee</h1>
+    <h1>Smartzone</h1>
     
-    <a href="vokabeltrainer.html"><button>Vokabeltrainer</button></a>
-    <a href="test.html"><button>test Game</button></a>
-    <!-- Hier weitere Experimente hinzufügen -->
+    <div class="button-container">
+        <a href="vokabeltrainer.html"><button>Vokabeltrainer</button></a>
+        <p class="description">Hier kannst du neue Wörter lernen und Vokabeln trainieren.</p>
+    </div>
+
+    <div class="button-container">
+        <a href="test.html"><button>test Game</button></a>
+        <p class="description">Ein kleines Testspiel, um deine Fähigkeiten zu prüfen.</p>
+    </div>
+
+    <!-- Am Ende unter allen Buttons Fließtext -->
+    <p class="footer-text">
+        Willkommen in Smartzone! Hier findest du alle deine Experimente an einem Ort. Viel Spaß beim Ausprobieren!
+    </p>
 </body>
 </html>
