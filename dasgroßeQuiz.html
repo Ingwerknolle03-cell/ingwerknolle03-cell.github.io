@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Allgemeinwissen Quiz</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to right, #ffecd2, #fcb69f);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.container {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    width: 600px;
+    max-width: 90%;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    text-align: center;
+    position: relative;
+}
+
+h1 {
+    color: #ff6f61;
+    margin-bottom: 20px;
+}
+
+.question {
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+button {
+    padding: 10px 20px;
+    margin: 8px;
+    border-radius: 12px;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #6a11cb;
+    color: white;
+    transition: 0.3s;
+}
+
+button:hover {
+    background-color: #2575fc;
+}
+
+#infoBox {
+    display: none;
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 15px;
+    font-size: 16px;
+    color: white;
+    text-align: left;
+    line-height: 1.5;
+}
+
+.score {
+    margin-bottom: 15px;
+    font-size: 18px;
+    color: #555;
+}
+</style>
+</head>
+<body>
+<div class="container" id="quizContainer">
+    <h1>Allgemeinwissen Quiz</h1>
+    <div class="score">Punkte: <span id="score">0</span></div>
+    <div class="question" id="question">Lade Frage...</div>
+    <div id="answers"></div>
+    <div id="infoBox"></div>
+</div>
+
+<script>
+// Beispiel Fragen, kann auf 300 erweitert werden
+const questions = [
+    {
+        question: "Wann begann der Erste Weltkrieg?",
+        answers: [
+            { text: "1912", correct: false },
+            { text: "1914", correct: true },
+            { text: "1916", correct: false },
+            { text: "1918", correct: false },
+            { text: "1920", correct: false }
+        ],
+        info: "Der Erste Weltkrieg (1914–1918) gilt als die „Urkatastrophe“ des 20. Jahrhunderts und war der erste „totale Krieg“ der Moderne. Der Auslöser war das Attentat von Sarajevo am 28. Juni 1914 auf den österreichisch-ungarischen Thronfolger."
+    },
+    {
+        question: "Wer malte die Mona Lisa?",
+        answers: [
+            { text: "Vincent van Gogh", correct: false },
+            { text: "Leonardo da Vinci", correct: true },
+            { text: "Michelangelo", correct: false },
+            { text: "Pablo Picasso", correct: false },
+            { text: "Raphael", correct: false }
+        ],
+        info: "Die Mona Lisa wurde von Leonardo da Vinci im frühen 16. Jahrhundert gemalt und gilt als eines der berühmtesten Kunstwerke der Welt."
+    },
+    {
+        question: "Wie viele Planeten hat unser Sonnensystem?",
+        answers: [
+            { text: "7", correct: false },
+            { text: "8", correct: true },
+            { text: "9", correct: false },
+            { text: "10", correct: false },
+            { text: "11", correct: false }
+        ],
+        info: "Unser Sonnensystem hat 8 Planeten: Merkur, Venus, Erde, Mars, Jupiter, Saturn, Uranus und Neptun. Pluto ist kein Planet mehr."
+    }
+];
+
+let current = 0;
+let score = 0;
+
+function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
+}
+
+function showQuestion() {
+    document.getElementById('infoBox').style.display = 'none';
+    const q = questions[current];
+    document.getElementById('question').innerText = q.question;
+
+    const answersDiv = document.getElementById('answers');
+    answersDiv.innerHTML = '';
+    shuffle(q.answers).forEach(answer => {
+        const btn = document.createElement('button');
+        btn.innerText = answer.text;
+        btn.addEventListener('click', () => selectAnswer(answer, q));
+        answersDiv.appendChild(btn);
+    });
+}
+
+function selectAnswer(answer, q) {
+    const infoBox = document.getElementById('infoBox');
+    if(answer.correct){
+        infoBox.style.backgroundColor = '#4caf50';
+        score++;
+        document.getElementById('score').innerText = score;
+    } else {
+        infoBox.style.backgroundColor = '#f44336';
+    }
+    infoBox.innerHTML = `<strong>${answer.text}</strong><br>${q.info}`;
+    infoBox.style.display = 'block';
+
+    // Deaktiviere Buttons
+    Array.from(document.getElementById('answers').children).forEach(btn => btn.disabled = true);
+
+    // Weiter per Klick oder Leertaste
+    document.addEventListener('keydown', nextQuestionHandler);
+    infoBox.addEventListener('click', nextQuestionHandler);
+}
+
+function nextQuestionHandler() {
+    document.removeEventListener('keydown', nextQuestionHandler);
+    const infoBox = document.getElementById('infoBox');
+    infoBox.removeEventListener('click', nextQuestionHandler);
+
+    current++;
+    if(current >= questions.length){
+        document.getElementById('question').innerText = `Quiz beendet! Du hast ${score} Punkte erreicht.`;
+        document.getElementById('answers').innerHTML = '';
+        document.getElementById('infoBox').style.display = 'none';
+        return;
+    }
+    showQuestion();
+}
+
+// Starte Quiz
+showQuestion();
+</script>
+</body>
+</html>
