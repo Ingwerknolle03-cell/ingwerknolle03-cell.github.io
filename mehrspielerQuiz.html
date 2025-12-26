@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Quizzz</title>
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(120deg, #84fab0, #8fd3f4);
+    display: flex;
+    justify-content: center;
+    padding: 40px;
+}
+.container {
+    background: white;
+    padding: 25px;
+    border-radius: 20px;
+    width: 700px;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.25);
+    position: relative;
+}
+.hidden { display: none; }
+h1, h2 { text-align: center; }
+button {
+    padding: 10px 20px;
+    margin: 6px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    background: #4f46e5;
+    color: white;
+}
+button:hover { background: #4338ca; }
+.answer-btn {
+    display: block;
+    width: 100%;
+    margin: 6px 0;
+}
+.correct { background: #4caf50 !important; }
+.wrong { background: #f44336 !important; }
+.info {
+    margin-top: 15px;
+    padding: 15px;
+    border-radius: 10px;
+}
+.good { background: #d4edda; border: 2px solid #4caf50; }
+.bad { background: #f8d7da; border: 2px solid #f44336; }
+input, select { padding: 8px; width: 80%; margin: 5px; }
+.finish-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: gold;
+    color: black;
+    font-weight: bold;
+}
+.timer { font-size: 20px; font-weight: bold; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<!-- START -->
+<div id="start">
+<h1>Quizzz</h1>
+Spieleranzahl (2–100)<br>
+<input type="number" id="playerCount" min="2" max="100" value="2"><br>
+Fragenlimit<br>
+<input type="number" id="questionLimit" value="10"><br>
+Timer pro Frage (Sekunden)<br>
+<input type="number" id="timeLimit" value="15"><br>
+Kategorie<br>
+<select id="category">
+    <option value="all">Alle Kategorien (gemischt)</option>
+    <option value="geschichte">Geschichte</option>
+    <option value="natur">Natur</option>
+    <option value="it">IT</option>
+</select><br>
+Schwierigkeit<br>
+<select id="difficulty">
+    <option value="leicht">Leicht (1 Punkt)</option>
+    <option value="mittel">Mittel (2 Punkte)</option>
+    <option value="schwer">Schwer (3 Punkte)</option>
+</select><br>
+<button onclick="nameSetup()">Weiter</button>
+</div>
+
+<!-- NAMEN -->
+<div id="names" class="hidden">
+<h2>Spielernamen</h2>
+<div id="nameInputs"></div>
+<button onclick="startGame()">Spiel starten</button>
+</div>
+
+<!-- GAME -->
+<div id="game" class="hidden">
+<button class="finish-btn" onclick="finish()">Fertig</button>
+<div class="timer" id="timer"></div>
+<h2 id="turn"></h2>
+<h3 id="question"></h3>
+<div id="answers"></div>
+<div id="info" class="info hidden"></div>
+<button id="next" class="hidden" onclick="next()">Weiter</button>
+</div>
+
+<!-- RESULT -->
+<div id="result" class="hidden">
+<h1>🏆🏆🏆</h1>
+<div id="ranking"></div>
+<button onclick="location.reload()">Neu starten</button>
+</div>
+
+</div>
+
+<script>
+let players=[], scores=[], current=0, questions=[], limit=0, timerValue=0, points=1, interval=null, currentQ=null;
+
+const pool = {
+geschichte:[
+  {q:"Wann begann der Erste Weltkrieg?", a:["1912","1914","1918"], c:1, i:"Begann 1914 nach dem Attentat von Sarajevo."},
+  {q:"Wer war Napoleon?", a:["Kaiser","Papst","Philosoph"], c:0, i:"Napoleon war Kaiser der Franzosen."},
+  {q:"Wann fiel die Berliner Mauer?", a:["1989","1991","1987"], c:0, i:"Die Mauer fiel am 9. November 1989."},
+  {q:"Wer entdeckte Amerika?", a:["Christopher Columbus","Leif Erikson","Marco Polo"], c:0, i:"1492 segelte Columbus nach Amerika."},
+  {q:"Wann begann der Zweite Weltkrieg?", a:["1939","1945","1918"], c:0, i:"Der Zweite Weltkrieg begann 1939."},
+  {q:"Wer war Martin Luther?", a:["Reformator","Kaiser","Philosoph"], c:0, i:"Er leitete die Reformation ein und veröffentlichte 1517 seine 95 Thesen."},
+  {q:"Wann endete der Zweite Weltkrieg?", a:["1945","1940","1939"], c:0, i:"Er endete 1945 in Europa."},
+  {q:"Wer war Julius Cäsar?", a:["Römischer Diktator","Philosoph","Kaiser von Frankreich"], c:0, i:"Cäsar war römischer Diktator und Feldherr."},
+  {q:"Was war die Französische Revolution?", a:["Umsturz 1789","Kaiserzeit","Industrialisierung"], c:0, i:"1789 begann die Französische Revolution gegen die Monarchie."},
+  {q:"Wann wurde die UNO gegründet?", a:["1945","1919","1939"], c:0, i:"Die Vereinten Nationen wurden 1945 gegründet."}
+],
+natur:[
+  {q:"Größtes Organ?", a:["Herz","Haut","Leber"], c:1, i:"Die Haut ist das größte Organ."},
+  {q:"Schnellstes Tier?", a:["Falke","Gepard","Strauß"], c:0, i:"Der Wanderfalke erreicht über 300 km/h."},
+  {q:"Wie viele Planeten hat unser Sonnensystem?", a:["7","8","9"], c:1, i:"Es gibt 8 Planeten; Pluto gilt nicht mehr als Planet."},
+  {q:"Welches Tier legt Eier?", a:["Frosch","Säugetier","Vogel"], c:2, i:"Vögel legen Eier."},
+  {q:"Wie viele Kontinente gibt es?", a:["5","6","7"], c:2, i:"Es gibt 7 Kontinente."},
+  {q:"Was ist Photosynthese?", a:["Energie aus Licht","Essen von Pflanzen","Atmung"], c:0, i:"Pflanzen erzeugen Energie aus Sonnenlicht."},
+  {q:"Welches Tier ist ein Säugetier?", a:["Hai","Wal","Krokodil"], c:1, i:"Wale sind Säugetiere."},
+  {q:"Was ist das größte Säugetier?", a:["Elefant","Blauwal","Giraffe"], c:1, i:"Der Blauwal ist das größte Säugetier der Erde."},
+  {q:"Wie nennt man fliegende Säugetiere?", a:["Vögel","Fledermäuse","Insekten"], c:1, i:"Fledermäuse sind die einzigen fliegenden Säugetiere."},
+  {q:"Welches Gas atmen wir ein?", a:["Sauerstoff","Kohlenstoff","Stickstoff"], c:0, i:"Menschen atmen Sauerstoff ein."}
+],
+it:[
+  {q:"Was ist HTML?", a:["Programmiersprache","Auszeichnungssprache","Datenbank"], c:1, i:"HTML strukturiert Webseiten."},
+  {q:"Was bedeutet CPU?", a:["Zentralprozessor","Grafikkarte","RAM"], c:0, i:"CPU ist das Herz des Computers."},
+  {q:"Wofür steht RAM?", a:["Random Access Memory","Read And Move","Rapid Application Module"], c:0, i:"RAM ist der Arbeitsspeicher eines Computers."},
+  {q:"Was ist ein Byte?", a:["8 Bits","16 Bits","32 Bits"], c:0, i:"Ein Byte besteht aus 8 Bits."},
+  {q:"Was ist eine IP-Adresse?", a:["Identifikationsnummer eines Computers im Netzwerk","Passwort","Webadresse"], c:0, i:"IP-Adressen identifizieren Geräte im Netzwerk."},
+  {q:"Welche Programmiersprache ist serverseitig beliebt?", a:["PHP","HTML","CSS"], c:0, i:"PHP wird oft für serverseitige Webseiten verwendet."},
+  {q:"Was ist CSS?", a:["Designsprache","Programmiersprache","Datenbank"], c:0, i:"CSS wird für das Design von Webseiten verwendet."},
+  {q:"Was ist JavaScript?", a:["Programmiersprache","Betriebssystem","Hardware"], c:0, i:"JavaScript wird für dynamische Webseiten genutzt."},
+  {q:"Was macht eine Firewall?", a:["Blockiert ungewollten Zugriff","Beschleunigt Internet","Speichert Daten"], c:0, i:"Firewalls schützen Netzwerke vor unerwünschtem Zugriff."},
+  {q:"Was ist eine Domain?", a:["Webadresse","Prozessor","RAM"], c:0, i:"Eine Domain ist die Adresse einer Webseite."}
+]
+};
+
+
+function nameSetup(){
+    let c = parseInt(document.getElementById("playerCount").value);
+    let nameInputsDiv = document.getElementById("nameInputs");
+    nameInputsDiv.innerHTML="";
+    for(let i=0;i<c;i++){
+        nameInputsDiv.innerHTML+=`<input id="n${i}" placeholder="Spieler ${i+1}"><br>`;
+    }
+    document.getElementById("start").classList.add("hidden");
+    document.getElementById("names").classList.remove("hidden");
+}
+
+function startGame(){
+    let c = parseInt(document.getElementById("playerCount").value);
+    players=[]; scores=[];
+    for(let i=0;i<c;i++){
+        let name=document.getElementById(`n${i}`).value||`Spieler ${i+1}`;
+        players.push(name); scores.push(0);
+    }
+    limit=parseInt(document.getElementById("questionLimit").value);
+    timerValue=parseInt(document.getElementById("timeLimit").value);
+    points={"leicht":1,"mittel":2,"schwer":3}[document.getElementById("difficulty").value];
+    
+    // Kategorie wählen
+    let cat=document.getElementById("category").value;
+    if(cat==="all"){
+        questions=[];
+        for(let k in pool) questions=questions.concat(pool[k]);
+    } else {
+        questions=[...pool[cat]];
+    }
+    shuffle(questions);
+    
+    document.getElementById("names").classList.add("hidden");
+    document.getElementById("game").classList.remove("hidden");
+    next();
+}
+
+// Weiter mit Button oder Leertaste
+document.addEventListener("keydown", function(e){
+    if(e.code==="Space" && !document.getElementById("next").classList.contains("hidden")){
+        e.preventDefault(); next();
+    }
+});
+
+function next(){
+    if(limit<=0 || questions.length===0) return finish();
+    limit--;
+    document.getElementById("info").classList.add("hidden");
+    document.getElementById("next").classList.add("hidden");
+    
+    currentQ = questions.pop();
+    document.getElementById("turn").innerText=`${players[current]} (${scores[current]} Punkte)`;
+    document.getElementById("question").innerText=currentQ.q;
+    
+    let answersDiv = document.getElementById("answers");
+    answersDiv.innerHTML="";
+    currentQ.a.forEach((ans,i)=>{
+        let btn=document.createElement("button");
+        btn.className="answer-btn"; btn.innerText=ans;
+        btn.onclick=()=>answer(i);
+        answersDiv.appendChild(btn);
+    });
+    
+    startTimer();
+}
+
+function startTimer(){
+    let t=timerValue;
+    let timerDiv = document.getElementById("timer");
+    timerDiv.innerText=`⏱ ${t}s`;
+    clearInterval(interval);
+    interval=setInterval(()=>{
+        t--;
+        timerDiv.innerText=`⏱ ${t}s`;
+        if(t<=0){clearInterval(interval);answer(-1);}
+    },1000);
+}
+
+function answer(i){
+    clearInterval(interval);
+    document.querySelectorAll(".answer-btn").forEach(b=>b.disabled=true);
+    let infoDiv=document.getElementById("info");
+    infoDiv.classList.remove("hidden","good","bad");
+    
+    if(i===currentQ.c){
+        scores[current]+=points;
+        infoDiv.classList.add("good");
+        infoDiv.innerHTML="✅ Richtig<br>"+currentQ.i;
+    } else {
+        infoDiv.classList.add("bad");
+        infoDiv.innerHTML="❌ Falsch<br>"+currentQ.i;
+    }
+    
+    document.getElementById("next").classList.remove("hidden");
+    current=(current+1)%players.length;
+}
+
+function finish(){
+    document.getElementById("game").classList.add("hidden");
+    document.getElementById("result").classList.remove("hidden");
+    let rank=players.map((p,i)=>({p,s:scores[i]})).sort((a,b)=>b.s-b.s);
+    document.getElementById("ranking").innerHTML=rank.map((r,i)=>`${i+1}. ${r.p} – ${r.s} Punkte`).join("<br>");
+}
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}}
+</script>
+</body>
+</html>
+
