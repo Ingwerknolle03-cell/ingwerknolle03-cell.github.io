@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Vokabelabfrage</title>
+<title>vokabelabfrage</title>
 <style>
 body { margin:0; background:#111; color:white; font-family:sans-serif; }
 #top { padding:10px; background:#222; display:flex; gap:10px; align-items:center; }
