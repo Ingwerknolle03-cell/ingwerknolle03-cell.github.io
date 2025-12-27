@@ -6,31 +6,43 @@
 <style>
 body { margin:0; overflow:hidden; background:#a0dca0; display:flex; justify-content:center; align-items:center; height:100vh;}
 canvas { background:#88cc88; }
-#status {
-  position:absolute; top:10px; left:10px;
+#gui {
+  position:absolute; top:10px; left:10px; width:280px;
+  background:rgba(0,0,0,0.6); padding:10px; border-radius:8px;
   color:white; font-family:sans-serif;
-  background:rgba(0,0,0,0.5); padding:10px; border-radius:8px;
-  font-size:16px; line-height:1.5em;
 }
-.button { display:inline-block; margin-right:10px; padding:5px 10px;
-  background:rgba(255,255,255,0.2); border-radius:5px; cursor:pointer;
-  font-weight:bold; }
+.gui-bar { width:100%; height:16px; background:#444; border-radius:4px; margin:4px 0; overflow:hidden; }
+.gui-bar-fill { height:100%; width:0%; background:#0f0; }
+.gui-label { font-size:14px; margin-bottom:2px; }
+.button { display:inline-block; margin-right:5px; padding:4px 8px; background:rgba(255,255,255,0.2); border-radius:5px; cursor:pointer; font-weight:bold; }
 .button.active { background:rgba(255,255,255,0.6); }
-#mode { margin-left:10px; font-weight:bold; }
 </style>
 </head>
 <body>
 <canvas id="canvas" width="800" height="500"></canvas>
-<div id="status">
-  <span id="btnRain" class="button">Regen (R)</span>
-  <span id="btnSun" class="button">Sonne (L)</span>
-  <span id="btnGrass" class="button">Gras schneiden (G)</span>
-  <span id="btnSeed" class="button">Samen</span>
-  <span id="btnShovel" class="button">Schaufel</span>
-  <span id="seedInfo">Samen: 0</span>
-  <span id="fertilizerInfo"> Dünger: 0</span>
-  <span id="mode">Modus: Samen pflanzen</span><br>
-  <span id="flowerStats">Feuchtigkeit: 0 Licht: 0 Unkraut: 0 Stufe: 0</span>
+<div id="gui">
+  <div>
+    <span id="btnRain" class="button">Regen (R)</span>
+    <span id="btnSun" class="button">Sonne (L)</span>
+    <span id="btnGrass" class="button">Gras schneiden (G)</span>
+  </div>
+  <div style="margin-top:6px;">
+    <span id="btnSeed" class="button">Samen</span>
+    <span id="btnShovel" class="button">Schaufel</span>
+  </div>
+  <div style="margin-top:6px;">
+    <div class="gui-label">Feuchtigkeit</div>
+    <div class="gui-bar"><div id="barMoisture" class="gui-bar-fill"></div></div>
+    <div class="gui-label">Licht</div>
+    <div class="gui-bar"><div id="barLight" class="gui-bar-fill"></div></div>
+    <div class="gui-label">Unkraut</div>
+    <div class="gui-bar"><div id="barWeed" class="gui-bar-fill"></div></div>
+  </div>
+  <div style="margin-top:6px;">
+    <span id="seedInfo">Samen: 0</span><br>
+    <span id="fertilizerInfo">Dünger: 0</span><br>
+    <span id="modeDisplay">Modus: Samen pflanzen</span>
+  </div>
 </div>
 
 <script>
@@ -47,9 +59,11 @@ const btnGrass = document.getElementById('btnGrass');
 const btnSeed = document.getElementById('btnSeed');
 const btnShovel = document.getElementById('btnShovel');
 const seedInfo = document.getElementById('seedInfo');
-const flowerStats = document.getElementById('flowerStats');
 const fertilizerInfo = document.getElementById('fertilizerInfo');
-const modeDisplay = document.getElementById('mode');
+const modeDisplay = document.getElementById('modeDisplay');
+const barMoisture = document.getElementById('barMoisture');
+const barLight = document.getElementById('barLight');
+const barWeed = document.getElementById('barWeed');
 
 let rain = false;
 let sun = false;
@@ -69,7 +83,7 @@ for(let i=0;i<300;i++){
   grass.push({x: Math.random()*canvas.width, y: yBase - (Math.random()*50), height: 2 + Math.random()*5, maxHeight: 40});
 }
 
-let mode = "seed"; // Modus: "seed" oder "shovel"
+let mode = "seed";
 
 function addFlower(x,y){
   const colors = ['pink','red','purple','orange','blue'];
@@ -78,7 +92,7 @@ function addFlower(x,y){
 addFlower(canvas.width/2, 400);
 
 function cutGrass(){
-  flowers.forEach(f=>{ if(f.alive) f.weed = Math.min(f.weed + 5, 1000); });
+  flowers.forEach(f=>{ if(f.alive) f.weed = Math.min(f.weed + 50, 1000); });
   grass.forEach(g=>g.height = Math.max(g.height-5,2));
 }
 
@@ -87,15 +101,16 @@ let lastAgeKill = Date.now();
 function update(){
   let now = Date.now();
   
-  // Blumen aktualisieren
   flowers.forEach(f=>{
     if(!f.alive) return;
-    f.moisture -=0.05; f.light -=0.03; f.weed -=0.02;
-    if(rain) f.moisture = Math.min(f.moisture + 0.3, 1000);
-    if(sun) f.light = Math.min(f.light + 0.2, 1000);
+    f.moisture -=0.02; f.light -=0.015; f.weed -=0.015; // Unkraut fällt minimal schneller
+    if(rain) f.moisture = Math.min(f.moisture + 0.2, 1000);
+    if(sun) f.light = Math.min(f.light + 0.15, 1000);
     f.weed = Math.min(f.weed,1000);
+
     if(f.moisture>30 && f.light>30 && f.weed>30 && f.stage<10) f.stage +=0.0015;
 
+    // Übermäßige Werte
     if(f.moisture>900 || f.light>900 || f.weed>900){
       if(!f.lastOver900) f.lastOver900 = now;
       if(now - f.lastOver900 >= 10000){
@@ -104,39 +119,33 @@ function update(){
           let toKill = aliveFlowers[Math.floor(Math.random()*aliveFlowers.length)];
           toKill.alive = false;
           seeds += (toKill.stage>=9)?2:1;
-          seedInfo.textContent = `Samen: ${seeds}`;
         }
         f.lastOver900 = now;
       }
-    } else {
-      f.lastOver900 = now;
-    }
+    } else f.lastOver900 = now;
 
+    // Unter 10 sterben
     if(f.moisture<10 || f.light<10 || f.weed<10){
       if(f.alive){
         f.alive=false;
         seeds += (f.stage>=9)?2:1;
-        seedInfo.textContent = `Samen: ${seeds}`;
       }
     }
   });
 
-  // Altersschwäche: alle 20 Sekunden eine ausgewachsene Blume (Stufe >= 9) zufällig sterben lassen
+  // Altersschwäche nur für Stufe>=9
   if(now - lastAgeKill >= 20000){
-    let adults = flowers.filter(f => f.alive && f.stage >= 9);
-    if(adults.length > 0){
+    let adults = flowers.filter(f => f.alive && f.stage>=9);
+    if(adults.length>0){
       let toKill = adults[Math.floor(Math.random()*adults.length)];
       toKill.alive = false;
-      seeds += 2;
-      seedInfo.textContent = `Samen: ${seeds}`;
+      seeds +=2;
     }
     lastAgeKill = now;
   }
 
-  // Gras wachsen lassen
   grass.forEach(g=>{ if(g.height<g.maxHeight) g.height +=0.02*(Math.random()+0.5); });
 
-  // Regenpartikel
   if(rain){
     for(let i=0;i<3;i++){
       particles.push({x: Math.random()*canvas.width, y:0, vy:2+Math.random()*2});
@@ -150,11 +159,9 @@ function draw(){
   ctx.fillStyle='#87CEEB'; ctx.fillRect(0,0,canvas.width,canvas.height/2);
   ctx.fillStyle='#88cc88'; ctx.fillRect(0,yBase,canvas.width,canvas.height-yBase);
 
-  // Gras
   ctx.fillStyle='#228B22';
   grass.forEach(g=>ctx.fillRect(g.x, g.y - g.height,3,g.height));
 
-  // Blumen
   flowers.forEach(f=>{
     const stemHeight = 20 + f.stage*6;
     const stemWidth = 4 + f.stage/2;
@@ -166,7 +173,6 @@ function draw(){
     ctx.beginPath(); ctx.ellipse(f.x+8, f.y - stemHeight/3,3+f.stage/2,6+f.stage/2,Math.PI/6,0,2*Math.PI); ctx.fill();
 
     if(f.alive){
-      // Blütenblätter mit zufälliger Farbe
       ctx.fillStyle=f.color;
       for(let i=0;i<6;i++){
         let angle=(i/6)*2*Math.PI;
@@ -175,9 +181,10 @@ function draw(){
         ctx.beginPath(); ctx.ellipse(bx, by, size/2, size, angle,0,2*Math.PI);
         ctx.fill();
       }
-      // Blütenmitte
       ctx.fillStyle='yellow';
       ctx.beginPath(); ctx.arc(f.x, f.y - stemHeight, size/2,0,Math.PI*2); ctx.fill();
+
+      // individuelle Blumenstufe
       ctx.fillStyle='black';
       ctx.font = `${10+f.stage}px sans-serif`;
       ctx.textAlign='center'; ctx.textBaseline='middle';
@@ -185,22 +192,25 @@ function draw(){
     }
   });
 
-  // Regenpartikel
   ctx.fillStyle='#00f';
   particles.forEach(p=>ctx.fillRect(p.x,p.y,2,2));
 
+  // GUI Balken
   if(flowers.length>0){
     let f = flowers[flowers.length-1];
-    flowerStats.textContent = `Feuchtigkeit: ${f.moisture.toFixed(0)} Licht: ${f.light.toFixed(0)} Unkraut: ${f.weed.toFixed(0)} Stufe: ${Math.floor(f.stage)}`;
+    barMoisture.style.width = `${Math.min(f.moisture/1000*100,100)}%`;
+    barLight.style.width = `${Math.min(f.light/1000*100,100)}%`;
+    barWeed.style.width = `${Math.min(f.weed/1000*100,100)}%`;
   }
-  fertilizerInfo.textContent = ` Dünger: ${fertilizer}`;
+
+  seedInfo.textContent = `Samen: ${seeds}`;
+  fertilizerInfo.textContent = `Dünger: ${fertilizer}`;
   modeDisplay.textContent = `Modus: ${mode === 'seed' ? 'Samen pflanzen' : 'Schaufel'}`;
 }
 
 function loop(){ update(); draw(); requestAnimationFrame(loop); }
 loop();
 
-// Maus
 canvas.addEventListener('click', e=>{
   const rect = canvas.getBoundingClientRect();
   const mx = e.clientX - rect.left;
@@ -209,21 +219,18 @@ canvas.addEventListener('click', e=>{
   if(mode==="seed" && seeds>0){
     addFlower(mx, my);
     seeds--;
-    seedInfo.textContent = `Samen: ${seeds}`;
   } else if(mode==="shovel"){
     for(let i=flowers.length-1;i>=0;i--){
       let f = flowers[i];
       if(!f.alive && Math.abs(mx-f.x)<20 && Math.abs(my-(f.y - (20 + f.stage*6)))<20){
         flowers.splice(i,1);
         fertilizer++;
-        fertilizerInfo.textContent = ` Dünger: ${fertilizer}`;
-        break; // nur eine Blume pro Klick
+        break;
       }
     }
   }
 });
 
-// Tastatur
 window.addEventListener('keydown',e=>{
   if(e.key==='r') { rain = !rain; btnRain.classList.toggle('active', rain); }
   if(e.key==='l') { sun = !sun; btnSun.classList.toggle('active', sun); }
