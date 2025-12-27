@@ -107,7 +107,7 @@
 <div class="accordion">
 
 
-    <!-- Update-Panel -->
+<!-- Update-Panel -->
 <div class="update-panel">
     <h3>Update-Status</h3>
     <div class="update-content">
@@ -117,18 +117,16 @@
         <p><strong>20.08.2025:</strong> Allgemeinwissensquiz Multiplayer Feature hinzugefügt.</p>
         <p><strong>05.07.2025:</strong> Chronos V.1.2 Fungus Update veröffentlicht.</p>
         <p><strong>10.06.2025:</strong> Kleine Layout-Optimierungen.</p>
-        <!-- Du kannst beliebig viele Updates hinzufügen -->
+        <!-- weitere Updates -->
     </div>
 </div>
 
 <style>
-/* Update-Panel Styles */
+/* Update-Panel Styles unten rechts, mitscrollend */
 .update-panel {
-    position: fixed;
-    right: 10px;
-    top: 100px;
+    float: right;
     width: 250px;
-    max-height: 400px;
+    max-height: 300px;
     background: #ffffffcc; /* leicht transparent */
     border: 2px solid #6a11cb;
     border-radius: 10px;
@@ -136,7 +134,7 @@
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     overflow-y: auto;
     font-size: 14px;
-    z-index: 1000;
+    margin: 20px;
 }
 
 .update-panel h3 {
