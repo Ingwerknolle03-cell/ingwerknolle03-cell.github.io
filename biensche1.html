@@ -1,1 +1,312 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Blumen-Simulator</title>
+<style>
+body { margin:0; background:#a0dca0; display:flex; height:100vh; font-family:sans-serif; }
+#gui { width:250px; background:rgba(0,0,0,0.7); color:white; padding:10px; display:flex; flex-direction:column; gap:15px; }
+.gui-section { display:flex; flex-direction:column; gap:5px; }
+.gui-buttons { display:flex; flex-wrap:wrap; gap:5px; }
+button { cursor:pointer; padding:6px 10px; border-radius:5px; border:none; }
+.status-bar { display:flex; flex-direction:column; gap:6px; }
+.status-fill { height:16px; width:0%; border-radius:4px; }
+#container { flex:1; display:flex; justify-content:center; align-items:center; }
+canvas { background:#88cc88; border:1px solid #444; }
+</style>
+</head>
+<body>
+
+<div id="gui">
+<div class="gui-section">
+<strong>Aktionen</strong>
+<div class="gui-buttons">
+<button id="btnRain">🌧 Regen</button>
+<button id="btnSun">☀ Sonne</button>
+<button id="btnGrass">✂ Gras</button>
+</div>
+</div>
+
+<div class="gui-section">
+<strong>Werkzeuge</strong>
+<div class="gui-buttons">
+<button id="btnSeed">🌱 Samen</button>
+<button id="btnShovel">⛏ Schaufel</button>
+<button id="btnFertilizer">💩 Dünger</button>
+</div>
+</div>
+
+<div class="gui-section">
+<strong>Status</strong>
+<span id="statusSeeds">Samen: 0</span>
+<span id="statusFertilizer">Dünger: 0</span>
+<span id="statusMode">Modus: Samen</span>
+
+<div class="status-bar">
+<div>Feuchtigkeit</div>
+<div style="background:#444"><div id="barMoisture" class="status-fill" style="background:#0f0"></div></div>
+<div>Licht</div>
+<div style="background:#444"><div id="barLight" class="status-fill" style="background:#ff0"></div></div>
+<div>Unkraut</div>
+<div style="background:#444"><div id="barWeed" class="status-fill" style="background:#f00"></div></div>
+</div>
+</div>
+
+<div class="gui-section" style="margin-top:10px;">
+<strong>Speichern / Laden</strong>
+<div class="gui-buttons">
+<button id="btnSave">💾 Export</button>
+<button id="btnLoad">📂 Import</button>
+<input type="file" id="fileLoad" hidden>
+</div>
+</div>
+
+</div>
+
+<div id="container">
+<canvas id="canvas" width="800" height="500"></canvas>
+</div>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+const yBase = canvas.height * 0.4;
+
+let flowers=[], grass=[], particles=[];
+let seeds=0, fertilizer=0;
+let rain=false, sun=false, mode="seed";
+const speed=1; // feste Geschwindigkeit
+
+// Wiese
+for(let i=0;i<1200;i++){
+  const d=Math.random();
+  grass.push({
+    x:Math.random()*canvas.width,
+    y:yBase+d*(canvas.height-yBase),
+    height:4+d*30,
+    maxHeight:10+d*60,
+    green:120+d*90
+  });
+}
+
+// Blume
+function addFlower(x,y){
+  if(y<yBase) return;
+  const colors=["pink","red","purple","orange","blue"];
+  flowers.push({
+    x,y,stage:0,moisture:500,light:500,weed:500,
+    alive:true,wilted:false,wiltStart:null,
+    bloomType:Math.floor(Math.random()*3),
+    leaves:1+Math.floor(Math.random()*3),
+    color:colors[Math.floor(Math.random()*colors.length)]
+  });
+}
+addFlower(canvas.width/2,yBase+60);
+
+let lastRandomKill = Date.now();
+
+/* Update */
+function update(dt){
+  const now = Date.now();
+
+  flowers.forEach(f=>{
+    if(!f.alive) return;
+
+    f.moisture-=0.01*dt; 
+    f.light-=0.008*dt; 
+    f.weed-=0.03*dt;
+
+    if(rain) f.moisture=Math.min(1000,f.moisture+0.25*dt);
+    if(sun) f.light=Math.min(1000,f.light+0.2*dt);
+
+    let growthBoost = 1;
+    if(mode==="fertilizer" && fertilizer >0){
+      growthBoost=2;
+      fertilizer-=0.02*dt;
+      if(fertilizer<0) fertilizer=0;
+    }
+
+    if(f.moisture>30 && f.light>30 && f.weed>30 && f.stage<10){
+      f.stage+=0.001*growthBoost*dt;
+    }
+
+    const bad = f.moisture<80||f.moisture>900||f.light<80||f.light>900||f.weed>900;
+    if(bad){
+      if(!f.wiltStart) f.wiltStart=now;
+      f.wilted=true;
+      if(now-f.wiltStart>10000){
+        f.alive=false;
+        seeds+=f.stage>=9?2:1;
+      }
+    } else { f.wilted=false; f.wiltStart=null; }
+
+    if(f.moisture<10||f.light<10||f.weed<10){
+      f.alive=false;
+      seeds+=f.stage>=9?2:1;
+    }
+  });
+
+  // Zufälliger Tod ausgewachsener Blumen
+  if(now - lastRandomKill >= 20000){
+    const adults = flowers.filter(f=>f.alive && f.stage>=10);
+    if(adults.length>0){
+      const toKill = adults[Math.floor(Math.random()*adults.length)];
+      toKill.alive=false;
+      seeds+=2;
+    }
+    lastRandomKill = now;
+  }
+
+  grass.forEach(g=>{ if(g.height<g.maxHeight) g.height+=0.01; });
+
+  // Regenanimation auch wenn keine Blumen da sind
+  if(rain){
+    for(let i=0;i<3;i++){
+      particles.push({x:Math.random()*canvas.width, y:0, vy:2+Math.random()*2});
+    }
+  }
+
+  for(let i=particles.length-1;i>=0;i--){
+    const p=particles[i];
+    p.y += p.vy*dt;
+    if(p.y>canvas.height) particles.splice(i,1);
+  }
+
+  document.getElementById("statusSeeds").textContent=`Samen: ${seeds}`;
+  document.getElementById("statusFertilizer").textContent=`Dünger: ${fertilizer}`;
+  document.getElementById("statusMode").textContent=`Modus: ${mode}`;
+
+  const f=flowers.findLast(x=>x.alive);
+  if(f){
+    barMoisture.style.width=Math.min(100,f.moisture/10)+"%";
+    barLight.style.width=Math.min(100,f.light/10)+"%";
+    barWeed.style.width=Math.min(100,f.weed/10)+"%";
+  } else { 
+    barMoisture.style.width="0%";
+    barLight.style.width="0%";
+    barWeed.style.width="0%";
+  }
+}
+
+/* Zeichnen */
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle=sun?"#FFDFA0":"#87CEEB";
+  ctx.fillRect(0,0,canvas.width,yBase);
+  ctx.fillStyle="#88cc88";
+  ctx.fillRect(0,yBase,canvas.width,canvas.height-yBase);
+
+  grass.forEach(g=>{
+    ctx.fillStyle=`rgb(30,${g.green},30)`;
+    ctx.fillRect(g.x,g.y-g.height,2,g.height);
+  });
+
+  flowers.forEach(f=>{
+    const h=20+f.stage*6;
+    ctx.save();
+    ctx.translate(f.x,f.y);
+    if(f.wilted) ctx.rotate(-0.4);
+
+    ctx.fillStyle=f.alive?"#228B22":"#654321";
+    ctx.fillRect(-2,-h,4,h);
+
+    ctx.fillStyle="#2e8b57";
+    for(let i=0;i<f.leaves;i++){
+      const d=i%2?-1:1;
+      ctx.beginPath();
+      ctx.ellipse(d*(6+f.stage),-h/2-i*5,4+f.stage/3,8+f.stage/2,d*0.5,0,Math.PI*2);
+      ctx.fill();
+    }
+
+    if(f.alive){
+      ctx.fillStyle=f.wilted?"#888":f.color;
+      for(let i=0;i<6;i++){
+        const a=i*Math.PI/3;
+        ctx.beginPath();
+        if(f.bloomType===0)
+          ctx.arc(Math.cos(a)*(6+f.stage),-h+Math.sin(a)*(6+f.stage),4+f.stage/2,0,Math.PI*2);
+        else if(f.bloomType===1)
+          ctx.ellipse(Math.cos(a)*(8+f.stage),-h+Math.sin(a)*(8+f.stage),3+f.stage/2,10+f.stage,a,0,Math.PI*2);
+        else
+          ctx.ellipse(Math.cos(a)*(6+f.stage),-h+Math.sin(a)*(6+f.stage),6+f.stage,4+f.stage/2,a,0,Math.PI*2);
+        ctx.fill();
+      }
+      ctx.fillStyle="yellow";
+      ctx.beginPath();
+      ctx.arc(0,-h,4+f.stage/2,0,Math.PI*2);
+      ctx.fill();
+    }
+    ctx.restore();
+  });
+
+  ctx.fillStyle="#00f";
+  particles.forEach(p=>ctx.fillRect(p.x,p.y,2,2));
+}
+
+function loop(){ update(1); draw(); requestAnimationFrame(loop);}
+loop();
+
+/* UI */
+function momentary(type){
+  if(type==="rain"){ rain=true; setTimeout(()=>rain=false,5000); }
+  if(type==="sun"){ sun=true; setTimeout(()=>sun=false,5000); }
+}
+
+btnRain.onclick = ()=> momentary("rain");
+btnSun.onclick  = ()=> momentary("sun");
+btnGrass.onclick=()=>{
+  flowers.forEach(f=>{if(f.alive) f.weed=Math.min(1000,f.weed+80)});
+  grass.forEach(g=>g.height=Math.max(2,g.height-10));
+};
+btnSeed.onclick=()=>mode="seed";
+btnShovel.onclick=()=>mode="shovel";
+btnFertilizer.onclick=()=>mode="fertilizer";
+
+/* Maus */
+canvas.onclick=e=>{
+  const r=canvas.getBoundingClientRect();
+  const x=e.clientX-r.left,y=e.clientY-r.top;
+
+  if(mode==="seed"&&seeds>0&&y>=yBase){ addFlower(x,y); seeds--; }
+  else if(mode==="shovel"){
+    for(let i=flowers.length-1;i>=0;i--){
+      const f=flowers[i];
+      const h=20+f.stage*6;
+      if(!f.alive&&Math.hypot(x-f.x,y-(f.y-h))<40){
+        flowers.splice(i,1); fertilizer++; break;
+      }
+    }
+  } else if(mode==="fertilizer"){
+    flowers.forEach(f=>{
+      const h=20+f.stage*6;
+      if(f.alive && Math.hypot(x-f.x,y-(f.y-h))<30){ f.stage+=2; fertilizer--; }
+    });
+  }
+};
+
+/* Speichern / Laden */
+btnSave.onclick=()=>{
+  const data={flowers,grass,seeds,fertilizer};
+  const a=document.createElement("a");
+  a.href="data:application/json,"+encodeURIComponent(JSON.stringify(data));
+  a.download="blumen_save.json";
+  a.click();
+};
+btnLoad.onclick=()=>fileLoad.click();
+fileLoad.onchange=e=>{
+  const r=new FileReader();
+  r.onload=()=>{ const d=JSON.parse(r.result); flowers=d.flowers; grass=d.grass; seeds=d.seeds; fertilizer=d.fertilizer; };
+  r.readAsText(e.target.files[0]);
+};
+
+/* Tastatur */
+window.onkeydown=e=>{
+  if(e.key==='r') momentary("rain");
+  if(e.key==='l') momentary("sun");
+  if(e.key==='g') btnGrass.onclick();
+};
+</script>
+</body>
+</html>
+
 
