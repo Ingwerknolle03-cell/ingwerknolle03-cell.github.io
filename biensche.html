@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>Pixelgarten Abenteuer</title>
+<title>biensche</title>
 <style>
 body {
   margin: 0;
@@ -39,12 +39,12 @@ button {
 <body>
 <canvas id="gameCanvas"></canvas>
 <div id="gameUI">
-  <button id="waterBtn">💧 Gießen</button>
-  <button id="sunBtn">☀️ Sonne geben</button>
-  <button id="rainBtn">🌧 Regen aktivieren</button>
-  <button id="beeGameBtn">🐝 Bienenfang</button>
-  <button id="saveBtn">💾 Speichern</button>
-  <button id="loadBtn">📂 Laden</button>
+  <button id="waterBtn">💧</button>
+  <button id="sunBtn">☀️</button>
+  <button id="rainBtn">🌧</button>
+  <button id="beeGameBtn">🐝</button>
+  <button id="saveBtn">Speichern</button>
+  <button id="loadBtn">Laden</button>
   <input type="file" id="fileInput" style="display:none;" accept=".json" />
 </div>
 <div id="log"></div>
@@ -161,16 +161,16 @@ draw();
 
 // UI Actions
 document.getElementById('waterBtn').onclick = ()=>{
-  log('💧 Du gießt die Blume!');
+  log('Ahhh, Wasser💧!');
   game.nectar+=0.1;
 };
 document.getElementById('sunBtn').onclick = ()=>{
-  log('☀️ Sonne scheint!');
+  log('☀️');
   game.sun+=0.1;
 };
 document.getElementById('rainBtn').onclick = ()=>{
   game.rain=!game.rain;
-  log(game.rain?'🌧 Regen gestartet!':'🌧 Regen aufgehört!');
+  log(game.rain?'iieh, jetzt werde ich ja nass🌧 ':'🌧 Regen endet');
   if(game.rain){
     // Mulden füllen
     game.muldes.forEach(m=>game.nectar+=0.5);
@@ -209,7 +209,7 @@ fileInput.onchange = ()=>{
     try{
       game = JSON.parse(e.target.result);
       log('📂 Spiel geladen');
-    }catch(err){log('❌ Fehler beim Laden');}
+    }catch(err){log('Fehler beim Laden');}
   };
   reader.readAsText(file);
 };
@@ -217,7 +217,7 @@ fileInput.onchange = ()=>{
 // Click auf Canvas für Mulden
 canvas.addEventListener('click', e=>{
   game.muldes.push({x:e.clientX,y:e.clientY});
-  log('⛏ Mulde erstellt!');
+  log('⛏');
 });
 </script>
 </body>
