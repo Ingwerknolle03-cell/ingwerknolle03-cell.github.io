@@ -29,6 +29,7 @@ header {
     font-family:'Fira Code', monospace;
 }
 .header-left { font-size:1.5em; font-weight:600; }
+.header-right { display:flex; align-items:center; gap:10px; }
 .header-right button {
     padding:6px 12px;
     border:none;
@@ -117,8 +118,27 @@ button:hover { background:#0af; box-shadow:0 6px 15px rgba(10,255,255,0.5); }
 /* Footer */
 .footer-text { text-align:center; padding:40px 20px; font-size:16px; color:#888; }
 
+/* Info Button Panel */
+#info-panel {
+    position:fixed;
+    top:70px;
+    right:20px;
+    width:300px;
+    background:#1e1e1e;
+    border:2px solid #6a11cb;
+    border-radius:12px;
+    padding:20px;
+    box-shadow:0 8px 20px rgba(0,0,0,0.7);
+    font-family:'Fira Code', monospace;
+    display:none;
+    z-index:999;
+}
+#info-panel h3 { margin-bottom:10px; color:#6a11cb; }
+#info-panel p { margin-bottom:10px; line-height:1.5; }
+#info-panel button { width:100%; }
+
 /* Responsive */
-@media(max-width:900px) { .main-container { flex-direction:column; } .header-left { font-size:1.2em; } }
+@media(max-width:900px) { .main-container { flex-direction:column; } .header-left { font-size:1.2em; } #info-panel { position:static; width:auto; margin:10px; } }
 </style>
 </head>
 <body>
@@ -127,16 +147,23 @@ button:hover { background:#0af; box-shadow:0 6px 15px rgba(10,255,255,0.5); }
 <header>
     <div class="header-left">Smartzone Hub</div>
     <div class="header-right">
+        <button id="info-btn">Info</button>
         <button onclick="location.href='english.html'">English Version</button>
     </div>
 </header>
 
+<!-- Info Panel -->
+<div id="info-panel">
+    <h3>Allgemeine Informationen</h3>
+    <p>Hier finden Sie eine kurze Übersicht über die Smartzone Hub Seite.</p>
+    <button onclick="location.href='allgemeininfo.html'">Mehr erfahren</button>
+</div>
+
 <!-- Main Content -->
 <div class="main-container">
 
-    <!-- Left Column: Kategorien -->
+    <!-- Left Column -->
     <div class="left-column">
-        <!-- Lernspiele -->
         <div class="accordion-item">
             <div class="accordion-header">
                 <div><img src="bilder/lernspiele.png" alt="Lernspiele" class="section-image">Lernspiele</div>
@@ -145,16 +172,15 @@ button:hover { background:#0af; box-shadow:0 6px 15px rgba(10,255,255,0.5); }
             <div class="accordion-content">
                 <div class="button-container">
                     <a href="vokabeltrainer.html"><button>Spaßiger Vokabeltrainer</button></a>
-                    <p>Neue und alte Vokabeln trainieren.</p>
+                    <p>Trainiere neue und alte Vokabeln.</p>
                 </div>
                 <div class="button-container">
                     <a href="Vokabelabfrage.html"><button>Pure Vokabelabfrage</button></a>
-                    <p>Einfaches Vokabelspiel mit Import/Export.</p>
+                    <p>Einfaches Lernspiel mit Import/Export.</p>
                 </div>
             </div>
         </div>
 
-        <!-- Python -->
         <div class="accordion-item">
             <div class="accordion-header">
                 <div><img src="bilder/python.png" alt="Python" class="section-image">Python</div>
@@ -167,12 +193,11 @@ button:hover { background:#0af; box-shadow:0 6px 15px rgba(10,255,255,0.5); }
                 </div>
                 <div class="button-container">
                     <a href="fortgeschrittenesPython.html"><button>Fortgeschrittenes Python</button></a>
-                    <p>(DEMO) Nach Abschluss der Grundlagen.</p>
+                    <p>Für Nutzer mit abgeschlossenen Grundlagen.</p>
                 </div>
             </div>
         </div>
 
-        <!-- Naturspiele -->
         <div class="accordion-item">
             <div class="accordion-header">
                 <div><img src="bilder/naturspiele.png" alt="Naturspiele" class="section-image">Naturspiele</div>
@@ -181,12 +206,11 @@ button:hover { background:#0af; box-shadow:0 6px 15px rgba(10,255,255,0.5); }
             <div class="accordion-content">
                 <div class="button-container">
                     <a href="Chronos1.2FungusUpdate.html"><button>CHRONOS V.1.2 Fungus Update</button></a>
-                    <p>Baue ein Biotop. Updates auf Youtube-Kanal.</p>
+                    <p>Baue ein Biotop. Updates auf Youtube.</p>
                 </div>
             </div>
         </div>
 
-        <!-- Allgemeinwissen -->
         <div class="accordion-item">
             <div class="accordion-header">
                 <div><img src="bilder/quiz.png" alt="Quiz" class="section-image">Allgemeinwissen</div>
@@ -205,7 +229,7 @@ button:hover { background:#0af; box-shadow:0 6px 15px rgba(10,255,255,0.5); }
         </div>
     </div>
 
-    <!-- Right Column: Info Boxes -->
+    <!-- Right Column -->
     <div class="right-column">
         <div class="info-box">
             <div class="info-box-header">
@@ -213,25 +237,30 @@ button:hover { background:#0af; box-shadow:0 6px 15px rgba(10,255,255,0.5); }
                 <span>▼</span>
             </div>
             <div class="info-box-content">
-                <p>Hier findest du alles über SmartZone Hub, Tutorials, Lerninhalte und Anleitungen.</p>
+                <p>Beispieltext: Hier stehen alle allgemeinen Informationen über SmartZone Hub.</p>
+                <button onclick="location.href='smartzoneinfos.html'">Mehr erfahren</button>
             </div>
         </div>
+
         <div class="info-box">
             <div class="info-box-header">
                 <span>Kontaktmöglichkeiten</span>
                 <span>▼</span>
             </div>
             <div class="info-box-content">
-                <p>Schreibe uns bei Fragen oder Feedback direkt über deine bevorzugte Kontaktmethode.</p>
+                <p>Beispieltext: So kannst du uns bei Fragen oder Feedback erreichen.</p>
+                <button onclick="location.href='kontakt.html'">Kontakt-Seite</button>
             </div>
         </div>
+
         <div class="info-box">
             <div class="info-box-header">
                 <span>Updates & News</span>
                 <span>▼</span>
             </div>
             <div class="info-box-content">
-                <p>Sieh dir an, was in den letzten Monaten und Jahren auf der SmartZone Hub Seite passiert ist.</p>
+                <p>Beispieltext: Hier siehst du alle aktuellen Updates und News.</p>
+                <button onclick="location.href='updates.html'">Update-Seite</button>
             </div>
         </div>
     </div>
@@ -240,7 +269,7 @@ button:hover { background:#0af; box-shadow:0 6px 15px rgba(10,255,255,0.5); }
 <p class="footer-text">Viel Spaß beim Ausprobieren! Bei Fragen: Ingwerknolle_03@proton.me</p>
 
 <script>
-// Akkordeon Left Column
+// Left Column Accordion
 document.querySelectorAll('.accordion-header').forEach(header=>{
     header.addEventListener('click',()=>{
         const content = header.nextElementSibling;
@@ -262,6 +291,12 @@ document.querySelectorAll('.info-box-header').forEach(header=>{
         const arrow = header.querySelector('span:last-child');
         arrow.textContent = arrow.textContent==='▼'?'▲':'▼';
     });
+});
+
+// Info Panel Button
+document.getElementById('info-btn').addEventListener('click',()=>{
+    const panel = document.getElementById('info-panel');
+    panel.style.display = panel.style.display==='block'?'none':'block';
 });
 </script>
 
