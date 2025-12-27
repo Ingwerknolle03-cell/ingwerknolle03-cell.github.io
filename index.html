@@ -160,11 +160,28 @@ button:hover { background:#0af; box-shadow:0 6px 15px rgba(10,255,255,0.5); }
 </header>
 
 <!-- Info Panel -->
-<div id="info-panel">
+<div id="info-panel" style="position: fixed; top: 20%; left: 50%; transform: translateX(-50%); background: #fff; padding: 20px; border: 1px solid #333; box-shadow: 0 0 10px rgba(0,0,0,0.3); z-index: 100;">
     <h3>Informationen</h3>
     <p>Übersicht öffnen?</p>
     <button onclick="location.href='info1.html'">weiter</button>
 </div>
+
+<script>
+    const infoPanel = document.getElementById('info-panel');
+
+    // Funktion, die das Panel schließt, wenn außerhalb geklickt wird
+    document.addEventListener('click', function(event) {
+        if (!infoPanel.contains(event.target)) {
+            infoPanel.style.display = 'none';
+        }
+    });
+
+    // Optional: verhindern, dass Klick auf Panel das Schließen auslöst
+    infoPanel.addEventListener('click', function(event) {
+        event.stopPropagation();
+    });
+</script>
+
 
 <!-- Main Content -->
 <div class="main-container">
