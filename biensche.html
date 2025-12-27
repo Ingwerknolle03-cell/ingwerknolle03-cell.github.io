@@ -5,8 +5,8 @@
 <meta charset="UTF-8">
 <title>Pflege deine Blume</title>
 <style>
-  body { margin: 0; background: #a0dca0; display: flex; justify-content: center; align-items: center; height: 100vh; }
-  canvas { border: 2px solid #333; background: #88cc88; }
+  body { margin: 0; overflow: hidden; background: #a0dca0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+  canvas { display: block; }
   #status { position: absolute; top: 10px; left: 10px; color: #fff; font-family: sans-serif; }
 </style>
 </head>
@@ -26,7 +26,7 @@ let flower = {
   light: 50,
   clean: 50,
   x: canvas.width/2,
-  y: canvas.height/2
+  y: canvas.height/2 + 50
 };
 
 let rain = false;
@@ -35,21 +35,44 @@ let particles = [];
 
 // --- Helferfunktionen ---
 function drawBackground() {
+  // Himmel
+  ctx.fillStyle = '#87CEEB';
+  ctx.fillRect(0, 0, canvas.width, canvas.height/2);
+  // Wiese
   ctx.fillStyle = '#88cc88';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillRect(0, canvas.height/2, canvas.width, canvas.height/2);
 }
 
 function drawFlower() {
-  const size = 10 + flower.stage * 20;
+  const size = 5 + flower.stage * 15;
   
   // Stiel
   ctx.fillStyle = '#228B22';
-  ctx.fillRect(flower.x - 5, flower.y, 10, 30);
-
-  // Blüte
-  ctx.fillStyle = 'pink';
+  ctx.fillRect(flower.x-5, flower.y, 10, 40);
+  
+  // Blätter
+  ctx.fillStyle = '#2e8b57';
   ctx.beginPath();
-  ctx.arc(flower.x, flower.y, size, 0, Math.PI*2);
+  ctx.ellipse(flower.x-10, flower.y+20, 5, 10, -Math.PI/6, 0, 2*Math.PI);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(flower.x+10, flower.y+25, 5, 10, Math.PI/6, 0, 2*Math.PI);
+  ctx.fill();
+  
+  // Blüte mit mehreren Blütenblättern
+  ctx.fillStyle = 'pink';
+  for(let i=0; i<6; i++){
+    let angle = (i/6) * 2 * Math.PI;
+    let bx = flower.x + Math.cos(angle)*size;
+    let by = flower.y - Math.sin(angle)*size;
+    ctx.beginPath();
+    ctx.ellipse(bx, by, size/2, size, angle, 0, 2*Math.PI);
+    ctx.fill();
+  }
+  // Blütenmitte
+  ctx.fillStyle = 'yellow';
+  ctx.beginPath();
+  ctx.arc(flower.x, flower.y, size/2, 0, Math.PI*2);
   ctx.fill();
 }
 
@@ -61,17 +84,17 @@ function drawParticles() {
 }
 
 function spawnParticles() {
-  if(rain) {
-    for(let i=0; i<3; i++){
-      particles.push({x: Math.random()*canvas.width, y: 0, color:'#00f', vy:2+Math.random()*2});
+  if(rain){
+    for(let i=0;i<3;i++){
+      particles.push({x: Math.random()*canvas.width, y:0, color:'#00f', vy:2+Math.random()*2});
     }
   }
 }
 
 function updateParticles() {
-  particles.forEach((p, i) => {
+  particles.forEach((p,i)=>{
     p.y += p.vy;
-    if(p.y > canvas.height) particles.splice(i,1);
+    if(p.y>canvas.height) particles.splice(i,1);
   });
 }
 
@@ -106,7 +129,8 @@ function drawStatus() {
     Wasser: ${flower.water.toFixed(0)}<br>
     Licht: ${flower.light.toFixed(0)}<br>
     Sauberkeit: ${flower.clean.toFixed(0)}<br>
-    Blütenstufe: ${Math.floor(flower.stage)+1}
+    Blütenstufe: ${Math.floor(flower.stage)+1}<br>
+    Steuerung: R=Regen, L=Sonne, G=Gras schneiden
   `;
 }
 
@@ -132,4 +156,3 @@ draw();
 </script>
 </body>
 </html>
-
