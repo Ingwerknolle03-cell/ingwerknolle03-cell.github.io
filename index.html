@@ -1,164 +1,214 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smartzone Hub</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smartzone Hub</title>
 
-    <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
 
-    <style>
-        body {
-            font-family: 'Montserrat', sans-serif;
-            margin: 0;
-            padding: 0;
-            background: #f0f4f8;
-            color: #333;
-        }
+<style>
+/* === Grundlayout & Dark Theme === */
+body {
+    margin: 0;
+    padding: 0;
+    background: #121212;
+    color: #e0e0e0;
+    font-family: 'Montserrat', sans-serif;
+}
 
-        header {
-            text-align: center;
-            padding: 50px 20px 20px;
-            background: linear-gradient(90deg, #6a11cb, #2575fc);
-            color: white;
-        }
+a {
+    text-decoration: none;
+    color: inherit;
+}
 
-        header h1 {
-            margin: 0;
-            font-size: 2.5em;
-            cursor: pointer;
-        }
+h1, h2, h3, h4, h5 {
+    margin: 0;
+}
 
-        header p {
-            margin: 5px 0 0 0;
-            font-size: 1em;
-            color: white;
-        }
+/* === Header === */
+header {
+    background: linear-gradient(90deg, #6a11cb, #2575fc);
+    color: #fff;
+    text-align: center;
+    padding: 40px 20px;
+    position: relative;
+    cursor: pointer;
+    font-family: 'Fira Code', monospace;
+}
 
-        .overview-panel {
-            display: none;
-            background: #ffffff;
-            color: #333;
-            border: 2px solid #6a11cb;
-            border-radius: 10px;
-            padding: 15px;
-            margin: 15px auto;
-            max-width: 800px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
+header h1 {
+    font-size: 2.5em;
+    transition: color 0.3s;
+}
 
-        .overview-panel h3 {
-            margin-top: 0;
-            color: #6a11cb;
-            text-align: center;
-        }
+header:hover h1 {
+    color: #0af;
+}
 
-        .overview-panel h4 {
-            margin-bottom: 5px;
-            color: #2575fc;
-        }
+header p {
+    font-size: 1em;
+    color: #c0c0c0;
+    margin-top: 5px;
+}
 
-        .overview-panel p {
-            margin: 3px 0;
-        }
+/* === Übersicht Panel === */
+.overview-panel {
+    display: none;
+    background: #1e1e1e;
+    border: 2px solid #6a11cb;
+    border-radius: 12px;
+    margin: 15px auto;
+    padding: 20px;
+    max-width: 900px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+    font-family: 'Fira Code', monospace;
+    transition: all 0.3s ease;
+}
 
-        .overview-content {
-            max-height: 300px;
-            overflow-y: auto;
-            font-size: 14px;
-        }
+.overview-panel h3 {
+    text-align: center;
+    color: #6a11cb;
+    margin-bottom: 15px;
+}
 
-        .accordion {
-            width: 90%;
-            max-width: 800px;
-            margin: 30px auto;
-        }
+.overview-panel h4 {
+    color: #0af;
+    margin-top: 15px;
+}
 
-        .accordion-item {
-            background: white;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
+.overview-panel p {
+    margin: 5px 0;
+}
 
-        .accordion-header {
-            padding: 20px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 1.2em;
-            background: #6a11cb;
-            color: white;
-            transition: background 0.3s;
-        }
+.overview-content {
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
 
-        .accordion-header:hover {
-            background: #2575fc;
-        }
+/* Scrollbar */
+.overview-content::-webkit-scrollbar {
+    width: 8px;
+}
+.overview-content::-webkit-scrollbar-track {
+    background: #2a2a2a;
+    border-radius: 4px;
+}
+.overview-content::-webkit-scrollbar-thumb {
+    background: #6a11cb;
+    border-radius: 4px;
+}
 
-        .accordion-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-            background: #f9f9f9;
-        }
+/* === Accordion === */
+.accordion {
+    width: 90%;
+    max-width: 900px;
+    margin: 30px auto;
+}
 
-        .accordion-content .button-container {
-            padding: 20px;
-            border-bottom: 1px solid #eee;
-        }
+.accordion-item {
+    background: #1e1e1e;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    overflow: hidden;
+    transition: transform 0.3s;
+}
 
-        .accordion-content .button-container:last-child {
-            border-bottom: none;
-        }
+.accordion-item:hover {
+    transform: translateY(-3px);
+}
 
-        button {
-            font-size: 16px;
-            padding: 10px 20px;
-            margin: 10px 0;
-            cursor: pointer;
-            border: none;
-            border-radius: 6px;
-            background: #6a11cb;
-            color: white;
-            transition: background 0.3s;
-        }
+.accordion-header {
+    padding: 20px;
+    font-weight: 600;
+    font-size: 1.3em;
+    background: #333;
+    color: #0af;
+    cursor: pointer;
+    transition: background 0.3s;
+}
 
-        button:hover {
-            background: #2575fc;
-        }
+.accordion-header:hover {
+    background: #444;
+}
 
-        .footer-text {
-            text-align: center;
-            padding: 40px 20px;
-            font-size: 16px;
-            color: #555;
-        }
-    </style>
+.accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease, padding 0.3s ease;
+    background: #1a1a1a;
+}
+
+.accordion-content .button-container {
+    padding: 20px;
+    border-bottom: 1px solid #333;
+}
+
+.accordion-content .button-container:last-child {
+    border-bottom: none;
+}
+
+button {
+    font-size: 16px;
+    padding: 12px 25px;
+    margin: 10px 0;
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    background: #6a11cb;
+    color: white;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(106,17,203,0.4);
+}
+
+button:hover {
+    background: #0af;
+    box-shadow: 0 6px 15px rgba(10,255,255,0.5);
+}
+
+/* Footer */
+.footer-text {
+    text-align: center;
+    padding: 40px 20px;
+    font-size: 16px;
+    color: #888;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .accordion, .overview-panel {
+        width: 95%;
+    }
+}
+</style>
 </head>
 <body>
 
-<header>
-    <h1 id="header-title">Smartzone Hub ▼</h1>
+<!-- === Header mit Übersicht Panel === -->
+<header id="header-title">
+    Smartzone Hub ▼
     <p>https://ingwerknolle03-cell.github.io/smartzone/</p>
-
-    <!-- Übersicht Panel -->
-    <div id="overview-panel" class="overview-panel">
-        <h3>Übersicht</h3>
-        <div class="overview-content">
-            <h4>Update-Status</h4>
-            <p><strong>27.12.2025:</strong> Neue Quizfragen hinzugefügt.</p>
-            <p><strong>15.11.2025:</strong> Python Game 1.1 Update: Fortschritt speichern nun möglich.</p>
-            <p><strong>01.10.2025:</strong> Neue Lernspiele Kategorie „Mathe“ vorbereitet.</p>
-            <h4>Kontakt</h4>
-            <p>Email: Ingwerknolle_03@proton.me</p>
-            <h4>Infos</h4>
-            <p>Hier findest du alle wichtigen Informationen über die Smartzone Hub Seite.</p>
-        </div>
-    </div>
 </header>
 
+<div id="overview-panel" class="overview-panel">
+    <h3>Übersicht</h3>
+    <div class="overview-content">
+        <h4>Update-Status</h4>
+        <p><strong>27.12.2025:</strong> Neue Quizfragen hinzugefügt.</p>
+        <p><strong>15.11.2025:</strong> Python Game 1.1 Update: Fortschritt speichern nun möglich.</p>
+        <p><strong>01.10.2025:</strong> Neue Lernspiele Kategorie „Mathe“ vorbereitet.</p>
+        <h4>Kontakt</h4>
+        <p>Email: Ingwerknolle_03@proton.me</p>
+        <h4>Infos</h4>
+        <p>Hier findest du alle wichtigen Informationen über die Smartzone Hub Seite.</p>
+    </div>
+</div>
+
+<!-- === Accordion Sektionen === -->
 <div class="accordion">
     <!-- Lernspiele -->
     <div class="accordion-item">
@@ -225,6 +275,7 @@
     Viel Spaß beim Ausprobieren! Bei Fragen: Ingwerknolle_03@proton.me
 </p>
 
+<!-- === JS === -->
 <script>
     // Accordion Funktion
     const headers = document.querySelectorAll(".accordion-header");
@@ -246,10 +297,10 @@
     headerTitle.addEventListener('click', () => {
         if(overviewPanel.style.display === 'block') {
             overviewPanel.style.display = 'none';
-            headerTitle.textContent = "Smartzone Hub ▼";
+            headerTitle.innerHTML = "Smartzone Hub ▼<p>https://ingwerknolle03-cell.github.io/smartzone/</p>";
         } else {
             overviewPanel.style.display = 'block';
-            headerTitle.textContent = "Smartzone Hub ▲";
+            headerTitle.innerHTML = "Smartzone Hub ▲<p>https://ingwerknolle03-cell.github.io/smartzone/</p>";
         }
     });
 </script>
