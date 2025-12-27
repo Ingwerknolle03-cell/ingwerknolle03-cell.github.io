@@ -27,6 +27,46 @@
         header h1 {
             margin: 0;
             font-size: 2.5em;
+            cursor: pointer;
+        }
+
+        header p {
+            margin: 5px 0 0 0;
+            font-size: 1em;
+            color: white;
+        }
+
+        .overview-panel {
+            display: none;
+            background: #ffffff;
+            color: #333;
+            border: 2px solid #6a11cb;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px auto;
+            max-width: 800px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .overview-panel h3 {
+            margin-top: 0;
+            color: #6a11cb;
+            text-align: center;
+        }
+
+        .overview-panel h4 {
+            margin-bottom: 5px;
+            color: #2575fc;
+        }
+
+        .overview-panel p {
+            margin: 3px 0;
+        }
+
+        .overview-content {
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 14px;
         }
 
         .accordion {
@@ -100,14 +140,6 @@
 <body>
 
 <header>
-    <h1>Smartzone Hub</h1>
-    <p>https://ingwerknolle03-cell.github.io/smartzone/</p>
-</header>
-
-<div class="accordion">
-
-
-<header>
     <h1 id="header-title">Smartzone Hub ▼</h1>
     <p>https://ingwerknolle03-cell.github.io/smartzone/</p>
 
@@ -127,62 +159,7 @@
     </div>
 </header>
 
-<style>
-/* Übersicht Panel Styles */
-.overview-panel {
-    display: none;
-    background: #ffffff;
-    border: 2px solid #6a11cb;
-    border-radius: 10px;
-    padding: 15px;
-    margin-top: 15px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
-
-.overview-content {
-    max-height: 300px;
-    overflow-y: auto;
-    font-size: 14px;
-}
-
-.overview-panel h3 {
-    margin-top: 0;
-    color: #6a11cb;
-    text-align: center;
-}
-
-.overview-panel h4 {
-    margin-bottom: 5px;
-    color: #2575fc;
-}
-
-.overview-panel p {
-    margin: 3px 0;
-}
-
-#header-title {
-    cursor: pointer;
-}
-</style>
-
-<script>
-// Übersicht Panel öffnen/schließen beim Klick auf Header
-const headerTitle = document.getElementById('header-title');
-const overviewPanel = document.getElementById('overview-panel');
-
-headerTitle.addEventListener('click', () => {
-    if(overviewPanel.style.display === 'block') {
-        overviewPanel.style.display = 'none';
-        headerTitle.textContent = "Smartzone Hub ▼";
-    } else {
-        overviewPanel.style.display = 'block';
-        headerTitle.textContent = "Smartzone Hub ▲";
-    }
-});
-</script>
-
-
-
+<div class="accordion">
     <!-- Lernspiele -->
     <div class="accordion-item">
         <div class="accordion-header"> Lernspiele </div>
@@ -199,27 +176,23 @@ headerTitle.addEventListener('click', () => {
     </div>
 
     <!-- Python -->
-
-<div class="accordion-item">
-    <div class="accordion-header"> Python </div>
-    <div class="accordion-content">
-        <div class="button-container">
-            <a href="grundlagenpython.html"><button>Python Grundlagen</button></a>
-            <p>(DEMO) Handbuch und Quizzes.</p>
+    <div class="accordion-item">
+        <div class="accordion-header"> Python </div>
+        <div class="accordion-content">
+            <div class="button-container">
+                <a href="grundlagenpython.html"><button>Python Grundlagen</button></a>
+                <p>(DEMO) Handbuch und Quizzes.</p>
+            </div>
+            <div class="button-container">
+                <a href="fortgeschrittenesPython.html"><button>Es geht weiter mit Python</button></a>
+                <p>(DEMO) Wenn Grundlagen schon abgeschlossen sind.</p>
+            </div>
+            <div class="button-container">
+                <a href="pythongame1.1.html"><button>Python Game 1.1</button></a>
+                <p>Ein Spiel zum Python lernen. Dein Score erhöht sich nur bei richtigen Antworten und du kannst auf jedem Browser weiterspielen mit deinem letzten Fortschritt.</p>
+            </div>
         </div>
-        <div class="button-container">
-            <a href="fortgeschrittenesPython.html"><button>Es geht weiter mit Python</button></a>
-            <p>(DEMO) Wenn Grundlagen schon abgeschlossen sind.</p>
-        </div>
-
-        <div class="button-container">
-            <a href="pythongame1.1.html"><button>Python Game 1.1</button></a>
-            <p>Ein Spiel zum Python lernen. Dein Score erhöht sich nur bei richtigen Antworten und du kannst auf jedem Browser weiterspeielen mit deinem letzten Fortschritt.</p>
-        </div>
-
     </div>
-</div>
-
 
     <!-- Naturspiele -->
     <div class="accordion-item">
@@ -232,25 +205,20 @@ headerTitle.addEventListener('click', () => {
         </div>
     </div>
 
-
-    
-<div class="accordion-item">
-    <div class="accordion-header">Allgemeinwissen </div>
-    <div class="accordion-content">
-        <div class="button-container">
-            <a href="dasgroßeQuiz.html"><button>Das große Quiz (Einzelspieler)</button></a>
-            <p>DEMO</p>
+    <!-- Allgemeinwissen -->
+    <div class="accordion-item">
+        <div class="accordion-header">Allgemeinwissen </div>
+        <div class="accordion-content">
+            <div class="button-container">
+                <a href="dasgroßeQuiz.html"><button>Das große Quiz (Einzelspieler)</button></a>
+                <p>DEMO</p>
+            </div>
+            <div class="button-container">
+                <a href="mehrspielerQuiz.html"><button>Allgemeinwissensquiz MEHRSPIELER!!! Großes Update</button></a>
+                <p>VOLLVERSION FREE</p>
+            </div>
         </div>
-        <div class="button-container">
-            <a href="mehrspielerQuiz.html"><button>Allgemeinwissensquiz MEHRSPIELER!!! Großes Update</button></a>
-            <p> VOLLVERSION FREE </p>
-
-        
     </div>
-</div>
-
-
-
 </div>
 
 <p class="footer-text">
@@ -258,20 +226,35 @@ headerTitle.addEventListener('click', () => {
 </p>
 
 <script>
+    // Accordion Funktion
     const headers = document.querySelectorAll(".accordion-header");
     headers.forEach(header => {
         header.addEventListener("click", () => {
             const content = header.nextElementSibling;
             const isOpen = content.style.maxHeight && content.style.maxHeight !== "0px";
-            // Schließe alle anderen
             document.querySelectorAll(".accordion-content").forEach(c => c.style.maxHeight = null);
             if(!isOpen) {
                 content.style.maxHeight = content.scrollHeight + "px";
             }
         });
     });
+
+    // Übersicht Panel öffnen/schließen
+    const headerTitle = document.getElementById('header-title');
+    const overviewPanel = document.getElementById('overview-panel');
+
+    headerTitle.addEventListener('click', () => {
+        if(overviewPanel.style.display === 'block') {
+            overviewPanel.style.display = 'none';
+            headerTitle.textContent = "Smartzone Hub ▼";
+        } else {
+            overviewPanel.style.display = 'block';
+            headerTitle.textContent = "Smartzone Hub ▲";
+        }
+    });
 </script>
 
 </body>
 </html>
+
 
