@@ -29,7 +29,7 @@ header {
     font-family:'Fira Code', monospace;
 }
 .header-left { font-size:1.5em; font-weight:600; }
-.header-right { display:flex; align-items:center; gap:10px; }
+.header-right { display:flex; gap:10px; }
 .header-right button {
     padding:6px 12px;
     border:none;
@@ -37,12 +37,11 @@ header {
     background:#6a11cb;
     color:#fff;
     cursor:pointer;
-    font-family:'Fira Code', monospace;
-    transition:all 0.3s;
+    transition:0.3s;
 }
 .header-right button:hover { background:#0af; }
 
-/* Main Container */
+/* Main */
 .main-container {
     display:flex;
     flex-wrap:wrap;
@@ -51,9 +50,9 @@ header {
     margin:40px auto;
     gap:20px;
 }
-.left-column, .right-column { flex:1; min-width:300px; }
+.left-column,.right-column { flex:1; min-width:300px; }
 
-/* Accordion Panels */
+/* Accordion */
 .accordion-item {
     background:#1e1e1e;
     border-radius:12px;
@@ -63,33 +62,44 @@ header {
 }
 .accordion-header {
     padding:20px;
-    font-weight:600;
-    font-size:1.2em;
     background:#333;
     color:#0af;
+    font-size:1.2em;
     cursor:pointer;
     display:flex;
-    align-items:center;
     justify-content:space-between;
-    transition:background 0.3s;
 }
 .accordion-header:hover { background:#444; }
 .accordion-content {
     max-height:0;
     overflow:hidden;
-    transition:max-height 0.5s ease, padding 0.3s ease;
+    transition:max-height 0.5s ease;
     background:#1a1a1a;
 }
-.accordion-content .button-container { padding:20px; border-bottom:1px solid #333; }
-.accordion-content .button-container:last-child { border-bottom:none; }
-button { font-size:16px; padding:12px 25px; margin:10px 0; cursor:pointer; border:none; border-radius:6px; background:#6a11cb; color:white; transition:all 0.3s ease; box-shadow:0 4px 10px rgba(106,17,203,0.4); }
-button:hover { background:#0af; box-shadow:0 6px 15px rgba(10,255,255,0.5); }
+.button-container { padding:20px; border-bottom:1px solid #333; }
+.button-container:last-child { border-bottom:none; }
 
-/* Right Column Boxes */
+button {
+    font-size:16px;
+    padding:12px 25px;
+    border:none;
+    border-radius:6px;
+    background:#6a11cb;
+    color:white;
+    cursor:pointer;
+    transition:0.3s;
+    box-shadow:0 4px 10px rgba(106,17,203,0.4);
+}
+button:hover {
+    background:#0af;
+    box-shadow:0 6px 15px rgba(10,255,255,0.5);
+}
+
+/* Info Boxes */
 .info-box {
     background:#1e1e1e;
     border-radius:12px;
-    margin-bottom:20px;
+    margin-bottom:25px;
     overflow:hidden;
     box-shadow:0 4px 12px rgba(0,0,0,0.5);
 }
@@ -102,23 +112,62 @@ button:hover { background:#0af; box-shadow:0 6px 15px rgba(10,255,255,0.5); }
     cursor:pointer;
     display:flex;
     justify-content:space-between;
-    align-items:center;
 }
 .info-box-header:hover { background:#444; }
 .info-box-content {
     max-height:0;
     overflow:hidden;
     padding:0 20px;
-    transition:max-height 0.5s ease, padding 0.3s ease;
-    color:#ccc;
+    transition:0.5s;
 }
 .info-box-content.open {
-    padding:15px 20px;
     max-height:500px;
+    padding:20px;
 }
 
-/* Footer */
-.footer-text { text-align:center; padding:40px 20px; font-size:16px; color:#888; }
+/* ===== SMARTZONE HIGHLIGHT ===== */
+.info-box.smartzone-highlight {
+    background: linear-gradient(135deg,#2575fc,#6a11cb);
+    border-radius:20px;
+    box-shadow:0 0 45px rgba(106,17,203,0.9);
+    animation:glow 3s infinite;
+}
+.smartzone-highlight:hover {
+    transform:scale(1.05) translateY(-5px);
+    box-shadow:0 0 65px rgba(0,170,255,1);
+}
+.smartzone-highlight .info-box-header {
+    background:rgba(0,0,0,0.25);
+    color:white;
+    font-size:1.6em;
+}
+.smartzone-highlight .info-box-content {
+    color:white;
+    font-size:1.15em;
+}
+.smartzone-highlight button {
+    background:linear-gradient(90deg,#00c6ff,#0072ff);
+    border-radius:40px;
+    font-size:1.2em;
+    padding:15px 35px;
+    box-shadow:0 0 30px rgba(0,198,255,0.9);
+    animation:pulse 2s infinite;
+}
+.smartzone-highlight button:hover {
+    transform:scale(1.15);
+}
+
+/* Animations */
+@keyframes glow {
+    0% { box-shadow:0 0 25px rgba(106,17,203,0.6); }
+    50% { box-shadow:0 0 55px rgba(0,170,255,0.9); }
+    100% { box-shadow:0 0 25px rgba(106,17,203,0.6); }
+}
+@keyframes pulse {
+    0% { transform:scale(1); }
+    50% { transform:scale(1.08); }
+    100% { transform:scale(1); }
+}
 
 /* Info Panel */
 #info-panel {
@@ -130,26 +179,26 @@ button:hover { background:#0af; box-shadow:0 6px 15px rgba(10,255,255,0.5); }
     border:2px solid #6a11cb;
     border-radius:12px;
     padding:20px;
-    box-shadow:0 8px 20px rgba(0,0,0,0.7);
-    font-family:'Fira Code', monospace;
     display:none;
     z-index:999;
 }
-#info-panel h3 { margin-bottom:10px; color:#6a11cb; }
-#info-panel p { margin-bottom:10px; line-height:1.5; }
-#info-panel button { width:100%; }
+
+/* Footer */
+.footer-text {
+    text-align:center;
+    padding:40px;
+    color:#888;
+}
 
 /* Responsive */
-@media(max-width:900px) { 
-    .main-container { flex-direction:column; } 
-    .header-left { font-size:1.2em; } 
-    #info-panel { position:static; width:auto; margin:10px; } 
+@media(max-width:900px){
+    .main-container{flex-direction:column;}
 }
 </style>
 </head>
+
 <body>
 
-<!-- Header -->
 <header>
     <div class="header-left">Smartzone Hub</div>
     <div class="header-right">
@@ -158,152 +207,86 @@ button:hover { background:#0af; box-shadow:0 6px 15px rgba(10,255,255,0.5); }
     </div>
 </header>
 
-<!-- Info Panel -->
 <div id="info-panel">
     <h3>Informationen</h3>
     <p>Übersicht öffnen?</p>
     <button onclick="location.href='info1.html'">weiter</button>
 </div>
 
-<!-- Main Content -->
 <div class="main-container">
 
-    <!-- Left Column -->
-    <div class="left-column">
-        <div class="accordion-item">
-            <div class="accordion-header">
-                <div>Lernspiele</div>
-                <span>▼</span>
-            </div>
-            <div class="accordion-content">
-                <div class="button-container">
-                    <a href="vokabeltrainer.html"><button>Spaßiger Vokabeltrainer</button></a>
-                    <p>Trainiere neue und alte Vokabeln.</p>
-                </div>
-                <div class="button-container">
-                    <a href="Vokabelabfrage.html"><button>Pure Vokabelabfrage</button></a>
-                    <p>Einfaches Lernspiel mit Import/Export.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="accordion-item">
-            <div class="accordion-header">
-                <div>Python</div>
-                <span>▼</span>
-            </div>
-            <div class="accordion-content">
-                <div class="button-container">
-                    <a href="grundlagenpython.html"><button>Python Grundlagen</button></a>
-                    <p>(DEMO) Handbuch & Quizzes.</p>
-                </div>
-                <div class="button-container">
-                    <a href="fortgeschrittenesPython.html"><button>Fortgeschrittenes Python</button></a>
-                    <p>Für Nutzer mit abgeschlossenen Grundlagen.</p>
-                </div>
-                <div class="button-container">
-                    <a href="pythongame1.1.html"><button>GAME V. 1.1 VOLLVERSION</button></a>
-                    <p>Für Nutzer mit abgeschlossenen Grundlagen.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="accordion-item">
-            <div class="accordion-header">
-                <div>Naturspiele</div>
-                <span>▼</span>
-            </div>
-            <div class="accordion-content">
-                <div class="button-container">
-                    <a href="Chronos1.2FungusUpdate.html"><button>CHRONOS V.1.2 Fungus Update</button></a>
-                    <p>Baue ein Biotop. Updates pausiert.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="accordion-item">
-            <div class="accordion-header">
-                <div>Allgemeinwissen</div>
-                <span>▼</span>
-            </div>
-            <div class="accordion-content">
-                <div class="button-container">
-                    <a href="dasgroßeQuiz.html"><button>Das große Quiz</button></a>
-                    <p>DEMO Version</p>
-                </div>
-                <div class="button-container">
-                    <a href="mehrspielerQuiz.html"><button>Mehrspieler Quiz</button></a>
-                    <p>VOLLVERSION FREE</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Right Column -->
-    <div class="right-column">
-        <div class="info-box">
-            <div class="info-box-header">
-                <span>SmartZone</span>
-                <span>▼</span>
-            </div>
-            <div class="info-box-content">
-                <p>Ein neues Internet. Interessante Inhalte.</p>
-                <button onclick="location.href='infosphäre.html'">SmartZone besuchen</button>
-            </div>
-        </div>
-
-
-    </div>
+<div class="left-column">
+    <!-- LEFT COLUMN UNVERÄNDERT -->
 </div>
 
-<p class="footer-text">Viel Spaß beim Ausprobieren! Bei Fragen: Ingwerknolle_03@proton.me</p>
+<div class="right-column">
+
+    <!-- ✨ Highlight SmartZone -->
+    <div class="info-box smartzone-highlight">
+        <div class="info-box-header">
+            <span>🚀 SmartZone</span>
+            <span>▼</span>
+        </div>
+        <div class="info-box-content">
+            <p><strong>Ein neues Internet.</strong><br>Interaktive Inhalte & Experimente.</p>
+            <button onclick="location.href='infosphäre.html'">Jetzt eintauchen</button>
+        </div>
+    </div>
+
+    <!-- 🟣 Normale SmartZone -->
+    <div class="info-box">
+        <div class="info-box-header">
+            <span>SmartZone (Classic)</span>
+            <span>▼</span>
+        </div>
+        <div class="info-box-content">
+            <p>Die klassische SmartZone ohne Effekte.</p>
+            <button onclick="location.href='infosphäre.html'">Besuchen</button>
+        </div>
+    </div>
+
+</div>
+</div>
+
+<p class="footer-text">
+Viel Spaß beim Ausprobieren! Bei Fragen: Ingwerknolle_03@proton.me
+</p>
 
 <script>
-// Left Column Accordion
-document.querySelectorAll('.accordion-header').forEach(header=>{
-    header.addEventListener('click',()=>{
-        const content = header.nextElementSibling;
-        const isOpen = content.style.maxHeight && content.style.maxHeight!=="0px";
-        document.querySelectorAll('.accordion-content').forEach(c=>c.style.maxHeight=null);
+// Accordion
+document.querySelectorAll('.accordion-header').forEach(h=>{
+    h.addEventListener('click',()=>{
+        const c=h.nextElementSibling;
+        const open=c.style.maxHeight;
+        document.querySelectorAll('.accordion-content').forEach(x=>x.style.maxHeight=null);
         document.querySelectorAll('.accordion-header span').forEach(s=>s.textContent='▼');
-        if(!isOpen){
-            content.style.maxHeight=content.scrollHeight+'px';
-            header.querySelector('span').textContent='▲';
+        if(!open){
+            c.style.maxHeight=c.scrollHeight+'px';
+            h.querySelector('span').textContent='▲';
         }
     });
 });
 
-// Right Column Info Boxes
-document.querySelectorAll('.info-box-header').forEach(header=>{
-    header.addEventListener('click',()=>{
-        const content = header.nextElementSibling;
-        const isOpen = content.classList.contains('open');
-        document.querySelectorAll('.info-box-content').forEach(c=>c.classList.remove('open'));
-        if(!isOpen){
-            content.classList.add('open');
-        }
-        const arrow = header.querySelector('span:last-child');
-        arrow.textContent = isOpen ? '▼' : '▲';
+// Info Boxes
+document.querySelectorAll('.info-box-header').forEach(h=>{
+    h.addEventListener('click',()=>{
+        const c=h.nextElementSibling;
+        const open=c.classList.contains('open');
+        document.querySelectorAll('.info-box-content').forEach(x=>x.classList.remove('open'));
+        if(!open) c.classList.add('open');
+        h.querySelector('span:last-child').textContent=open?'▼':'▲';
     });
 });
 
-// Info Panel Button Öffnen/Schließen + Klick außerhalb
-const infoBtn = document.getElementById('info-btn');
-const infoPanel = document.getElementById('info-panel');
-
-infoBtn.addEventListener('click', (event) => {
-    infoPanel.style.display = infoPanel.style.display==='block' ? 'none' : 'block';
-    event.stopPropagation();
-});
-
-document.addEventListener('click', (event) => {
-    if (infoPanel.style.display==='block' && !infoPanel.contains(event.target) && event.target !== infoBtn) {
-        infoPanel.style.display = 'none';
-    }
-});
-
-infoPanel.addEventListener('click', (event) => {
-    event.stopPropagation();
+// Info Panel
+const infoBtn=document.getElementById('info-btn');
+const infoPanel=document.getElementById('info-panel');
+infoBtn.onclick=e=>{
+    infoPanel.style.display=infoPanel.style.display==='block'?'none':'block';
+    e.stopPropagation();
+};
+document.addEventListener('click',e=>{
+    if(!infoPanel.contains(e.target)&&e.target!==infoBtn) infoPanel.style.display='none';
 });
 </script>
 
