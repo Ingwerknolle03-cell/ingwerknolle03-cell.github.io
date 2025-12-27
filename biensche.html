@@ -1,223 +1,135 @@
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>Pixelblumen-Wiese</title>
+<title>Pflege deine Blume</title>
 <style>
-  body { margin:0; overflow:hidden; background:#87CEEB; font-family:monospace; }
-  #ui { position:absolute; top:10px; left:10px; z-index:10; }
-  button { margin:3px; padding:5px 8px; cursor:pointer; }
-  #log { position:absolute; bottom:10px; left:10px; width:400px; max-height:200px; 
-         overflow-y:auto; background:rgba(255,255,255,0.7); border:1px solid #0a0; padding:5px; font-size:12px; }
+  body { margin: 0; background: #a0dca0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+  canvas { border: 2px solid #333; background: #88cc88; }
+  #status { position: absolute; top: 10px; left: 10px; color: #fff; font-family: sans-serif; }
 </style>
 </head>
 <body>
-<canvas id="gameCanvas"></canvas>
-<div id="ui">
-  <button id="rainBtn">🌧 Regen</button>
-  <button id="sunBtn">☀️ Sonne</button>
-  <button id="beeBtn">🐝 Bienenfangen</button>
-  <button id="saveBtn">💾 Speichern</button>
-  <button id="loadBtn">📂 Laden</button>
-  <input type="file" id="fileInput" style="display:none" accept=".json">
-</div>
-<div id="log"></div>
+<canvas id="flowerCanvas" width="600" height="400"></canvas>
+<div id="status"></div>
+
 <script>
-const canvas = document.getElementById('gameCanvas');
+const canvas = document.getElementById('flowerCanvas');
 const ctx = canvas.getContext('2d');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-const logDiv = document.getElementById('log');
-function log(text){ const p=document.createElement('div'); p.textContent=text; logDiv.appendChild(p); logDiv.scrollTop=logDiv.scrollHeight; }
+const statusDiv = document.getElementById('status');
 
 // --- Spielzustand ---
-let game = {
-  flowers: [],  // {x,y,size,health}
-  bees: [],     // {x,y,vx,vy,caught}
-  muldes: [],   // {x,y,water}
-  sun: 1,
-  rain:false,
-  nectar:0
+let flower = {
+  stage: 0, // 0-3
+  water: 50,
+  light: 50,
+  clean: 50,
+  x: canvas.width/2,
+  y: canvas.height/2
 };
 
-// --- Landschafts-Hügel ---
-function drawTerrain(){
-  ctx.fillStyle='#228B22';
-  ctx.beginPath();
-  ctx.moveTo(0,canvas.height-100);
-  for(let i=0;i<canvas.width;i++){
-    let y = canvas.height-100-20*Math.sin(i/100)-15*Math.sin(i/50);
-    ctx.lineTo(i,y);
-  }
-  ctx.lineTo(canvas.width,canvas.height);
-  ctx.lineTo(0,canvas.height);
-  ctx.fill();
+let rain = false;
+let sun = false;
+let particles = [];
+
+// --- Helferfunktionen ---
+function drawBackground() {
+  ctx.fillStyle = '#88cc88';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
-// --- Blume als Pixelart ---
-function drawFlower(f){
-  const sway = Math.sin(Date.now()/500 + f.x) * 2;
-  const size = 5+15*f.size;
+function drawFlower() {
+  const size = 10 + flower.stage * 20;
+  
   // Stiel
-  ctx.fillStyle='#0a0';
-  ctx.fillRect(f.x-2+sway,f.y,4,30*f.size);
-  // Blätter
-  ctx.fillRect(f.x-6+sway,f.y+10*f.size,4,10*f.size);
-  ctx.fillRect(f.x+2+sway,f.y+15*f.size,4,10*f.size);
-  // Blüte (Pixel-Art)
-  ctx.fillStyle='#ffcc00';
-  for(let dx=-2;dx<=2;dx++){
-    for(let dy=-2;dy<=2;dy++){
-      if(Math.abs(dx)+Math.abs(dy)<=2){
-        ctx.fillRect(f.x+dx+sway,f.y-5*dy,3,3);
-      }
-    }
-  }
-}
+  ctx.fillStyle = '#228B22';
+  ctx.fillRect(flower.x - 5, flower.y, 10, 30);
 
-// --- Bienen ---
-function spawnBees(n){
-  for(let i=0;i<n;i++){
-    game.bees.push({x:Math.random()*canvas.width, y:Math.random()*100+50,
-                    vx:1+Math.random()*2, vy:(Math.random()-0.5)*1, caught:false});
-  }
-}
-
-// --- Regen ---
-let drops=[];
-function drawRain(){
-  ctx.fillStyle='rgba(0,0,255,0.5)';
-  drops.forEach(d=>{
-    ctx.fillRect(d.x,d.y,2,10);
-    d.y+=d.vy;
-    if(d.y>canvas.height-100){
-      // trifft Mulde?
-      game.muldes.forEach(m=>{
-        const dx=d.x-m.x;
-        const dy=d.y-m.y;
-        if(Math.sqrt(dx*dx+dy*dy)<20){ m.water+=0.5; }
-      });
-      d.y=Math.random()*-200;
-      d.x=Math.random()*canvas.width;
-    }
-  });
-}
-
-// --- Main Loop ---
-function draw(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-
-  // Himmel
-  ctx.fillStyle='#87CEEB'; ctx.fillRect(0,0,canvas.width,canvas.height);
-
-  // Sonne
-  ctx.beginPath(); ctx.arc(100,100,50,0,2*Math.PI); ctx.fillStyle='#fff200'; ctx.fill();
-
-  // Wolken
-  ctx.fillStyle='#fff';
+  // Blüte
+  ctx.fillStyle = 'pink';
   ctx.beginPath();
-  ctx.arc(400,80,40,0,Math.PI*2);
-  ctx.arc(440,80,35,0,Math.PI*2);
-  ctx.arc(420,60,30,0,Math.PI*2);
+  ctx.arc(flower.x, flower.y, size, 0, Math.PI*2);
   ctx.fill();
+}
 
-  // Hügel/Wiese
-  drawTerrain();
-
-  // Mulden
-  game.muldes.forEach(m=>{
-    ctx.fillStyle='#0077aa';
-    ctx.beginPath();
-    ctx.ellipse(m.x,m.y,20,10,0,0,2*Math.PI);
-    ctx.fill();
+function drawParticles() {
+  particles.forEach(p => {
+    ctx.fillStyle = p.color;
+    ctx.fillRect(p.x, p.y, 2, 2);
   });
+}
 
-  // Blumen
-  game.flowers.forEach(f=>{
-    // Wachstum
-    if(f.health>0){
-      const growthRate = 0.001*(1+game.sun+game.nectar+(f.muldeWater||0));
-      f.size += growthRate;
-      if(f.size>1) f.size=1;
+function spawnParticles() {
+  if(rain) {
+    for(let i=0; i<3; i++){
+      particles.push({x: Math.random()*canvas.width, y: 0, color:'#00f', vy:2+Math.random()*2});
     }
-    drawFlower(f);
-  });
+  }
+}
 
-  // Regen zeichnen
-  if(game.rain){
-    if(drops.length<200) for(let i=drops.length;i<200;i++){ drops.push({x:Math.random()*canvas.width,y:Math.random()*-200,vy:3+Math.random()*2}); }
-    drawRain();
+function updateParticles() {
+  particles.forEach((p, i) => {
+    p.y += p.vy;
+    if(p.y > canvas.height) particles.splice(i,1);
+  });
+}
+
+// --- Spielmechanik ---
+function update() {
+  // Werte sinken langsam
+  flower.water -= 0.05;
+  flower.light -= 0.02;
+  flower.clean -= 0.01;
+
+  // Regen & Sonne erhöhen Werte
+  if(rain) flower.water += 0.3;
+  if(sun) flower.light += 0.2;
+
+  // Wachstum
+  if(flower.water > 30 && flower.light > 30 && flower.clean > 30){
+    flower.stage = Math.min(flower.stage + 0.001, 3);
   }
 
-  // Bienen
-  game.bees.forEach(b=>{
-    if(!b.caught){
-      ctx.fillStyle='yellow';
-      ctx.beginPath(); ctx.arc(b.x,b.y,5,0,2*Math.PI); ctx.fill();
-      b.x += b.vx; b.y += b.vy;
-      if(b.x>canvas.width || b.x<0) b.vx*=-1;
-      if(b.y<0 || b.y>canvas.height-100) b.vy*=-1;
-    }
-  });
+  // Überfluss kann Blume schädigen
+  if(flower.water > 100) flower.water -= 0.1;
+  if(flower.light > 100) flower.light -= 0.1;
 
+  // Partikel generieren
+  spawnParticles();
+  updateParticles();
+}
+
+// --- UI / Status ---
+function drawStatus() {
+  statusDiv.innerHTML = `
+    Wasser: ${flower.water.toFixed(0)}<br>
+    Licht: ${flower.light.toFixed(0)}<br>
+    Sauberkeit: ${flower.clean.toFixed(0)}<br>
+    Blütenstufe: ${Math.floor(flower.stage)+1}
+  `;
+}
+
+// --- Haupt-Loop ---
+function draw() {
+  drawBackground();
+  drawFlower();
+  drawParticles();
+  drawStatus();
+  update();
   requestAnimationFrame(draw);
 }
+
+// --- Steuerung ---
+window.addEventListener('keydown', (e) => {
+  if(e.key === 'r') rain = !rain;       // Regen an/aus
+  if(e.key === 'g') flower.clean += 10; // Gras schneiden
+  if(e.key === 'l') sun = !sun;         // Sonne an/aus
+});
+
+// Start
 draw();
-
-// --- Interaktion ---
-canvas.addEventListener('click',e=>{
-  // Mulden nur auf Boden
-  if(e.clientY>canvas.height-150){
-    game.muldes.push({x:e.clientX,y:e.clientY,water:0});
-    log('⛏ Mulde erstellt!');
-  }
-});
-
-// Mini-Spiel: Bienenfangen
-canvas.addEventListener('mousemove',e=>{
-  // hier könnte man Kescher-Position setzen
-});
-
-document.getElementById('beeBtn').onclick=()=>{
-  spawnBees(5);
-  log('🐝 Bienen fliegen! Fange sie!');
-};
-
-// Regen/Sonne Buttons
-document.getElementById('rainBtn').onclick=()=>{
-  game.rain=!game.rain;
-  log(game.rain?'🌧 Regen gestartet':'🌧 Regen gestoppt');
-};
-document.getElementById('sunBtn').onclick=()=>{
-  game.sun+=0.1;
-  log('☀️ Sonne verstärkt Wachstum');
-};
-
-// Save/Load
-const saveBtn=document.getElementById('saveBtn');
-const loadBtn=document.getElementById('loadBtn');
-const fileInput=document.getElementById('fileInput');
-
-saveBtn.onclick=()=>{
-  const blob=new Blob([JSON.stringify(game)],{type:'application/json'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url; a.download='pixel_garten_save.json'; a.click();
-  URL.revokeObjectURL(url); log('💾 Spiel gespeichert');
-};
-loadBtn.onclick=()=>{fileInput.click();}
-fileInput.onchange=()=>{
-  const file=fileInput.files[0];
-  const reader=new FileReader();
-  reader.onload=e=>{
-    try{ game=JSON.parse(e.target.result); log('📂 Spiel geladen'); }
-    catch(err){ log('Fehler beim Laden'); }
-  };
-  reader.readAsText(file);
-};
-
 </script>
 </body>
 </html>
-
 
