@@ -3,326 +3,204 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Smartzone Hub</title>
-
-<!-- Google Fonts -->
+<title>InfoSphere – Deine Wissenswelt</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
-
 <style>
 body {
     margin:0;
     padding:0;
+    font-family:'Montserrat', sans-serif;
     background:#121212;
     color:#e0e0e0;
-    font-family:'Montserrat', sans-serif;
 }
-
-/* Header */
 header {
     background: linear-gradient(90deg,#6a11cb,#2575fc);
-    color:#fff;
     padding:20px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    font-family:'Fira Code', monospace;
-}
-.header-left { font-size:1.5em; font-weight:600; }
-.header-right { display:flex; align-items:center; gap:10px; }
-.header-right button {
-    padding:6px 12px;
-    border:none;
-    border-radius:6px;
-    background:#6a11cb;
+    text-align:center;
+    font-size:2em;
+    font-weight:600;
     color:#fff;
-    cursor:pointer;
-    font-family:'Fira Code', monospace;
-    transition:all 0.3s;
 }
-.header-right button:hover { background:#0af; }
-
-/* Main Container */
-.main-container {
-    display:flex;
-    flex-wrap:wrap;
-    width:90%;
+.container {
     max-width:1200px;
-    margin:40px auto;
-    gap:20px;
-}
-.left-column, .right-column { flex:1; min-width:300px; }
-
-/* Accordion Panels */
-.accordion-item {
-    background:#1e1e1e;
-    border-radius:12px;
-    margin-bottom:20px;
-    overflow:hidden;
-    box-shadow:0 4px 12px rgba(0,0,0,0.5);
-}
-.accordion-header {
-    padding:20px;
-    font-weight:600;
-    font-size:1.2em;
-    background:#333;
-    color:#0af;
-    cursor:pointer;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    transition:background 0.3s;
-}
-.accordion-header:hover { background:#444; }
-.section-image { width:50px; height:50px; object-fit:cover; margin-right:15px; border-radius:6px; filter:grayscale(100%); }
-.accordion-content {
-    max-height:0;
-    overflow:hidden;
-    transition:max-height 0.5s ease, padding 0.3s ease;
-    background:#1a1a1a;
-}
-.accordion-content .button-container { padding:20px; border-bottom:1px solid #333; }
-.accordion-content .button-container:last-child { border-bottom:none; }
-button { font-size:16px; padding:12px 25px; margin:10px 0; cursor:pointer; border:none; border-radius:6px; background:#6a11cb; color:white; transition:all 0.3s ease; box-shadow:0 4px 10px rgba(106,17,203,0.4); }
-button:hover { background:#0af; box-shadow:0 6px 15px rgba(10,255,255,0.5); }
-
-/* Right Column Boxes */
-.info-box {
-    background:#1e1e1e;
-    border-radius:12px;
-    margin-bottom:20px;
-    overflow:hidden;
-    box-shadow:0 4px 12px rgba(0,0,0,0.5);
-}
-.info-box-header {
-    padding:15px 20px;
-    background:#333;
-    color:#6a11cb;
-    font-weight:600;
-    font-size:1.2em;
-    cursor:pointer;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-}
-.info-box-header:hover { background:#444; }
-.info-box-content {
-    max-height:0;
-    overflow:hidden;
+    margin:20px auto;
     padding:0 20px;
-    transition:max-height 0.5s ease, padding 0.3s ease;
-    color:#ccc;
 }
-.info-box-content.open {
-    padding:15px 20px;
-    max-height:500px;
+.search-container {
+    margin-bottom:20px;
+    text-align:center;
 }
-
-/* Footer */
-.footer-text { text-align:center; padding:40px 20px; font-size:16px; color:#888; }
-
-/* Info Panel */
-#info-panel {
-    position:fixed;
-    top:70px;
-    right:20px;
-    width:300px;
+input[type="text"] {
+    width:80%;
+    max-width:500px;
+    padding:10px 15px;
+    border-radius:6px;
+    border:none;
+    font-size:16px;
+}
+.toc {
+    margin-bottom:20px;
+    padding:10px;
     background:#1e1e1e;
-    border:2px solid #6a11cb;
     border-radius:12px;
-    padding:20px;
-    box-shadow:0 8px 20px rgba(0,0,0,0.7);
-    font-family:'Fira Code', monospace;
-    display:none;
-    z-index:999;
 }
-#info-panel h3 { margin-bottom:10px; color:#6a11cb; }
-#info-panel p { margin-bottom:10px; line-height:1.5; }
-#info-panel button { width:100%; }
-
-/* Responsive */
-@media(max-width:900px) { 
-    .main-container { flex-direction:column; } 
-    .header-left { font-size:1.2em; } 
-    #info-panel { position:static; width:auto; margin:10px; } 
+.toc a {
+    display:block;
+    color:#6a11cb;
+    text-decoration:none;
+    margin:3px 0;
+}
+.toc a:hover { text-decoration:underline; }
+.card {
+    background:#1e1e1e;
+    padding:15px;
+    margin-bottom:20px;
+    border-radius:12px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.5);
+}
+.card h3 {
+    color:#6a11cb;
+}
+.card img, .card video {
+    max-width:100%;
+    border-radius:6px;
+    margin-top:10px;
+}
+.card p {
+    margin-top:10px;
+    line-height:1.5;
+}
+.no-results {
+    text-align:center;
+    font-size:1.2em;
+    margin-top:40px;
+    color:#888;
 }
 </style>
 </head>
 <body>
 
-<!-- Header -->
-<header>
-    <div class="header-left">Smartzone Hub</div>
-    <div class="header-right">
-        <button id="info-btn">Info</button>
-        <button onclick="location.href='english.html'">English Version</button>
-    </div>
-</header>
+<header>InfoSphere – Deine Wissenswelt</header>
 
-<!-- Info Panel -->
-<div id="info-panel">
-    <h3>Informationen</h3>
-    <p>Übersicht öffnen?</p>
-    <button onclick="location.href='info1.html'">weiter</button>
+<div class="container">
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Suche nach Themen...">
+    </div>
+
+    <div id="toc" class="toc">
+        <strong>Inhaltsverzeichnis:</strong>
+        <!-- Links generiert von JS -->
+    </div>
+
+    <div id="contentArea">
+        <!-- Wissenskarten erscheinen hier -->
+    </div>
+
+    <div id="noResults" class="no-results" style="display:none;">Keine Inhalte gefunden.</div>
 </div>
-
-<!-- Main Content -->
-<div class="main-container">
-
-    <!-- Left Column -->
-    <div class="left-column">
-        <div class="accordion-item">
-            <div class="accordion-header">
-                <div><img src="bilder/lernspiele.png" alt="Vokabeltrainer" class="section-image">Lernspiele</div>
-                <span>▼</span>
-            </div>
-            <div class="accordion-content">
-                <div class="button-container">
-                    <a href="vokabeltrainer.html"><button>Spaßiger Vokabeltrainer</button></a>
-                    <p>Trainiere neue und alte Vokabeln.</p>
-                </div>
-                <div class="button-container">
-                    <a href="Vokabelabfrage.html"><button>Pure Vokabelabfrage</button></a>
-                    <p>Einfaches Lernspiel mit Import/Export.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="accordion-item">
-            <div class="accordion-header">
-                <div><img src="bilder/python.png" alt="Handbuch/Quizzes/Games" class="section-image">Python</div>
-                <span>▼</span>
-            </div>
-            <div class="accordion-content">
-                <div class="button-container">
-                    <a href="grundlagenpython.html"><button>Python Grundlagen</button></a>
-                    <p>(DEMO) Handbuch & Quizzes.</p>
-                </div>
-                <div class="button-container">
-                    <a href="fortgeschrittenesPython.html"><button>Fortgeschrittenes Python</button></a>
-                    <p>Für Nutzer mit abgeschlossenen Grundlagen.</p>
-                </div>
-                <div class="button-container">
-                    <a href="pythongame1.1.html"><button>GAME V. 1.1 VOLLVERSION</button></a>
-                    <p>Für Nutzer mit abgeschlossenen Grundlagen.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="accordion-item">
-            <div class="accordion-header">
-                <div><img src="bilder/naturspiele.png" alt="Biologie" class="section-image">Naturspiele</div>
-                <span>▼</span>
-            </div>
-            <div class="accordion-content">
-                <div class="button-container">
-                    <a href="Chronos1.2FungusUpdate.html"><button>CHRONOS V.1.2 Fungus Update</button></a>
-                    <p>Baue ein Biotop. Updates pausiert.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="accordion-item">
-            <div class="accordion-header">
-                <div><img src="bilder/quiz.png" alt="Quiz" class="section-image">Allgemeinwissen</div>
-                <span>▼</span>
-            </div>
-            <div class="accordion-content">
-                <div class="button-container">
-                    <a href="dasgroßeQuiz.html"><button>Das große Quiz</button></a>
-                    <p>DEMO Version</p>
-                </div>
-                <div class="button-container">
-                    <a href="mehrspielerQuiz.html"><button>Mehrspieler Quiz</button></a>
-                    <p>VOLLVERSION FREE</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Right Column -->
-    <div class="right-column">
-        <div class="info-box">
-            <div class="info-box-header">
-                <span>InfoSphere</span>
-                <span>▼</span>
-            </div>
-            <div class="info-box-content">
-                <p>Eine Wissenswelt, in der Informationen vernetzt und leicht zugänglich sind.</p>
-                <button onclick="location.href='infosphäre.html'">Welt betreten.</button>
-            </div>
-        </div>
-
-        <div class="info-box">
-            <div class="info-box-header">
-                <span>platzhalter</span>
-                <span>▼</span>
-            </div>
-            <div class="info-box-content">
-                <p>platzhalter</p>
-                <button onclick="location.href='kontakt.html'">platzhalter</button>
-            </div>
-        </div>
-
-
-        
-
-    </div>
-</div>
-
-<p class="footer-text">Viel Spaß beim Ausprobieren! Bei Fragen: Ingwerknolle_03@proton.me</p>
 
 <script>
-// Left Column Accordion
-document.querySelectorAll('.accordion-header').forEach(header=>{
-    header.addEventListener('click',()=>{
-        const content = header.nextElementSibling;
-        const isOpen = content.style.maxHeight && content.style.maxHeight!=="0px";
-        document.querySelectorAll('.accordion-content').forEach(c=>c.style.maxHeight=null);
-        document.querySelectorAll('.accordion-header span').forEach(s=>s.textContent='▼');
-        if(!isOpen){
-            content.style.maxHeight=content.scrollHeight+'px';
-            header.querySelector('span').textContent='▲';
-        }
-    });
-});
-
-// Right Column Info Boxes
-document.querySelectorAll('.info-box-header').forEach(header=>{
-    header.addEventListener('click',()=>{
-        const content = header.nextElementSibling;
-        const isOpen = content.classList.contains('open');
-        document.querySelectorAll('.info-box-content').forEach(c=>c.classList.remove('open'));
-        if(!isOpen){
-            content.classList.add('open');
-        }
-        const arrow = header.querySelector('span:last-child');
-        arrow.textContent = isOpen ? '▼' : '▲';
-    });
-});
-
-// Info Panel Button Öffnen/Schließen + Klick außerhalb
-const infoBtn = document.getElementById('info-btn');
-const infoPanel = document.getElementById('info-panel');
-
-infoBtn.addEventListener('click', (event) => {
-    infoPanel.style.display = infoPanel.style.display==='block' ? 'none' : 'block';
-    event.stopPropagation();
-});
-
-document.addEventListener('click', (event) => {
-    if (infoPanel.style.display==='block' && !infoPanel.contains(event.target) && event.target !== infoBtn) {
-        infoPanel.style.display = 'none';
+// Datenbank
+const knowledgeData = [
+    {
+        title:"Photosynthese",
+        type:"text",
+        content:"Photosynthese ist der Prozess, bei dem Pflanzen Lichtenergie in chemische Energie umwandeln."
+    },
+    {
+        title:"Das Sonnensystem",
+        type:"video",
+        content:"videos/sonnensystem.mp4"
+    },
+    {
+        title:"Eiffelturm",
+        type:"image",
+        content:"bilder/eiffelturm.jpg"
+    },
+    {
+        title:"Python Grundlagen",
+        type:"text",
+        content:"Python ist eine einfach zu erlernende Programmiersprache für Anfänger und Profis."
+    },
+    {
+        title:"Biologie Video: Pilze",
+        type:"video",
+        content:"videos/pilze.mp4"
     }
-});
+];
 
-infoPanel.addEventListener('click', (event) => {
-    event.stopPropagation();
+// Alphabetisch sortieren
+knowledgeData.sort((a,b)=>a.title.localeCompare(b.title,'de'));
+
+// Inhaltsverzeichnis generieren
+function generateTOC(data){
+    const toc = document.getElementById('toc');
+    data.forEach((item,index)=>{
+        const link = document.createElement('a');
+        link.href = `#item${index}`;
+        link.textContent = item.title;
+        toc.appendChild(link);
+    });
+}
+
+// Inhalte rendern
+function renderContent(data) {
+    const container = document.getElementById('contentArea');
+    container.innerHTML = '';
+    if(data.length===0){
+        document.getElementById('noResults').style.display='block';
+        return;
+    }
+    document.getElementById('noResults').style.display='none';
+
+    data.forEach((item,index)=>{
+        const card = document.createElement('div');
+        card.classList.add('card');
+        card.id = `item${index}`;
+
+        const title = document.createElement('h3');
+        title.textContent = item.title;
+        card.appendChild(title);
+
+        if(item.type==='text'){
+            const p = document.createElement('p');
+            p.textContent = item.content;
+            card.appendChild(p);
+        } else if(item.type==='image'){
+            const img = document.createElement('img');
+            img.src = item.content;
+            img.alt = item.title;
+            card.appendChild(img);
+        } else if(item.type==='video'){
+            const video = document.createElement('video');
+            video.src = item.content;
+            video.controls = true;
+            video.type = 'video/mp4';
+            card.appendChild(video);
+        }
+
+        container.appendChild(card);
+    });
+}
+
+// Initialisierung
+generateTOC(knowledgeData);
+renderContent(knowledgeData);
+
+// Suche
+document.getElementById('searchInput').addEventListener('input', (e)=>{
+    const query = e.target.value.toLowerCase();
+    const filtered = knowledgeData.filter(item=>{
+        return item.title.toLowerCase().includes(query) || 
+               (item.type==='text' && item.content.toLowerCase().includes(query));
+    });
+    renderContent(filtered);
 });
 </script>
 
 </body>
 </html>
+
 
 
 
