@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<title>Chronos</title>
+<style>
+  body { margin:0; padding:0; font-family:monospace; background:#111; color:#0f0; display:flex; height:100vh; overflow:hidden; }
+  #mainPanel { flex:2.5; display:flex; flex-direction:column; padding:15px; border-right:2px solid #0f0; box-sizing:border-box; }
+  #sidePanel { flex:1; display:flex; flex-direction:column; background:#000; border-left:2px solid #0f0; padding:15px; box-sizing:border-box; gap:12px; }
+  h1,h2 { margin:0 0 10px 0; }
+  #log { flex:1; background:#000; border:1px solid #0f0; padding:10px; margin-bottom:10px; overflow-y:auto; white-space:pre-line; font-size:14px; }
+  #tableContainer { background:#000; border:1px solid #0f0; padding:8px; font-size:14px; max-height:200px; overflow-y:auto; }
+  table { width:100%; border-collapse:collapse; color:#0f0; }
+  th, td { border:1px solid #0f0; padding:4px 6px; text-align:left; }
+  #plantsSection,#animalsSection { border:1px solid #0f0; padding:10px; flex:1; display:flex; flex-direction:column; box-sizing:border-box; overflow-y:auto; }
+  #plantsButtons,#animalsButtons { display:flex; flex-wrap:wrap; gap:6px; overflow-y:auto; }
+  button.ecoButton { background:#111; border:1px solid #0f0; color:#0f0; padding:6px 10px; font-size:13px; cursor:pointer; min-width:110px; user-select:none; text-align:center; }
+  button.ecoButton:hover { background:#0a0; }
+  #controlButtons { margin-top:10px; display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  #controlButtons button { background:#0a0; color:#000; border:none; padding:8px 12px; cursor:pointer; font-family:monospace; font-weight:bold; }
+  #controlButtons button:hover { background:#070; }
+  #timeSpeed { position:fixed; top:8px; right:10px; background:transparent; border:none; color:#0a0; font-size:12px; font-family:monospace; opacity:0.3; cursor:pointer; outline:none; user-select:none; }
+  #timeSpeed:hover { opacity:1; }
+  #plantsButtons::-webkit-scrollbar,#animalsButtons::-webkit-scrollbar,#log::-webkit-scrollbar,#tableContainer::-webkit-scrollbar { width:10px; }
+  #plantsButtons::-webkit-scrollbar-thumb,#animalsButtons::-webkit-scrollbar-thumb,#log::-webkit-scrollbar-thumb,#tableContainer::-webkit-scrollbar-thumb { background-color:#064006; border-radius:5px; }
+  #plantsButtons::-webkit-scrollbar-track,#animalsButtons::-webkit-scrollbar-track,#log::-webkit-scrollbar-track,#tableContainer::-webkit-scrollbar-track { background:#001000; }
+</style>
+</head>
+<body>
+<div id="mainPanel" role="main" aria-label="Hauptbereich Kronos Ökosystem">
+<h1>Chronos</h1>
+<div id="log" aria-live="polite" aria-label="Welt Log"></div>
+<div id="tableContainer" aria-label="Ökosystem Übersicht">
+<table>
+<thead><tr><th>Typ</th><th>Name</th><th>Anzahl</th></tr></thead>
+<tbody id="ecoTableBody"></tbody>
+</table>
+</div>
+<div id="controlButtons">
+<button id="saveBtn" title="Spiel speichern (Datei exportieren)">Speichern</button>
+<button id="loadBtn" title="Spiel laden (Datei importieren)">Laden</button>
+<button id="startStopBtn" title="Simulation starten / stoppen">Aufblühen</button>
+</div>
+<input type="file" id="fileInput" style="display:none;" accept=".json" />
+</div>
+<div id="sidePanel" role="complementary" aria-label="Pflanzen und Tiere hinzufügen">
+<section id="plantsSection" role="region" aria-label="Pflanzen hinzufügen">
+<h2>Pflanzen hinzufügen</h2>
+<div id="plantsButtons" role="list"></div>
+</section>
+<section id="animalsSection" role="region" aria-label="Tiere hinzufügen">
+<h2>Tiere hinzufügen</h2>
+<div id="animalsButtons" role="list"></div>
+</section>
+</div>
+<select id="timeSpeed" title="Zeitgeschwindigkeit" aria-label="Zeitgeschwindigkeit">
+<option value="60000" selected>1 Jahr = 1 Minute</option>
+<option value="31536000000">1 Jahr = 1 Jahr</option>
+</select>
+<script>
+(() => {
+const log=document.getElementById('log');
+const ecoTableBody=document.getElementById('ecoTableBody');
+const plantsButtons=document.getElementById('plantsButtons');
+const animalsButtons=document.getElementById('animalsButtons');
+const timeSpeedSelect=document.getElementById('timeSpeed');
+const saveBtn=document.getElementById('saveBtn');
+const loadBtn=document.getElementById('loadBtn');
+const fileInput=document.getElementById('fileInput');
+const startStopBtn=document.getElementById('startStopBtn');
+let interval=null,simulationRunning=true;
+
+// Pflanzen und Tiere
+const pflanzenListe=["Farne","Moose","Schachtelhalme","Palmen","Lilien","Kiefern","Eichen","Fichten","Gräser","Sumpfgräser","Kakteen","Bambus","Weiden","Sonnenblumen","Orchideen","Weizen","Nadelbüsche","Klee","Lavendel","Brombeeren"];
+const tierListe=["Blattläuse","Riesenlibellen","Isopoden","Plankton","Krebse","Fische","Spinnen","Echsen","Ameisen","Regenwürmer","Marienkäfer","Quallen","Vögel","Igel","Raupen","Käfer","Pilze","Hasen","Wölfe","Bienen","Schmetterlinge","Eulen","Frösche","Schlangen","Mäuse","Rehe","Füchse","Biber","Libellen","Luchse","Tauben"];
+
+// Wachstumsraten
+const pflanzenWachstumsraten={"Farne":0.19,"Moose":0.18,"Schachtelhalme":0.1,"Palmen":0.1,"Lilien":0.1,"Kiefern":0.08,"Eichen":0.05,"Fichten":0.07,"Gräser":0.5,"Sumpfgräser":0.09,"Kakteen":0.05,"Bambus":0.2,"Weiden":0.12,"Sonnenblumen":0.15,"Orchideen":0.08,"Weizen":0.25,"Nadelbüsche":0.07,"Klee":0.15,"Lavendel":0.12,"Brombeeren":0.18};
+
+let welt={pflanzen:{},tiere:{},jahre:0,status:'Karge Erde'};
+
+function logSchreiben(text){log.innerText+=`[Jahr ${welt.jahre}] ${text}\n`;log.scrollTop=log.scrollHeight;}
+function tabelleAktualisieren(){ecoTableBody.innerHTML="";Object.entries(welt.pflanzen).forEach(([n,a])=>{const tr=document.createElement('tr');tr.innerHTML=`<td>Pflanze</td><td>${n}</td><td>${a}</td>`;ecoTableBody.appendChild(tr);});Object.entries(welt.tiere).forEach(([n,a])=>{const tr=document.createElement('tr');tr.innerHTML=`<td>Tier</td><td>${n}</td><td>${a}</td>`;ecoTableBody.appendChild(tr);});}
+
+function zufallRegen(){return Math.random()<0.4;} // 40% Regenwahrscheinlichkeit
+
+function wachstum(name,art){
+ const max=1000;
+ const aktuell=(art==='pflanzen'?welt.pflanzen[name]:welt.tiere[name])||0;
+ if(aktuell===0)return 0;
+ let rate;
+ if(name==='Blattläuse'||name==='Plankton'){const z=aktuell;return aktuell+z>max?max-aktuell:z;}
+ if(art==='pflanzen'){rate=pflanzenWachstumsraten[name]||0.1;
+ if(zufallRegen()) rate*=1.5;
+ const z=Math.floor(rate*aktuell*(1-aktuell/max)); return z>0?z:0;}
+ rate=0.18;
+ const z=Math.floor(rate*aktuell*(1-aktuell/max)); return z>0?z:0;
+}
+
+function kreislaufInteraktionen(){
+// Blattläuse schwächen Pflanzen
+if(welt.tiere['Blattläuse']&&Object.values(welt.pflanzen).reduce((a,b)=>a+b,0)>0){const total=Math.floor(welt.tiere['Blattläuse']*0.05);if(total>0){Object.entries(welt.pflanzen).forEach(([p,a])=>{const anteil=a/Object.values(welt.pflanzen).reduce((x,y)=>x+y,0);const verlust=Math.min(a,Math.floor(total*anteil));if(verlust>0){welt.pflanzen[p]-=verlust;logSchreiben(`Pflanzen ${p} werden durch Blattläuse geschwächt (-${verlust}).`)}})}}
+
+// Pilze schaden oder helfen Bäume
+['Kiefern','Fichten','Eichen'].forEach(tree=>{if(welt.tiere['Pilze']&&welt.pflanzen[tree]){if(Math.random()<0.3){const geschadet=Math.min(welt.pflanzen[tree],Math.floor(welt.tiere['Pilze']*0.1));if(geschadet>0){welt.pflanzen[tree]-=geschadet;logSchreiben(`Pilze schaden ${tree} (-${geschadet}).`);if(welt.pflanzen[tree]===0)logSchreiben(`Alle ${tree} sind ausgestorben!`)}} if(Math.random()<0.2){const gewachsen=Math.floor(welt.tiere['Pilze']*0.15);welt.pflanzen[tree]+=gewachsen;logSchreiben(`Pilze helfen ${tree} wachsen (+${gewachsen}).`)}}});
+
+// Bestäubung Blumen
+['Bienen','Schmetterlinge','Libellen'].forEach(bestaeuber=>{
+ if(welt.tiere[bestaeuber]){
+ ['Lilien','Orchideen','Sonnenblumen','Lavendel','Brombeeren'].forEach(flower=>{
+ if(welt.pflanzen[flower]){
+ const bonus=Math.floor(welt.tiere[bestaeuber]*(bestaeuber==='Bienen'?0.1:0.05));
+ welt.pflanzen[flower]+=bonus;
+ if(bonus>0) logSchreiben(`${bestaeuber} bestäuben ${flower} (+${bonus}).`);
+ }
+ });
+ }
+});
+
+// Räuber-Beute-Beziehungen
+if(welt.tiere['Hasen']){['Gräser','Lilien','Weizen','Brombeeren'].forEach(p=>{if(welt.pflanzen[p]){const g=Math.min(welt.pflanzen[p],Math.floor(welt.tiere['Hasen']*0.3));welt.pflanzen[p]-=g;if(g>0)logSchreiben(`Hasen fressen ${p} (-${g}).`)}})}
+if(welt.tiere['Rehe']){['Gräser','Weizen','Brombeeren'].forEach(p=>{if(welt.pflanzen[p]){const g=Math.min(welt.pflanzen[p],Math.floor(welt.tiere['Rehe']*0.25));welt.pflanzen[p]-=g;if(g>0)logSchreiben(`Rehe fressen ${p} (-${g}).`)}})}
+if(welt.tiere['Frösche']&&welt.tiere['Fliegen']){const f=Math.min(welt.tiere['Fliegen'],Math.floor(welt.tiere['Frösche']*0.2));welt.tiere['Fliegen']-=f;if(f>0)logSchreiben(`Frösche fressen Fliegen (-${f}).`)}
+if(welt.tiere['Libellen']&&welt.tiere['Mücken']){const f=Math.min(welt.tiere['Mücken'],Math.floor(welt.tiere['Libellen']*0.25));welt.tiere['Mücken']-=f;if(f>0)logSchreiben(`Libellen fressen Mücken (-${f}).`)}
+if(welt.tiere['Füchse']&&welt.tiere['Mäuse']){const f=Math.min(welt.tiere['Mäuse'],Math.floor(welt.tiere['Füchse']*0.2));welt.tiere['Mäuse']-=f;if(f>0)logSchreiben(`Füchse fressen Mäuse (-${f}).`)}
+if(welt.tiere['Wölfe']&&welt.tiere['Hasen']){const f=Math.min(welt.tiere['Hasen'],Math.floor(welt.tiere['Wölfe']*0.15));welt.tiere['Hasen']-=f;if(f>0)logSchreiben(`Wölfe fressen Hasen (-${f}).`)}
+if(welt.tiere['Luchse']){['Rehe','Füchse'].forEach(prey=>{if(welt.tiere[prey]){const f=Math.min(welt.tiere[prey],Math.floor(welt.tiere['Luchse']*0.1));welt.tiere[prey]-=f;if(f>0)logSchreiben(`Luchse fressen ${prey} (-${f}).`)}})}
+}
+
+function wachsen(){
+ welt.jahre++;
+ Object.keys(welt.pflanzen).forEach(p=>{const z=wachstum(p,'pflanzen');if(z>0){welt.pflanzen[p]+=z;logSchreiben(`${p} wachsen um ${z} an.`)}});
+ Object.keys(welt.tiere).forEach(t=>{const z=wachstum(t,'tiere');if(z>0){welt.tiere[t]+=z;logSchreiben(`${t} wachsen um ${z} an.`)}});
+ kreislaufInteraktionen();
+ tabelleAktualisieren();
+}
+
+function buttonErstellen(name,container,art){const btn=document.createElement('button');btn.className='ecoButton';btn.innerText=name;btn.setAttribute('role','listitem');btn.title=`Füge ${name} hinzu`;btn.onclick=()=>{if(art==='pflanzen'){welt.pflanzen[name]=(welt.pflanzen[name]||0)+50;logSchreiben(` ${name} erschaffen`);}else{welt.tiere[name]=(welt.tiere[name]||0)+10;logSchreiben(` ${name} erschaffen`);}tabelleAktualisieren();};container.appendChild(btn);}
+pflanzenListe.forEach(p=>buttonErstellen(p,plantsButtons,'pflanzen'));
+tierListe.forEach(t=>buttonErstellen(t,animalsButtons,'tiere'));
+
+function startSimulation(){if(interval)return;interval=setInterval(wachsen,timeSpeedSelect.value);simulationRunning=true;startStopBtn.innerText='Einschlafen';logSchreiben('Es bebt... Pflanzen und Lebewesen werden wachgerüttelt...');}
+function stopSimulation(){if(interval){clearInterval(interval);interval=null;simulationRunning=false;startStopBtn.innerText='Aufblühen';logSchreiben('Die Erde schläft ein...');}}
+startStopBtn.onclick=()=>{simulationRunning?stopSimulation():startSimulation();}
+timeSpeedSelect.onchange=()=>{if(interval){clearInterval(interval);interval=setInterval(wachsen,timeSpeedSelect.value);}};
+saveBtn.onclick=()=>{const d=JSON.stringify(welt);const blob=new Blob([d],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='chronos_save.json';a.click();URL.revokeObjectURL(url);logSchreiben('Spiel gespeichert.');};
+loadBtn.onclick=()=>{fileInput.click();};
+fileInput.onchange=()=>{const file=fileInput.files[0];if(!file)return;const reader=new FileReader();reader.onload=e=>{try{const daten=JSON.parse(e.target.result);if(daten.pflanzen&&daten.tiere&&daten.jahre!==undefined){welt=daten;logSchreiben('Spiel geladen.');tabelleAktualisieren();}else{alert('Ungültige Spiel-Datei.');}}catch(err){alert('Fehler beim Laden der Datei.');}};reader.readAsText(file);fileInput.value='';};
+tabelleAktualisieren();startSimulation();
+})();
+</script>
+</body>
+</html>
