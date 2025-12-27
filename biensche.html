@@ -2,19 +2,18 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>Pflege deine Blume</title>
+<title>Perfekter Blumensimulator</title>
 <style>
-  body { margin:0; overflow:hidden; background:#a0dca0; display:flex; justify-content:center; align-items:center; height:100vh;}
-  canvas { display:block; background:#88cc88;}
-  #status { position:absolute; top:10px; left:10px; color:#fff; font-family:sans-serif; background:rgba(0,0,0,0.3); padding:5px; border-radius:5px;}
+body { margin:0; overflow:hidden; background:#a0dca0; }
+canvas { display:block; background:#88cc88;}
+#status { position:absolute; top:10px; left:10px; color:white; font-family:sans-serif; background:rgba(0,0,0,0.3); padding:5px; border-radius:5px;}
 </style>
 </head>
 <body>
-<canvas id="flowerCanvas" width="800" height="500"></canvas>
+<canvas id="canvas" width="900" height="600"></canvas>
 <div id="status"></div>
-
 <script>
-const canvas = document.getElementById('flowerCanvas');
+const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 const statusDiv = document.getElementById('status');
 
@@ -22,72 +21,108 @@ const statusDiv = document.getElementById('status');
 let camera = {x:0, y:0, scale:1};
 
 // --- Spielzustand ---
-let flowers = []; // mehrere Blumen
+let flowers = [];
 let grass = [];
 let particles = [];
 let seeds = 0;
 
 // --- Buttons ---
 const buttons = {
-  sun: {x:700, y:10, width:80, height:30, active:false},
-  rain: {x:600, y:10, width:80, height:30, active:false}
+  sun: {x:800, y:10, w:80, h:30, active:false},
+  rain:{x:700, y:10, w:80, h:30, active:false}
 };
 
-// --- Initiales Gras ---
-for(let i=0;i<80;i++){
-  grass.push({x: Math.random()*canvas.width, y: canvas.height/2 + Math.random()*50, height: 2 + Math.random()*5});
+// --- Gras initialisieren ---
+for(let i=0;i<100;i++){
+  grass.push({x: Math.random()*2000, y: 400 + Math.random()*50, height:2 + Math.random()*5, maxHeight:20});
 }
 
-// --- Helpers ---
-function drawBackground(){
-  ctx.fillStyle = '#87CEEB';
-  ctx.fillRect(0,0,canvas.width,canvas.height/2);
-  ctx.fillStyle = '#88cc88';
-  ctx.fillRect(0,canvas.height/2,canvas.width,canvas.height/2);
-}
-
-function drawGrass(){
-  grass.forEach(g=>{
-    ctx.fillStyle = '#228B22';
-    ctx.fillRect(g.x, canvas.height/2+50-g.height,3,g.height);
-  });
-}
-
-function drawFlower(f){
-  const stemHeight = 20 + f.stage*20;
-  const stemWidth = 4 + f.stage*2;
-  const size = 5 + f.stage*8;
-  
-  ctx.fillStyle = f.alive?'#228B22':'#654321';
-  ctx.fillRect(f.x - stemWidth/2, f.y, stemWidth, stemHeight);
-
-  // Blätter
-  ctx.fillStyle = f.alive?'#2e8b57':'#3e3e3e';
-  ctx.beginPath();
-  ctx.ellipse(f.x-8, f.y+stemHeight/3, 3 + f.stage, 6 + f.stage, -Math.PI/6,0,2*Math.PI);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.ellipse(f.x+8, f.y+stemHeight/2, 3 + f.stage, 6 + f.stage, Math.PI/6,0,2*Math.PI);
-  ctx.fill();
-
-  // Blüte
-  if(f.alive){
-    ctx.fillStyle = f.color;
-    for(let i=0;i<6;i++){
-      let angle = (i/6)*2*Math.PI;
-      let bx = f.x + Math.cos(angle)*size;
-      let by = f.y - Math.sin(angle)*size;
-      ctx.beginPath();
-      ctx.ellipse(bx, by, size/2, size, angle,0,2*Math.PI);
-      ctx.fill();
+// --- Blumenklasse ---
+class Flower {
+  constructor(x,y){
+    this.x=x;
+    this.y=y;
+    this.stage=0;
+    this.water=50;
+    this.light=50;
+    this.clean=50;
+    this.alive=true;
+    this.color='pink';
+  }
+  update(){
+    if(!this.alive) return;
+    this.water -=0.05;
+    this.light -=0.02;
+    this.clean -=0.01;
+    if(buttons.rain.active) this.water +=0.3;
+    if(buttons.sun.active) this.light +=0.2;
+    // Wachstum
+    if(this.water>30 && this.light>30 && this.clean>30 && this.stage<3){
+      this.stage +=0.001;
     }
-    ctx.fillStyle='yellow';
+    if(this.stage>=3 && this.water>50 && this.light>50){
+      this.color = Math.random()>0.5?'red':'purple';
+    }
+    if(this.water<10 || this.light<10 || this.clean<10){
+      this.alive=false;
+      seeds+=2;
+    }
+  }
+  draw(){
+    const stemHeight = 20 + this.stage*20;
+    const stemWidth = 4 + this.stage*2;
+    const size = 5 + this.stage*8;
+    ctx.fillStyle = this.alive?'#228B22':'#654321';
+    ctx.fillRect(this.x - stemWidth/2, this.y, stemWidth, stemHeight);
+    // Blätter
+    ctx.fillStyle=this.alive?'#2e8b57':'#3e3e3e';
     ctx.beginPath();
-    ctx.arc(f.x, f.y, size/2,0,Math.PI*2);
-    ctx.fill();
+    ctx.ellipse(this.x-8, this.y+stemHeight/3, 3+this.stage,6+this.stage,-Math.PI/6,0,2*Math.PI); ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(this.x+8, this.y+stemHeight/2, 3+this.stage,6+this.stage,Math.PI/6,0,2*Math.PI); ctx.fill();
+    // Blüte
+    if(this.alive){
+      ctx.fillStyle=this.color;
+      for(let i=0;i<6;i++){
+        let angle = (i/6)*2*Math.PI;
+        let bx = this.x + Math.cos(angle)*size;
+        let by = this.y - Math.sin(angle)*size;
+        ctx.beginPath();
+        ctx.ellipse(bx, by, size/2, size, angle,0,2*Math.PI);
+        ctx.fill();
+      }
+      ctx.fillStyle='yellow';
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, size/2,0,Math.PI*2); ctx.fill();
+    }
   }
 }
 
+// --- Gras Update/Draw ---
+function updateGrass(){
+  grass.forEach(g=>{ if(g.height<g.maxHeight) g.height +=0.02; });
+}
+function drawGrass(){
+  grass.forEach(g=>{
+    ctx.fillStyle='#228B22';
+    ctx.fillRect(g.x, 400+50-g.height,3,g.height);
+  });
+}
+
+// --- Partikel ---
+function spawnParticles(){
+  if(buttons.rain.active){
+    for(let i=0;i<3;i++){
+      particles.push({x: Math.random()*2000, y:0, vy:2+Math.random()*2, color:'#00f'});
+    }
+  }
+}
+function updateParticles(){
+  for(let i=particles.length-1;i>=0;i--){
+    particles[i].y += particles[i].vy;
+    if(particles[i].y>600) particles.splice(i,1);
+  }
+}
 function drawParticles(){
   particles.forEach(p=>{
     ctx.fillStyle=p.color;
@@ -95,94 +130,61 @@ function drawParticles(){
   });
 }
 
-function spawnParticles(){
-  if(buttons.rain.active){
-    for(let i=0;i<3;i++){
-      particles.push({x: Math.random()*canvas.width, y:0, vy:2+Math.random()*2, color:'#00f'});
-    }
-  }
-}
-
-function updateParticles(){
-  for(let i=particles.length-1;i>=0;i--){
-    particles[i].y += particles[i].vy;
-    if(particles[i].y>canvas.height) particles.splice(i,1);
-  }
-}
-
+// --- Buttons Draw ---
 function drawButtons(){
   ctx.fillStyle=buttons.sun.active?'orange':'#ffcc00';
-  ctx.fillRect(buttons.sun.x, buttons.sun.y, buttons.sun.width, buttons.sun.height);
+  ctx.fillRect(buttons.sun.x, buttons.sun.y, buttons.sun.w, buttons.sun.h);
   ctx.fillStyle='#000'; ctx.font='16px sans-serif'; ctx.fillText('Sonne', buttons.sun.x+15, buttons.sun.y+20);
   ctx.fillStyle=buttons.rain.active?'#00f':'#99ccff';
-  ctx.fillRect(buttons.rain.x, buttons.rain.y, buttons.rain.width, buttons.rain.height);
+  ctx.fillRect(buttons.rain.x, buttons.rain.y, buttons.rain.w, buttons.rain.h);
   ctx.fillStyle='#000'; ctx.fillText('Regen', buttons.rain.x+15, buttons.rain.y+20);
-}
-
-// --- Game Logic ---
-function update(){
-  // Update Gras
-  grass.forEach(g=>{ if(g.height<20) g.height +=0.02; });
-
-  // Update Particles
-  spawnParticles();
-  updateParticles();
-
-  // Update Blumen
-  flowers.forEach(f=>{
-    if(f.alive){
-      f.water -=0.05; f.light -=0.02; f.clean -=0.01;
-      if(buttons.rain.active) f.water +=0.3;
-      if(buttons.sun.active) f.light +=0.2;
-      if(f.water>30 && f.light>30 && f.clean>30 && f.stage<3){
-        f.stage +=0.001;
-      }
-      if(f.stage>=3 && f.alive && f.water>50 && f.light>50){
-        f.color = Math.random()>0.5?'red':'purple';
-      }
-      if(f.water<10 || f.light<10 || f.clean<10){
-        f.alive=false;
-        seeds +=2;
-      }
-    }
-  });
 }
 
 // --- Status UI ---
 function drawStatus(){
-  statusDiv.innerHTML = `Blumen: ${flowers.length} | Samen: ${seeds} <br> Steuerung: R=Regen, L=Sonne, G=Gras schneiden oder klicken, + / - Zoomen, Pfeile=Wiese verschieben`;
+  statusDiv.innerHTML=`Blumen: ${flowers.length} | Samen: ${seeds} <br>R=Regen L=Sonne G=Gras schneiden B=Blume pflanzen + / - Zoom Pfeile/WASD Pan`;
 }
 
 // --- Main Loop ---
-function draw(){
+function loop(){
   ctx.save();
   ctx.clearRect(0,0,canvas.width,canvas.height);
   ctx.scale(camera.scale,camera.scale);
   ctx.translate(camera.x,camera.y);
-
-  drawBackground();
+  // Hintergrund
+  ctx.fillStyle='#87CEEB';
+  ctx.fillRect(0,0,2000,400);
+  ctx.fillStyle='#88cc88';
+  ctx.fillRect(0,400,2000,200);
+  // Update & Draw
+  updateGrass();
+  flowers.forEach(f=>f.update());
+  spawnParticles();
+  updateParticles();
   drawGrass();
-  flowers.forEach(f=>drawFlower(f));
+  flowers.forEach(f=>f.draw());
   drawParticles();
   ctx.restore();
   drawButtons();
   drawStatus();
-  update();
-  requestAnimationFrame(draw);
+  requestAnimationFrame(loop);
 }
+loop();
 
 // --- Input ---
 window.addEventListener('keydown', e=>{
-  if(e.key==='r') buttons.rain.active = !buttons.rain.active;
-  if(e.key==='l') buttons.sun.active = !buttons.sun.active;
+  if(e.key==='r') buttons.rain.active=!buttons.rain.active;
+  if(e.key==='l') buttons.sun.active=!buttons.sun.active;
   if(e.key==='g'){
     grass.forEach(g=>g.height=Math.max(g.height-5,2));
     flowers.forEach(f=>f.clean+=5);
   }
-  // Zoom
+  if(e.key==='b' && seeds>0){
+    flowers.push(new Flower(100+Math.random()*1500,400+50));
+    seeds--;
+  }
   if(e.key==='=') camera.scale +=0.1;
   if(e.key==='-') camera.scale = Math.max(0.5,camera.scale-0.1);
-  // Pan
   if(e.key==='ArrowUp') camera.y +=10;
   if(e.key==='ArrowDown') camera.y -=10;
   if(e.key==='ArrowLeft') camera.x +=10;
@@ -193,33 +195,19 @@ canvas.addEventListener('click', e=>{
   const rect=canvas.getBoundingClientRect();
   const mx=(e.clientX-rect.left)/camera.scale - camera.x;
   const my=(e.clientY-rect.top)/camera.scale - camera.y;
-
   // Buttons
-  if(mx>buttons.sun.x && mx<buttons.sun.x+buttons.sun.width &&
-     my>buttons.sun.y && my<buttons.sun.y+buttons.sun.height) buttons.sun.active=!buttons.sun.active;
-  if(mx>buttons.rain.x && mx<buttons.rain.x+buttons.rain.width &&
-     my>buttons.rain.y && my<buttons.rain.y+buttons.rain.height) buttons.rain.active=!buttons.rain.active;
-
+  if(mx>buttons.sun.x && mx<buttons.sun.x+buttons.sun.w && my>buttons.sun.y && my<buttons.sun.y+buttons.sun.h) buttons.sun.active=!buttons.sun.active;
+  if(mx>buttons.rain.x && mx<buttons.rain.x+buttons.rain.w && my>buttons.rain.y && my<buttons.rain.y+buttons.rain.h) buttons.rain.active=!buttons.rain.active;
   // Gras schneiden
   grass.forEach(g=>{
-    if(mx>g.x && mx<g.x+3 && my>canvas.height/2+50-g.height && my<canvas.height/2+50){
-      g.height = Math.max(g.height-5,2);
+    if(mx>g.x && mx<g.x+3 && my>400+50-g.height && my<400+50){
+      g.height=Math.max(g.height-5,2);
       flowers.forEach(f=>f.clean+=2);
     }
   });
 });
-
-// --- Blumen pflanzen per Samen ---
-window.addEventListener('keydown', e=>{
-  if(e.key==='b' && seeds>0){
-    flowers.push({x:100+Math.random()*500, y:canvas.height/2+50, stage:0, water:50, light:50, clean:50, alive:true, color:'pink'});
-    seeds--;
-  }
-});
-
-// --- Start ---
-draw();
 </script>
 </body>
 </html>
+
 
