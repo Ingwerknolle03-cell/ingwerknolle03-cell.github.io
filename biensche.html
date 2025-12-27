@@ -2,148 +2,154 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>Pixel Blumentraum</title>
+<title>Pixelgarten Deluxe</title>
 <style>
-body { margin:0; overflow:hidden; background:#87CEEB; font-family:monospace; }
+body { margin:0; overflow:hidden; background:#87ceeb; font-family:monospace; }
 #gameUI { position:absolute; top:10px; left:10px; z-index:10; }
 button { font-size:14px; padding:5px 8px; margin:3px; cursor:pointer; }
-#log { position:absolute; bottom:10px; left:10px; width:320px; max-height:220px; overflow-y:auto; background:rgba(255,255,255,0.7); border:1px solid #0a0; padding:5px; font-size:12px; }
+#log { position:absolute; bottom:10px; left:10px; width:400px; max-height:200px; overflow-y:auto; background:rgba(255,255,255,0.8); border:1px solid #0a0; padding:5px; font-size:12px; }
 </style>
 </head>
 <body>
 <canvas id="gameCanvas"></canvas>
 <div id="gameUI">
-  <button id="waterBtn">💧 Gießen</button>
-  <button id="sunBtn">☀️ Sonne</button>
-  <button id="rainBtn">🌧 Regen</button>
+  <button id="sunBtn">☀️ Sonne geben</button>
+  <button id="rainBtn">🌧 Regen an/aus</button>
   <button id="beeGameBtn">🐝 Bienenfangen</button>
-  <button id="feedBirdBtn">🍎 Vogel füttern</button>
-  <button id="saveBtn">Speichern</button>
-  <button id="loadBtn">Laden</button>
+  <button id="feedBirdBtn">🌰 Vogel füttern</button>
+  <button id="saveBtn">💾 Speichern</button>
+  <button id="loadBtn">📂 Laden</button>
   <input type="file" id="fileInput" style="display:none;" accept=".json" />
 </div>
 <div id="log"></div>
 <script>
-const canvas=document.getElementById('gameCanvas');
-const ctx=canvas.getContext('2d');
-canvas.width=window.innerWidth;
-canvas.height=window.innerHeight;
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
-const logDiv=document.getElementById('log');
-function log(text){const p=document.createElement('div'); p.textContent=text; logDiv.appendChild(p); logDiv.scrollTop=logDiv.scrollHeight;}
+const logDiv = document.getElementById('log');
+function log(text){ const p = document.createElement('div'); p.textContent = text; logDiv.appendChild(p); logDiv.scrollTop = logDiv.scrollHeight; }
 
-let game={
-  flowers:[],
-  seedPlanted:false,
-  flowerGrowth:0,
-  muldes:[],
-  bees:[],
+// Game state
+let game = {
+  flowers: [],
+  seedPlanted: false,
+  flowerGrowth: 0,
+  muldes: [],
+  bees: [],
   rain:false,
   sun:1,
   nectar:0,
-  birdFed:false,
-  bird:{x:-100,y:300,target:null,onTree:false}
+  birdFed:false
 };
 
-let trees=[{x:600,y:canvas.height-150},{x:900,y:canvas.height-180}];
+// Vogel
+let bird = {x:-100,y:150,targetX:300,targetY:300,angle:0,onTree:false};
+let tree = {x:canvas.width-200,y:canvas.height-200};
 
-// Vogel Kern-Interaktion
-function feedBird(){
-  if(!game.birdFed){
-    game.birdFed=true;
-    game.bird.target={x:trees[0].x,y:trees[0].y-50};
-    log('🐦 Vogel gefüttert! Er fliegt zum Baum.');
-  }
+// Hügel generieren
+let hills = [];
+for(let i=0;i<canvas.width;i+=50){
+  hills.push({x:i,y:canvas.height-50-Math.random()*50});
 }
 
-// Animation Loop
+// Blumen-Objekt
+function createFlower(x,y){ return {x,y,size:0,health:0}; }
+
+// Zeichenloop
 function draw(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
   // Himmel
-  ctx.fillStyle='#87CEEB'; ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle='#87ceeb'; ctx.fillRect(0,0,canvas.width,canvas.height);
 
   // Sonne
   ctx.beginPath(); ctx.arc(100,100,50,0,Math.PI*2); ctx.fillStyle='#fff200'; ctx.fill();
 
-  // Wolken
-  ctx.fillStyle='#fff';
-  ctx.beginPath(); ctx.arc(400,80,40,0,Math.PI*2); ctx.arc(440,80,35,0,Math.PI*2); ctx.arc(420,60,30,0,Math.PI*2); ctx.fill();
+  // Regen
+  if(game.rain){ ctx.fillStyle='rgba(0,0,255,0.3)'; for(let i=0;i<100;i++){ ctx.fillRect(Math.random()*canvas.width,Math.random()*canvas.height,2,10); } }
 
-  // Berge
-  ctx.fillStyle='#556B2F'; ctx.beginPath(); ctx.moveTo(0,canvas.height-100);
-  ctx.lineTo(200,canvas.height-300); ctx.lineTo(400,canvas.height-100); ctx.fill();
-  ctx.beginPath(); ctx.moveTo(400,canvas.height-100); ctx.lineTo(600,canvas.height-250); ctx.lineTo(800,canvas.height-100); ctx.fill();
+  // Hügel
+  ctx.fillStyle='#0a5'; ctx.beginPath();
+  ctx.moveTo(0,canvas.height);
+  hills.forEach(h=>ctx.lineTo(h.x,h.y));
+  ctx.lineTo(canvas.width,canvas.height);
+  ctx.fill();
 
-  // Wiese
-  ctx.fillStyle='#0a0';
-  ctx.fillRect(0,canvas.height-100,canvas.width,100);
+  // Mulden
+  ctx.fillStyle='#0077aa'; game.muldes.forEach(m=>{ ctx.beginPath(); ctx.ellipse(m.x,m.y,20,10,0,0,Math.PI*2); ctx.fill(); });
 
-  // Bäume
-  ctx.fillStyle='#8B4513';
-  trees.forEach(t=>{ctx.fillRect(t.x-10,t.y,20,canvas.height-t.y); ctx.fillStyle='#0a5'; ctx.beginPath(); ctx.arc(t.x,t.y,40,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#8B4513';});
-
-  // Mulden nur auf Wiese
-  ctx.fillStyle='#0077aa';
-  game.muldes.forEach(m=>{ if(m.y>canvas.height-100) { ctx.beginPath(); ctx.ellipse(m.x,m.y,20,10,0,0,Math.PI*2); ctx.fill(); } });
-
-  // Vogel
-  ctx.fillStyle='red';
-  ctx.beginPath();
-  ctx.arc(game.bird.x,game.bird.y,20,0,Math.PI*2); ctx.fill();
-  ctx.fillStyle='black'; ctx.fillRect(game.bird.x-5,game.bird.y-5,10,10); ctx.fillStyle='red';
-
-  if(game.birdFed && game.bird.target){
-    if(Math.abs(game.bird.x-game.bird.target.x)>1) game.bird.x+=(game.bird.target.x-game.bird.x)*0.02;
-    if(Math.abs(game.bird.y-game.bird.target.y)>1) game.bird.y+=(game.bird.target.y-game.bird.y)*0.02;
-    if(Math.abs(game.bird.x-game.bird.target.x)<1 && Math.abs(game.bird.y-game.bird.target.y)<1){
-      if(!game.seedPlanted){
-        game.flowers.push({x:game.bird.x,y:game.bird.y,size:0});
-        game.seedPlanted=true;
-        log('🌼 Ringelblumen-Samen fällt vom Vogel auf die Erde!');
-      }
-      game.bird.onTree=true;
-    }
-  }
-
-  // Blumen wachsen langsam
+  // Blumen
   game.flowers.forEach(f=>{
-    f.size+=0.0005*(1+game.sun+game.nectar+(game.rain?0.5:0));
-    if(f.size>0.5) f.size=0.5;
+    if(f.health>5){ f.size+=0.001*(1+game.sun+game.nectar); if(f.size>1) f.size=1; }
     ctx.fillStyle='#ffcc00'; ctx.beginPath(); ctx.arc(f.x,f.y-50*f.size,10*f.size,0,Math.PI*2); ctx.fill();
     ctx.fillStyle='#0a0'; ctx.fillRect(f.x-2,f.y,4,50*f.size);
   });
 
+  // Vogel
+  if(!game.birdFed){
+    drawBird(bird.x,bird.y);
+  }else{
+    if(!bird.onTree){
+      let dx = tree.x-bird.x; let dy = tree.y-bird.y;
+      bird.x+=dx*0.02; bird.y+=dy*0.02;
+      if(Math.abs(dx)<2 && Math.abs(dy)<2){ bird.onTree=true; log('🐦 Vogel sitzt auf dem Baum!'); plantSeed(bird.x,bird.y); }
+      drawBird(bird.x,bird.y);
+    } else drawBird(tree.x,tree.y-50);
+  }
+
   // Bienen
-  game.bees.forEach(b=>{
-    ctx.fillStyle='#ff0'; ctx.beginPath(); ctx.arc(b.x,b.y,5,0,Math.PI*2); ctx.fill();
-    b.x+=b.vx; b.y+=b.vy;
-  });
+  game.bees.forEach(b=>{ ctx.fillStyle='#ff0'; ctx.beginPath(); ctx.arc(b.x,b.y,5,0,Math.PI*2); ctx.fill(); b.x+=b.vx; b.y+=b.vy; });
 
   requestAnimationFrame(draw);
 }
 draw();
 
-// UI Actions
-document.getElementById('waterBtn').onclick=()=>{ log('Ahhh, Wasser💧!'); game.nectar+=0.1; };
-document.getElementById('sunBtn').onclick=()=>{ log('☀️ Sonne!'); game.sun+=0.1; };
-document.getElementById('rainBtn').onclick=()=>{ game.rain=!game.rain; log(game.rain?'🌧 Es regnet':'🌤 Regen beendet'); };
-document.getElementById('beeGameBtn').onclick=()=>{
-  for(let i=0;i<5;i++) game.bees.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height/2,vx:1+Math.random()*2,vy:(Math.random()-0.5)*1});
-  log('🐝 Bienen fliegen! Fange sie!');
-};
-document.getElementById('feedBirdBtn').onclick=feedBird;
+function drawBird(x,y){
+  // Körper
+  ctx.fillStyle='#ff6600'; ctx.beginPath(); ctx.arc(x,y,20,0,Math.PI*2); ctx.fill();
+  // Auge
+  ctx.fillStyle='#000'; ctx.beginPath(); ctx.arc(x+8,y-5,3,0,Math.PI*2); ctx.fill();
+  // Schnabel
+  ctx.fillStyle='#ff0'; ctx.beginPath(); ctx.moveTo(x+20,y); ctx.lineTo(x+30,y-5); ctx.lineTo(x+30,y+5); ctx.closePath(); ctx.fill();
+}
+
+function plantSeed(x,y){
+  if(!game.seedPlanted){
+    game.seedPlanted=true;
+    game.flowers.push(createFlower(x,y));
+    log('🌼 Ringelblume gesät!');
+  }
+}
+
+// UI Buttons
+document.getElementById('sunBtn').onclick = ()=>{ game.sun+=0.2; log('☀️ Sonne erhöht!'); };
+document.getElementById('rainBtn').onclick = ()=>{ game.rain=!game.rain; log(game.rain?'🌧 Regen beginnt':'🌤 Regen endet'); if(game.rain) game.flowers.forEach(f=>f.health+=0.2); };
+document.getElementById('beeGameBtn').onclick = ()=>{ for(let i=0;i<5;i++){ game.bees.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height/2,vx:1+Math.random()*2,vy:(Math.random()-0.5)*1}); } log('🐝 Bienen fliegen!'); };
+document.getElementById('feedBirdBtn').onclick = ()=>{ game.birdFed=true; log('🌰 Vogel gefüttert! Er fliegt zum Baum.'); };
+
+// Mulden nur auf Wiese
+canvas.addEventListener('click',e=>{ if(e.clientY>canvas.height-150){ game.muldes.push({x:e.clientX,y:e.clientY}); log('⛏ Mulde erstellt'); } });
 
 // Save/Load
-const saveBtn=document.getElementById('saveBtn');
-const loadBtn=document.getElementById('loadBtn');
-const fileInput=document.getElementById('fileInput');
-saveBtn.onclick=()=>{const dataStr=JSON.stringify(game); const blob=new Blob([dataStr],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='flower_bird_save.json'; a.click(); URL.revokeObjectURL(url); log('💾 Spiel gespeichert');};
+const saveBtn = document.getElementById('saveBtn');
+const loadBtn = document.getElementById('loadBtn');
+const fileInput = document.getElementById('fileInput');
+saveBtn.onclick = ()=>{
+  const dataStr=JSON.stringify(game);
+  const blob=new Blob([dataStr],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='pixelgarten_save.json'; a.click(); URL.revokeObjectURL(url);
+  log('💾 Spiel gespeichert');
+};
 loadBtn.onclick=()=>{fileInput.click();};
-fileInput.onchange=()=>{const file=fileInput.files[0]; const reader=new FileReader(); reader.onload=e=>{try{game=JSON.parse(e.target.result); log('📂 Spiel geladen');}catch(err){log('Fehler beim Laden');}}; reader.readAsText(file);};
-
-// Click auf Canvas nur für Mulden auf Wiese
-canvas.addEventListener('click',e=>{if(e.clientY>canvas.height-100){game.muldes.push({x:e.clientX,y:e.clientY}); log('⛏ Mulde erstellt');}});
+fileInput.onchange=()=>{
+  const file=fileInput.files[0];
+  const reader=new FileReader();
+  reader.onload=e=>{ try{ game=JSON.parse(e.target.result); log('📂 Spiel geladen'); }catch(err){log('Fehler beim Laden');} };
+  reader.readAsText(file);
+};
 </script>
 </body>
 </html>
