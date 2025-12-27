@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -32,37 +31,58 @@ let flower = {
 let rain = false;
 let sun = false;
 let particles = [];
+let grass = [];
+
+// --- Initiales Gras generieren ---
+for(let i=0;i<50;i++){
+  grass.push({x: Math.random()*canvas.width, y: canvas.height/2 + Math.random()*50, height: 5 + Math.random()*15});
+}
+
+// --- Buttons ---
+const buttons = {
+  sun: {x:500, y:10, width:80, height:30, active:false},
+  rain: {x:400, y:10, width:80, height:30, active:false}
+};
 
 // --- Helferfunktionen ---
 function drawBackground() {
   // Himmel
   ctx.fillStyle = '#87CEEB';
-  ctx.fillRect(0, 0, canvas.width, canvas.height/2);
+  ctx.fillRect(0,0,canvas.width,canvas.height/2);
   // Wiese
   ctx.fillStyle = '#88cc88';
-  ctx.fillRect(0, canvas.height/2, canvas.width, canvas.height/2);
+  ctx.fillRect(0,canvas.height/2,canvas.width,canvas.height/2);
+}
+
+function drawGrass() {
+  grass.forEach(g => {
+    ctx.fillStyle = '#228B22';
+    ctx.fillRect(g.x, g.y, 3, g.height);
+  });
 }
 
 function drawFlower() {
-  const size = 5 + flower.stage * 15;
-  
+  const stemHeight = 40 + flower.stage*20;
+  const stemWidth = 6 + flower.stage*2;
+  const size = 8 + flower.stage*10;
+
   // Stiel
   ctx.fillStyle = '#228B22';
-  ctx.fillRect(flower.x-5, flower.y, 10, 40);
-  
+  ctx.fillRect(flower.x - stemWidth/2, flower.y, stemWidth, stemHeight);
+
   // Blätter
   ctx.fillStyle = '#2e8b57';
   ctx.beginPath();
-  ctx.ellipse(flower.x-10, flower.y+20, 5, 10, -Math.PI/6, 0, 2*Math.PI);
+  ctx.ellipse(flower.x-10, flower.y+stemHeight/3, 5 + flower.stage, 12 + flower.stage, -Math.PI/6, 0, 2*Math.PI);
   ctx.fill();
   ctx.beginPath();
-  ctx.ellipse(flower.x+10, flower.y+25, 5, 10, Math.PI/6, 0, 2*Math.PI);
+  ctx.ellipse(flower.x+10, flower.y+stemHeight/2, 5 + flower.stage, 12 + flower.stage, Math.PI/6, 0, 2*Math.PI);
   ctx.fill();
-  
-  // Blüte mit mehreren Blütenblättern
+
+  // Blüte
   ctx.fillStyle = 'pink';
-  for(let i=0; i<6; i++){
-    let angle = (i/6) * 2 * Math.PI;
+  for(let i=0;i<6;i++){
+    let angle = (i/6)*2*Math.PI;
     let bx = flower.x + Math.cos(angle)*size;
     let by = flower.y - Math.sin(angle)*size;
     ctx.beginPath();
@@ -98,6 +118,21 @@ function updateParticles() {
   });
 }
 
+function drawButtons() {
+  // Sonne
+  ctx.fillStyle = buttons.sun.active?'orange':'#ffcc00';
+  ctx.fillRect(buttons.sun.x, buttons.sun.y, buttons.sun.width, buttons.sun.height);
+  ctx.fillStyle = '#000';
+  ctx.font = '16px sans-serif';
+  ctx.fillText('Sonne', buttons.sun.x+15, buttons.sun.y+20);
+
+  // Regen
+  ctx.fillStyle = buttons.rain.active?'#00f':'#99ccff';
+  ctx.fillRect(buttons.rain.x, buttons.rain.y, buttons.rain.width, buttons.rain.height);
+  ctx.fillStyle = '#000';
+  ctx.fillText('Regen', buttons.rain.x+15, buttons.rain.y+20);
+}
+
 // --- Spielmechanik ---
 function update() {
   // Werte sinken langsam
@@ -106,8 +141,8 @@ function update() {
   flower.clean -= 0.01;
 
   // Regen & Sonne erhöhen Werte
-  if(rain) flower.water += 0.3;
-  if(sun) flower.light += 0.2;
+  if(buttons.rain.active) flower.water += 0.3;
+  if(buttons.sun.active) flower.light += 0.2;
 
   // Wachstum
   if(flower.water > 30 && flower.light > 30 && flower.clean > 30){
@@ -115,12 +150,17 @@ function update() {
   }
 
   // Überfluss kann Blume schädigen
-  if(flower.water > 100) flower.water -= 0.1;
-  if(flower.light > 100) flower.light -= 0.1;
+  if(flower.water>100) flower.water -=0.1;
+  if(flower.light>100) flower.light -=0.1;
 
   // Partikel generieren
   spawnParticles();
   updateParticles();
+
+  // Gras wächst langsam
+  grass.forEach(g => {
+    if(g.height<20) g.height += 0.02;
+  });
 }
 
 // --- UI / Status ---
@@ -130,15 +170,17 @@ function drawStatus() {
     Licht: ${flower.light.toFixed(0)}<br>
     Sauberkeit: ${flower.clean.toFixed(0)}<br>
     Blütenstufe: ${Math.floor(flower.stage)+1}<br>
-    Steuerung: R=Regen, L=Sonne, G=Gras schneiden
+    Steuerung: R=Regen, L=Sonne, G=Gras schneiden oder klicken
   `;
 }
 
 // --- Haupt-Loop ---
 function draw() {
   drawBackground();
+  drawGrass();
   drawFlower();
   drawParticles();
+  drawButtons();
   drawStatus();
   update();
   requestAnimationFrame(draw);
@@ -146,9 +188,37 @@ function draw() {
 
 // --- Steuerung ---
 window.addEventListener('keydown', (e) => {
-  if(e.key === 'r') rain = !rain;       // Regen an/aus
-  if(e.key === 'g') flower.clean += 10; // Gras schneiden
-  if(e.key === 'l') sun = !sun;         // Sonne an/aus
+  if(e.key==='r') buttons.rain.active = !buttons.rain.active;
+  if(e.key==='l') buttons.sun.active = !buttons.sun.active;
+  if(e.key==='g') {
+    flower.clean += 10;
+    grass.forEach(g=>g.height = Math.max(g.height-5, 2));
+  }
+});
+
+// Mausinteraktion für Gras schneiden oder Buttons
+canvas.addEventListener('click', (e)=>{
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+
+  // Buttons
+  if(mx>buttons.sun.x && mx<buttons.sun.x+buttons.sun.width &&
+     my>buttons.sun.y && my<buttons.sun.y+buttons.sun.height){
+    buttons.sun.active = !buttons.sun.active;
+  }
+  if(mx>buttons.rain.x && mx<buttons.rain.x+buttons.rain.width &&
+     my>buttons.rain.y && my<buttons.rain.y+buttons.rain.height){
+    buttons.rain.active = !buttons.rain.active;
+  }
+
+  // Gras schneiden
+  grass.forEach(g=>{
+    if(mx>g.x && mx<g.x+3 && my>g.y && my<g.y+g.height){
+      g.height = Math.max(g.height-5, 2);
+      flower.clean += 2;
+    }
+  });
 });
 
 // Start
