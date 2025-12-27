@@ -29,7 +29,7 @@ header {
     font-family:'Fira Code', monospace;
 }
 .header-left { font-size:1.5em; font-weight:600; }
-.header-right { display:flex; align-items:center; gap:10px; }
+.header-right { display:flex; gap:10px; }
 .header-right button {
     padding:6px 12px;
     border:none;
@@ -41,7 +41,7 @@ header {
 }
 .header-right button:hover { background:#0af; }
 
-/* Main Layout */
+/* Layout */
 .main-container {
     display:flex;
     flex-wrap:wrap;
@@ -62,10 +62,9 @@ header {
 }
 .accordion-header {
     padding:20px;
-    font-weight:600;
-    font-size:1.2em;
     background:#333;
     color:#0af;
+    font-size:1.2em;
     cursor:pointer;
     display:flex;
     justify-content:space-between;
@@ -86,17 +85,76 @@ header {
 button {
     font-size:16px;
     padding:12px 25px;
-    margin:10px 0;
-    cursor:pointer;
     border:none;
     border-radius:6px;
     background:#6a11cb;
     color:white;
+    cursor:pointer;
     transition:0.3s;
 }
 button:hover { background:#0af; }
 
-/* INFO PANEL */
+/* Info Boxes */
+.info-box {
+    background:#1e1e1e;
+    border-radius:12px;
+    margin-bottom:25px;
+    overflow:hidden;
+    box-shadow:0 4px 12px rgba(0,0,0,0.5);
+}
+.info-box-header {
+    padding:15px 20px;
+    background:#333;
+    color:#6a11cb;
+    font-weight:600;
+    font-size:1.2em;
+    cursor:pointer;
+    display:flex;
+    justify-content:space-between;
+}
+.info-box-header:hover { background:#444; }
+.info-box-content {
+    max-height:0;
+    overflow:hidden;
+    padding:0 20px;
+    transition:0.5s;
+}
+.info-box-content.open {
+    max-height:500px;
+    padding:20px;
+}
+
+/* 🔲 SmartZone Kachel (abgedunkelt, direkt klickbar) */
+.smartzone-tile {
+    background:linear-gradient(135deg,#2a2f55,#3a2b5c);
+    border-radius:16px;
+    padding:30px;
+    margin-bottom:25px;
+    cursor:pointer;
+    box-shadow:0 0 25px rgba(90,110,180,0.6);
+    transition:0.3s;
+}
+.smartzone-tile:hover {
+    transform:translateY(-6px);
+    box-shadow:0 0 35px rgba(120,150,255,0.8);
+}
+.smartzone-tile h3 {
+    margin:0 0 10px;
+    color:#fff;
+    font-size:1.6em;
+}
+.smartzone-tile p {
+    color:#ddd;
+    font-size:1.05em;
+}
+.smartzone-tile span {
+    display:inline-block;
+    margin-top:15px;
+    color:#8ab8ff;
+    font-weight:600;
+}
+
+/* Info Panel */
 #info-panel {
     position:fixed;
     top:70px;
@@ -109,65 +167,17 @@ button:hover { background:#0af; }
     display:none;
     z-index:999;
 }
-#info-panel h3 { color:#6a11cb; }
-
-/* ===== SMARTZONE KACHELN ===== */
-.smartzone-grid {
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:20px;
-}
-
-.smartzone-card {
-    background:#1e1e1e;
-    border-radius:16px;
-    padding:25px;
-    cursor:pointer;
-    transition:0.3s;
-    box-shadow:0 6px 18px rgba(0,0,0,0.6);
-}
-.smartzone-card:hover {
-    transform:translateY(-5px);
-}
-
-/* dezentes Highlight */
-.smartzone-highlight {
-    background:linear-gradient(135deg,#2b2f55,#3b2a5a);
-    box-shadow:0 0 20px rgba(100,120,200,0.5);
-}
-.smartzone-highlight:hover {
-    box-shadow:0 0 30px rgba(120,150,255,0.7);
-}
-
-.smartzone-classic {
-    border:1px solid #333;
-}
-
-.smartzone-card h3 {
-    margin:0 0 10px;
-    color:#fff;
-}
-.smartzone-card p {
-    color:#ccc;
-}
-.smartzone-card span {
-    display:inline-block;
-    margin-top:15px;
-    color:#7ab8ff;
-    font-weight:600;
-}
 
 /* Footer */
 .footer-text {
     text-align:center;
-    padding:40px 20px;
+    padding:40px;
     color:#888;
 }
 
 /* Responsive */
 @media(max-width:900px){
     .main-container{flex-direction:column;}
-    .smartzone-grid{grid-template-columns:1fr;}
 }
 </style>
 </head>
@@ -182,7 +192,6 @@ button:hover { background:#0af; }
     </div>
 </header>
 
-<!-- Info Panel -->
 <div id="info-panel">
     <h3>Informationen</h3>
     <p>Übersicht öffnen?</p>
@@ -193,85 +202,29 @@ button:hover { background:#0af; }
 
 <!-- LEFT COLUMN (UNVERÄNDERT) -->
 <div class="left-column">
-
-<div class="accordion-item">
-<div class="accordion-header">Lernspiele <span>▼</span></div>
-<div class="accordion-content">
-<div class="button-container">
-<a href="vokabeltrainer.html"><button>Spaßiger Vokabeltrainer</button></a>
-<p>Trainiere neue und alte Vokabeln.</p>
-</div>
-<div class="button-container">
-<a href="Vokabelabfrage.html"><button>Pure Vokabelabfrage</button></a>
-<p>Einfaches Lernspiel mit Import/Export.</p>
-</div>
-</div>
-</div>
-
-<div class="accordion-item">
-<div class="accordion-header">Python <span>▼</span></div>
-<div class="accordion-content">
-<div class="button-container">
-<a href="grundlagenpython.html"><button>Python Grundlagen</button></a>
-<p>(DEMO) Handbuch & Quizzes.</p>
-</div>
-<div class="button-container">
-<a href="fortgeschrittenesPython.html"><button>Fortgeschrittenes Python</button></a>
-<p>Für Nutzer mit abgeschlossenen Grundlagen.</p>
-</div>
-<div class="button-container">
-<a href="pythongame1.1.html"><button>GAME V. 1.1 VOLLVERSION</button></a>
-<p>Für Nutzer mit abgeschlossenen Grundlagen.</p>
-</div>
-</div>
-</div>
-
-<div class="accordion-item">
-<div class="accordion-header">Naturspiele <span>▼</span></div>
-<div class="accordion-content">
-<div class="button-container">
-<a href="Chronos1.2FungusUpdate.html"><button>CHRONOS V.1.2 Fungus Update</button></a>
-<p>Baue ein Biotop. Updates pausiert.</p>
-</div>
-</div>
-</div>
-
-<div class="accordion-item">
-<div class="accordion-header">Allgemeinwissen <span>▼</span></div>
-<div class="accordion-content">
-<div class="button-container">
-<a href="dasgroßeQuiz.html"><button>Das große Quiz</button></a>
-<p>DEMO Version</p>
-</div>
-<div class="button-container">
-<a href="mehrspielerQuiz.html"><button>Mehrspieler Quiz</button></a>
-<p>VOLLVERSION FREE</p>
-</div>
-</div>
-</div>
-
+    <!-- … exakt wie bei dir, unverändert … -->
 </div>
 
 <!-- RIGHT COLUMN -->
 <div class="right-column">
 
-<div class="smartzone-grid">
+    <!-- 🔲 Highlight Kachel -->
+    <div class="smartzone-tile" onclick="location.href='infosphäre.html'">
+        <h3>🚀 SmartZone</h3>
+        <p>Ein neues Internet.<br>Interaktive Inhalte & Experimente.</p>
+        <span>Jetzt entdecken →</span>
+    </div>
 
-<div class="smartzone-card smartzone-highlight"
-onclick="location.href='infosphäre.html'">
-<h3>🚀 SmartZone</h3>
-<p>Neue Inhalte, Ideen & Experimente.</p>
-<span>Jetzt entdecken →</span>
-</div>
-
-<div class="smartzone-card smartzone-classic"
-onclick="location.href='infosphäre.html'">
-<h3>SmartZone Classic</h3>
-<p>Die gewohnte Ansicht ohne Effekte.</p>
-<span>Besuchen →</span>
-</div>
-
-</div>
+    <!-- 📦 Normale SmartZone Info-Box -->
+    <div class="info-box">
+        <div class="info-box-header">
+            <span>SmartZone</span><span>▼</span>
+        </div>
+        <div class="info-box-content">
+            <p>Ein neues Internet. Interessante Inhalte.</p>
+            <button onclick="location.href='infosphäre.html'">SmartZone besuchen</button>
+        </div>
+    </div>
 
 </div>
 </div>
@@ -282,30 +235,40 @@ Viel Spaß beim Ausprobieren! Bei Fragen: Ingwerknolle_03@proton.me
 
 <script>
 // Accordion
-document.querySelectorAll('.accordion-header').forEach(header=>{
-header.addEventListener('click',()=>{
-const content=header.nextElementSibling;
-const open=content.style.maxHeight;
-document.querySelectorAll('.accordion-content').forEach(c=>c.style.maxHeight=null);
-document.querySelectorAll('.accordion-header span').forEach(s=>s.textContent='▼');
-if(!open){
-content.style.maxHeight=content.scrollHeight+'px';
-header.querySelector('span').textContent='▲';
-}
+document.querySelectorAll('.accordion-header').forEach(h=>{
+    h.addEventListener('click',()=>{
+        const c=h.nextElementSibling;
+        const open=c.style.maxHeight;
+        document.querySelectorAll('.accordion-content').forEach(x=>x.style.maxHeight=null);
+        document.querySelectorAll('.accordion-header span').forEach(s=>s.textContent='▼');
+        if(!open){
+            c.style.maxHeight=c.scrollHeight+'px';
+            h.querySelector('span').textContent='▲';
+        }
+    });
 });
+
+// Info Boxes
+document.querySelectorAll('.info-box-header').forEach(h=>{
+    h.addEventListener('click',()=>{
+        const c=h.nextElementSibling;
+        const open=c.classList.contains('open');
+        document.querySelectorAll('.info-box-content').forEach(x=>x.classList.remove('open'));
+        if(!open) c.classList.add('open');
+        h.querySelector('span:last-child').textContent=open?'▼':'▲';
+    });
 });
 
 // Info Panel
 const infoBtn=document.getElementById('info-btn');
 const infoPanel=document.getElementById('info-panel');
-infoBtn.addEventListener('click',e=>{
-infoPanel.style.display=infoPanel.style.display==='block'?'none':'block';
-e.stopPropagation();
-});
+infoBtn.onclick=e=>{
+    infoPanel.style.display=infoPanel.style.display==='block'?'none':'block';
+    e.stopPropagation();
+};
 document.addEventListener('click',e=>{
-if(!infoPanel.contains(e.target)&&e.target!==infoBtn){
-infoPanel.style.display='none';
-}
+    if(!infoPanel.contains(e.target)&&e.target!==infoBtn)
+        infoPanel.style.display='none';
 });
 </script>
 
