@@ -19,103 +19,88 @@ body {
     font-family: 'Montserrat', sans-serif;
 }
 
-/* Links */
-a {
-    text-decoration: none;
-    color: inherit;
-}
+a { text-decoration: none; color: inherit; }
+h1, h2, h3, h4, h5 { margin: 0; }
 
-/* Header */
+/* === Header === */
 header {
-    background: #1a1a1a;
+    background: linear-gradient(90deg,#6a11cb,#2575fc);
     color: #fff;
+    padding: 20px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 30px;
-    border-bottom: 2px solid #6a11cb;
     font-family: 'Fira Code', monospace;
-    flex-wrap: wrap;
 }
 
-.header-left, .header-right {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-
+.header-left, .header-right { display: flex; align-items: center; }
 .header-left button, .header-right button {
+    margin-left: 10px;
+    padding: 6px 12px;
     background: #6a11cb;
-    color: #fff;
     border: none;
     border-radius: 6px;
-    padding: 8px 15px;
     cursor: pointer;
-    font-weight: 600;
+    color: #fff;
     transition: all 0.3s;
+    font-family: 'Fira Code', monospace;
 }
+.header-left button:hover, .header-right button:hover { background: #0af; }
 
-.header-left button:hover, .header-right button:hover {
-    background: #0af;
-    box-shadow: 0 0 10px #0af;
-}
-
-/* Panels oben */
-.top-panel {
+/* Übersicht Panel modern & animiert */
+.overview-panel {
     display: none;
     background: #1e1e1e;
     border: 2px solid #6a11cb;
     border-radius: 12px;
-    margin: 15px 30px;
-    padding: 20px;
-    max-width: 1200px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+    margin: 15px auto;
+    padding: 25px;
+    max-width: 950px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.7);
     font-family: 'Fira Code', monospace;
-    transition: all 0.3s ease;
+    transition: all 0.5s ease;
+    opacity: 0;
+    transform: translateY(-20px);
 }
 
-.top-panel h3 {
-    margin-bottom: 15px;
-    color: #6a11cb;
-    text-align: center;
-}
+.overview-panel.show { display: block; opacity:1; transform: translateY(0); }
 
-.top-panel h4 {
-    color: #0af;
-    margin-top: 15px;
-}
+.overview-panel h3 { text-align:center; color:#6a11cb; margin-bottom:20px; font-size:1.8em; }
+.overview-panel h4 { color:#0af; margin-top:15px; font-size:1.2em; }
+.overview-panel p { margin:5px 0; line-height:1.5; }
+.overview-content { max-height: 300px; overflow-y:auto; padding-right:10px; }
 
-.top-panel p {
-    margin: 5px 0;
-}
+/* Scrollbar */
+.overview-content::-webkit-scrollbar { width: 8px; }
+.overview-content::-webkit-scrollbar-track { background: #2a2a2a; border-radius:4px; }
+.overview-content::-webkit-scrollbar-thumb { background:#6a11cb; border-radius:4px; }
 
-/* === Main Layout === */
+/* === Hauptbereich mit zwei Spalten === */
 .main-container {
     display: flex;
+    flex-wrap: wrap;
     width: 90%;
     max-width: 1200px;
-    margin: 30px auto;
-    gap: 30px;
-    flex-wrap: wrap;
+    margin: 40px auto;
+    gap: 20px;
 }
 
-/* Left column: Accordion */
-.accordion {
-    flex: 1 1 400px;
+.left-column, .right-column {
+    flex: 1;
+    min-width: 300px;
 }
 
+/* === Kategorien Akkordeon === */
 .accordion-item {
     background: #1e1e1e;
     border-radius: 12px;
     margin-bottom: 20px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     overflow: hidden;
+    box-shadow:0 4px 12px rgba(0,0,0,0.5);
     transition: transform 0.3s;
 }
 
-.accordion-item:hover {
-    transform: translateY(-3px);
-}
+.accordion-item:hover { transform: translateY(-3px); }
 
 .accordion-header {
     padding: 20px;
@@ -125,10 +110,19 @@ header {
     color: #0af;
     cursor: pointer;
     transition: background 0.3s;
+    display: flex;
+    align-items: center;
 }
 
-.accordion-header:hover {
-    background: #444;
+.accordion-header:hover { background: #444; }
+
+.section-image {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    margin-right: 15px;
+    filter: grayscale(100%);
+    border-radius: 6px;
 }
 
 .accordion-content {
@@ -136,36 +130,15 @@ header {
     overflow: hidden;
     transition: max-height 0.5s ease, padding 0.3s ease;
     background: #1a1a1a;
-    padding: 0 20px;
 }
 
 .accordion-content .button-container {
-    padding: 20px 0;
+    padding: 20px;
     border-bottom: 1px solid #333;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
 }
 
-.accordion-content .button-container:last-child {
-    border-bottom: none;
-}
+.accordion-content .button-container:last-child { border-bottom: none; }
 
-/* Bilder in Accordion */
-.section-image {
-    width: 100%;
-    max-height: 180px;
-    object-fit: cover;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    transition: transform 0.3s;
-}
-
-.section-image:hover {
-    transform: scale(1.03);
-}
-
-/* Buttons in Accordion */
 button {
     font-size: 16px;
     padding: 12px 25px;
@@ -179,42 +152,20 @@ button {
     box-shadow: 0 4px 10px rgba(106,17,203,0.4);
 }
 
-button:hover {
-    background: #0af;
-    box-shadow: 0 6px 15px rgba(10,255,255,0.5);
-}
+button:hover { background: #0af; box-shadow: 0 6px 15px rgba(10,255,255,0.5); }
 
-/* Right column: Wiki-like Texts */
-.right-column {
-    flex: 1 1 400px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.right-column .wiki-box {
-    background: #1e1e1e;
-    border-radius: 12px;
+/* === Rechte Spalte: Texte / Wikipedia-Stil === */
+.info-box {
+    background: #1a1a1a;
     padding: 20px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-    transition: transform 0.3s, box-shadow 0.3s;
-    cursor: pointer;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.5);
+    transition: all 0.3s;
 }
-
-.right-column .wiki-box:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
-}
-
-.wiki-box h3 {
-    margin-bottom: 10px;
-    color: #6a11cb;
-}
-
-.wiki-box p {
-    font-size: 14px;
-    color: #c0c0c0;
-}
+.info-box:hover { transform: translateY(-3px); background:#222; }
+.info-box h4 { color: #6a11cb; margin-bottom: 10px; }
+.info-box p { line-height: 1.6; color:#ccc; }
 
 /* Footer */
 .footer-text {
@@ -225,11 +176,7 @@ button:hover {
 }
 
 /* Responsive */
-@media (max-width: 1024px) {
-    .main-container {
-        flex-direction: column;
-    }
-}
+@media (max-width: 900px) { .main-container { flex-direction: column; } }
 </style>
 </head>
 <body>
@@ -237,90 +184,112 @@ button:hover {
 <!-- === Header === -->
 <header>
     <div class="header-left">
-        <button data-panel="info">Info</button>
-        <button data-panel="contact">Kontakt</button>
-        <button data-panel="updates">Update-Status</button>
+        Smartzone Hub
+        <button id="info-btn">Info</button>
+        <button id="contact-btn">Kontakt</button>
+        <button id="update-btn">Update-Status</button>
     </div>
     <div class="header-right">
-        <button id="english-btn">English Version</button>
+        <button onclick="location.href='english.html'">English Version</button>
     </div>
 </header>
 
-<!-- Panels oben -->
-<div id="info" class="top-panel">
-    <h3>Info</h3>
-    <p>Willkommen bei SmartZone Hub – deiner zentralen Plattform für Lernspiele, Python und mehr!</p>
-</div>
-<div id="contact" class="top-panel">
-    <h3>Kontakt</h3>
-    <p>Email: Ingwerknolle_03@proton.me</p>
-</div>
-<div id="updates" class="top-panel">
-    <h3>Update-Status</h3>
-    <p><strong>27.12.2025:</strong> Neue Quizfragen hinzugefügt.</p>
-    <p><strong>15.11.2025:</strong> Python Game 1.1 Update: Fortschritt speichern nun möglich.</p>
-    <p><strong>01.10.2025:</strong> Neue Lernspiele Kategorie „Mathe“ vorbereitet.</p>
+<!-- Übersichtspanel -->
+<div id="overview-panel" class="overview-panel">
+    <h3>Übersicht</h3>
+    <div class="overview-content">
+        <h4>Update-Status</h4>
+        <p><strong>27.12.2025:</strong> Neue Quizfragen hinzugefügt.</p>
+        <p><strong>15.11.2025:</strong> Python Game 1.1 Update: Fortschritt speichern möglich.</p>
+        <p><strong>01.10.2025:</strong> Neue Lernspiele Kategorie „Mathe“ vorbereitet.</p>
+        <h4>Kontakt</h4>
+        <p>Email: Ingwerknolle_03@proton.me</p>
+        <h4>Infos</h4>
+        <p>Hier findest du alle wichtigen Informationen über die Smartzone Hub Seite, Tutorials und Lerninhalte.</p>
+    </div>
 </div>
 
 <!-- === Hauptbereich === -->
 <div class="main-container">
-
-    <!-- Linke Spalte: Accordion -->
-    <div class="accordion">
+    <!-- Linke Spalte: Kategorien -->
+    <div class="left-column">
+        <!-- Lernspiele -->
         <div class="accordion-item">
-            <div class="accordion-header">Lernspiele</div>
+            <div class="accordion-header">
+                <img src="bilder/lernspiele.png" alt="Lernspiele" class="section-image"> Lernspiele
+            </div>
             <div class="accordion-content">
                 <div class="button-container">
-                    <img src="bilder/lernspiele.png" alt="Lernspiele" class="section-image">
                     <a href="vokabeltrainer.html"><button>Spaßiger Vokabeltrainer</button></a>
-                    <p>Neue und alte Vokabeln trainieren.</p>
+                    <p>Hier kannst du neue und alte Vokabeln und Aufgaben trainieren.</p>
+                </div>
+                <div class="button-container">
+                    <a href="Vokabelabfrage.html"><button>Pure Vokabelabfrage</button></a>
+                    <p>Einfach nur ein Vokabel-Lernspiel mit Import/Export.</p>
                 </div>
             </div>
         </div>
+
+        <!-- Python -->
         <div class="accordion-item">
-            <div class="accordion-header">Python</div>
+            <div class="accordion-header">
+                <img src="bilder/python.png" alt="Python" class="section-image"> Python
+            </div>
             <div class="accordion-content">
                 <div class="button-container">
-                    <img src="bilder/python.png" alt="Python" class="section-image">
                     <a href="grundlagenpython.html"><button>Python Grundlagen</button></a>
-                    <p>DEMO Handbuch und Quizzes.</p>
+                    <p>(DEMO) Handbuch und Quizzes.</p>
+                </div>
+                <div class="button-container">
+                    <a href="fortgeschrittenesPython.html"><button>Fortgeschrittenes Python</button></a>
+                    <p>(DEMO) Wenn Grundlagen schon abgeschlossen sind.</p>
                 </div>
             </div>
         </div>
+
+        <!-- Naturspiele -->
         <div class="accordion-item">
-            <div class="accordion-header">Naturspiele</div>
+            <div class="accordion-header">
+                <img src="bilder/naturspiele.png" alt="Naturspiele" class="section-image"> Naturspiele
+            </div>
             <div class="accordion-content">
                 <div class="button-container">
-                    <img src="bilder/naturspiele.png" alt="Naturspiele" class="section-image">
                     <a href="Chronos1.2FungusUpdate.html"><button>CHRONOS V.1.2 Fungus Update</button></a>
-                    <p>Baue ein Biotop. Trailer auf Youtube-Kanal: Ingwerknolle_03.</p>
+                    <p>Baue ein Biotop. Trailer und Updates auf Youtube-Kanal: Ingwerknolle_03.</p>
                 </div>
             </div>
         </div>
+
+        <!-- Allgemeinwissen -->
         <div class="accordion-item">
-            <div class="accordion-header">Allgemeinwissen</div>
+            <div class="accordion-header">
+                <img src="bilder/quiz.png" alt="Quiz" class="section-image"> Allgemeinwissen
+            </div>
             <div class="accordion-content">
                 <div class="button-container">
-                    <img src="bilder/quiz.png" alt="Quiz" class="section-image">
-                    <a href="dasgroßeQuiz.html"><button>Das große Quiz (Einzelspieler)</button></a>
-                    <p>DEMO Version.</p>
+                    <a href="dasgroßeQuiz.html"><button>Das große Quiz</button></a>
+                    <p>DEMO Version</p>
+                </div>
+                <div class="button-container">
+                    <a href="mehrspielerQuiz.html"><button>Mehrspieler Quiz</button></a>
+                    <p>VOLLVERSION FREE</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Rechte Spalte: Wiki-artige Boxen -->
+    <!-- Rechte Spalte: Infos -->
     <div class="right-column">
-        <div class="wiki-box" onclick="location.href='info.html'">
-            <h3>SmartZone Infos</h3>
+        <div class="info-box">
+            <h4>SmartZone Infos</h4>
             <p>Hier findest du alles über SmartZone Hub, Tutorials, Lerninhalte und Anleitungen.</p>
         </div>
-        <div class="wiki-box" onclick="location.href='contact.html'">
-            <h3>Kontaktmöglichkeiten</h3>
+        <div class="info-box">
+            <h4>Kontaktmöglichkeiten</h4>
             <p>Schreibe uns bei Fragen oder Feedback direkt über deine bevorzugte Kontaktmethode.</p>
         </div>
-        <div class="wiki-box" onclick="location.href='updates.html'">
-            <h3>Updates & News</h3>
+        <div class="info-box">
+            <h4>Updates & News</h4>
             <p>Sieh dir an, was in den letzten Monaten und Jahren auf der SmartZone Hub Seite passiert ist.</p>
         </div>
     </div>
@@ -330,32 +299,23 @@ button:hover {
     Viel Spaß beim Ausprobieren! Bei Fragen: Ingwerknolle_03@proton.me
 </p>
 
+<!-- === JS === -->
 <script>
-// Accordion
-document.querySelectorAll(".accordion-header").forEach(header => {
+const headers = document.querySelectorAll(".accordion-header");
+headers.forEach(header => {
     header.addEventListener("click", () => {
         const content = header.nextElementSibling;
         const isOpen = content.style.maxHeight && content.style.maxHeight !== "0px";
         document.querySelectorAll(".accordion-content").forEach(c => c.style.maxHeight = null);
-        if(!isOpen) {
-            content.style.maxHeight = content.scrollHeight + "px";
-        }
+        if(!isOpen) content.style.maxHeight = content.scrollHeight + "px";
     });
 });
 
-// Panels oben
-document.querySelectorAll('.header-left button').forEach(btn => {
-    btn.addEventListener('click', () => {
-        const panelId = btn.getAttribute('data-panel');
-        document.querySelectorAll('.top-panel').forEach(panel => panel.style.display = 'none');
-        document.getElementById(panelId).style.display = 'block';
-    });
-});
-
-// Englisch Version Button (Platzhalter)
-document.getElementById('english-btn').addEventListener('click', () => {
-    window.location.href = 'english.html';
-});
+// Übersicht Panel Buttons
+const overviewPanel = document.getElementById('overview-panel');
+document.getElementById('info-btn').addEventListener('click',()=>{overviewPanel.classList.add('show');});
+document.getElementById('contact-btn').addEventListener('click',()=>{overviewPanel.classList.add('show');});
+document.getElementById('update-btn').addEventListener('click',()=>{overviewPanel.classList.add('show');});
 </script>
 
 </body>
