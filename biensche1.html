@@ -402,7 +402,23 @@ canvas.onclick=e=>{
   const r=canvas.getBoundingClientRect(), x=e.clientX-r.left, y=e.clientY-r.top;
   if(y<yBase)return;
   if(mode==="seed" && seeds>0){ addFlower(x,y); seeds--; }
-  if(mode==="shovel"){ for(let i=flowers.length-1;i>=0;i--){ const f=flowers[i], h=20+f.stage*6; if(!f.alive && Math.hypot(x-f.x,y-(f.y-h))<40){ flowers.splice(i,1); fertilizer++; break; } } }
+  if(mode==="shovel"){
+    for(let i=flowers.length-1;i>=0;i--){
+      const f = flowers[i];
+      const h = 20 + f.stage * 6;
+
+      if(
+        !f.alive &&
+        x > f.x - 20 && x < f.x + 20 &&
+        y > f.y - h && y < f.y
+      ){
+        flowers.splice(i,1);
+        fertilizer++;
+        break;
+      }
+    }
+  }
+
   if(mode==="fertilizer" && fertilizer>0){ flowers.forEach(f=>{ const h=20+f.stage*6; if(f.alive && Math.hypot(x-f.x,y-(f.y-h))<30){ f.stage+=2; f.fertilized=true; fertilizer--; } }); }
 };
 
