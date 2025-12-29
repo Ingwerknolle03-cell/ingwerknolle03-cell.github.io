@@ -103,307 +103,129 @@ canvas { background:#88cc88; border:1px solid #444; }
   <input type="file" id="fileInput" style="display:none" accept=".json">
 </div>
 
-
-
 <div id="guideOverlay">
   <div class="guideContent">
     <h1>Anleitung</h1>
-
     <div class="accordion">
       <button class="accordionButton">Ziel des Spiels</button>
-      <div class="accordionPanel">
-        <p>
-          Pflege eine gesunde, blühende Blumenwiese. Pflanze Blumen, gieße sie, setze sie der Sonne aus, entferne Unkraut und gib Dünger. Um einen Modus auszuwählen, klicke auf ein Werkzeug.
-        </p>
-      </div>
-
-      
-  
+      <div class="accordionPanel"><p>Pflege eine gesunde Blumenwiese...</p></div>
       <button class="accordionButton">Spielstand speichern und laden</button>
-      <div class="accordionPanel">
-        <p>
-        Jetzigen Spielstand speichern:
-Klicke auf „Spielstand exportieren“. Dein Browser lädt eine Datei herunter. Diese Datei enthält deinen Spielstand.
-
-Letzten Spielstand laden:
-Klicke auf „Spielstand importieren“ und wähle die zuvor gespeicherte Datei aus.
-
-Tipp: Bewahre die Datei an einem sicheren Ort auf, z. B. im Dokumente-Ordner (Anfangs taucht sie meist im (Browser) Downloadsordner auf).
-        </p>
-      </div>
-
+      <div class="accordionPanel"><p>Export/Import...</p></div>
       <button class="accordionButton">Schaufel</button>
-      <div class="accordionPanel">
-        <p>
-          Entferne verwelkte Blumen, um Dünger zu erhalten.
-        </p>
-      </div>
-
+      <div class="accordionPanel"><p>Verwelkte Blumen entfernen.</p></div>
       <button class="accordionButton">Regen</button>
-      <div class="accordionPanel">
-        <p>
-          Erhöht die Feuchtigkeit der Blumen und fördert das Wachstum. Zu viel oder zu wenig ist schlecht.
-        </p>
-      </div>
-
+      <div class="accordionPanel"><p>Feuchtigkeit erhöhen.</p></div>
       <button class="accordionButton">Sonne</button>
-      <div class="accordionPanel">
-        <p>
-          Erhöht kurzzeitig das Licht für die Blumen, beschleunigt Wachstum. Zu viel oder zu wenig ist schlecht.
-        </p>
-      </div>
-
+      <div class="accordionPanel"><p>Licht erhöhen.</p></div>
       <button class="accordionButton">Gras</button>
-      <div class="accordionPanel">
-        <p>
-          Schneide das Gras, um Unkraut zu reduzieren und die Wiese gepflegt zu halten. Es sollte auf keinen Fall das Unkrauf deine wunderschönen Blümelchen überragen (sonst schrumpfen sie, weil sie sich eingeengt fühlen)! Doch zu wenig Unkraut lässt deine Blumen von der Sonne verbrennen.  
-        </p>
-      </div>
-
+      <div class="accordionPanel"><p>Gras schneiden, Unkraut regulieren.</p></div>
       <button class="accordionButton">Samen</button>
-      <div class="accordionPanel">
-        <p>
-          Du benötigst Samen, um neue Blumen zu pflanzen. Klicke dafür auf den Boden, wenn der Samen-Modus aktiviert ist.
-        </p>
-      </div>
-
+      <div class="accordionPanel"><p>Neue Blumen pflanzen.</p></div>
       <button class="accordionButton">Dünger</button>
-      <div class="accordionPanel">
-        <p>
-          Dünger gibt einem ausgewählten Blumenexemplar einen Wachstumsschub. Gedüngte Blumen sind widerstandsfähiger, sie sterben im Alter nicht so schnell.
-        </p>
-      </div>
+      <div class="accordionPanel"><p>Wachstumsschub für Blumen.</p></div>
     </div>
-
     <button id="closeGuide">Schließen</button>
   </div>
 </div>
 
 <style>
-#guideOverlay {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 90%;
-  max-width: 700px;
-  max-height: 80%;
-  overflow-y: auto;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 15px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-  padding: 25px 30px;
-  font-family: "Segoe UI", Tahoma, sans-serif;
-  font-size: 16px;
-  line-height: 1.6;
-  color: #333;
-  display: none;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  z-index: 1000;
-}
-
-#guideOverlay.show {
-  display: block;
-  opacity: 1;
-}
-
-#guideOverlay h1 {
-  text-align: center;
-  color: #228B22;
-  margin-bottom: 20px;
-}
-
-.accordionButton {
-  background: #228B22;
-  color: #fff;
-  cursor: pointer;
-  padding: 12px 18px;
-  width: 100%;
-  border: none;
-  text-align: left;
-  outline: none;
-  font-size: 16px;
-  border-radius: 8px;
-  margin-top: 10px;
-  transition: background 0.3s ease;
-}
-
-.accordionButton:hover {
-  background: #1e7c1e;
-}
-
-.accordionPanel {
-  padding: 0 18px;
-  display: none;
-  background-color: #f1f1f1;
-  border-radius: 0 0 8px 8px;
-  overflow: hidden;
-  margin-bottom: 5px;
-  transition: max-height 0.3s ease, padding 0.3s ease;
-}
-
-.accordionPanel p {
-  margin: 12px 0;
-}
-
-#guideOverlay button#closeGuide {
-  display: block;
-  margin: 20px auto 0;
-  background: #228B22;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 12px 25px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background 0.2s ease;
-}
-
-#guideOverlay button#closeGuide:hover {
-  background: #1e7c1e;
-}
+#guideOverlay {position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 700px; max-height: 80%; overflow-y: auto; background: rgba(255, 255, 255, 0.95); border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); padding: 25px 30px; font-family: "Segoe UI", Tahoma, sans-serif; font-size: 16px; line-height: 1.6; color: #333; display: none; opacity: 0; transition: opacity 0.3s ease; z-index: 1000;}
+#guideOverlay.show { display:block; opacity:1; }
+.accordionButton { background:#228B22; color:#fff; cursor:pointer; padding:12px 18px; width:100%; border:none; text-align:left; outline:none; font-size:16px; border-radius:8px; margin-top:10px; transition: background 0.3s;}
+.accordionButton:hover { background:#1e7c1e; }
+.accordionPanel { padding:0 18px; display:none; background:#f1f1f1; border-radius:0 0 8px 8px; overflow:hidden; margin-bottom:5px; transition:max-height 0.3s,padding 0.3s; }
+#guideOverlay button#closeGuide { display:block; margin:20px auto 0; background:#228B22; color:#fff; border:none; border-radius:8px; padding:12px 25px; cursor:pointer; font-size:16px; transition:background 0.2s;}
+#guideOverlay button#closeGuide:hover {background:#1e7c1e;}
 </style>
 
 <script>
 const guideOverlay = document.getElementById("guideOverlay");
 const closeGuide = document.getElementById("closeGuide");
-
-// Overlay öffnen/schließen
-document.getElementById("btnGuide").addEventListener("click", () => {
-  guideOverlay.classList.add("show");
-  window.scrollTo({top:0, behavior:"smooth"});
-});
-
-closeGuide.addEventListener("click", () => {
-  guideOverlay.classList.remove("show");
-});
-
-// Accordion Funktionalität
-const accButtons = document.querySelectorAll(".accordionButton");
-accButtons.forEach(btn => {
-  btn.addEventListener("click", () => {
-    const panel = btn.nextElementSibling;
-    const isOpen = panel.style.display === "block";
-    
-    // Alle Panels schließen
-    document.querySelectorAll(".accordionPanel").forEach(p => p.style.display = "none");
-    
-    if(!isOpen) panel.style.display = "block";
+document.getElementById("btnGuide").addEventListener("click", ()=>{ guideOverlay.classList.add("show"); window.scrollTo({top:0,behavior:"smooth"}); });
+closeGuide.addEventListener("click", ()=>{ guideOverlay.classList.remove("show"); });
+document.querySelectorAll(".accordionButton").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    const panel=btn.nextElementSibling; const isOpen=panel.style.display==="block";
+    document.querySelectorAll(".accordionPanel").forEach(p=>p.style.display="none");
+    if(!isOpen) panel.style.display="block";
   });
 });
 </script>
 
-
-
-
-
-
-
 <script>
-// --- Canvas & Blumen-Logik ---
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
-const yBase = canvas.height * 0.4;
+const canvas=document.getElementById("canvas"); const ctx=canvas.getContext("2d"); const yBase=canvas.height*0.4;
+let flowers=[], grass=[], particles=[], seeds=0, fertilizer=0, rain=false, sun=false, mode="seed", lastRandomKill=Date.now();
+let envMoisture=500, envLight=500, envWeed=500;
 
-let flowers = [], grass = [], particles = [];
-let seeds = 0, fertilizer = 0;
-let rain = false, sun = false, mode = "seed";
-let lastRandomKill = Date.now();
-let envMoisture = 500, envLight = 500, envWeed = 500;
-
-// Wiese erzeugen
-for (let i = 0; i < 1200; i++) {
-  const d = Math.random();
-  grass.push({ x: Math.random() * canvas.width, y: yBase + d*(canvas.height - yBase), height: 4+d*30, maxHeight:10+d*60, green:120+d*90 });
-}
+// Wiese
+for(let i=0;i<1200;i++){ const d=Math.random(); grass.push({x:Math.random()*canvas.width,y:yBase+d*(canvas.height-yBase),height:4+d*30,maxHeight:10+d*60,green:120+d*90}); }
 
 // Blumenfunktion
-function addFlower(x, y) {
-  if (y < yBase) return;
-  const colors = ["pink","red","purple","orange","blue"];
-  flowers.push({ x,y,stage:0,moisture:500,light:500,weed:500,alive:true,wilted:false,wiltStart:null,bloomType:Math.floor(Math.random()*3),leaves:1+Math.floor(Math.random()*3),color:colors[Math.floor(Math.random()*colors.length)],fertilized:false });
-}
-addFlower(canvas.width/2, yBase+60);
+function addFlower(x,y){ if(y<yBase) return; const colors=["pink","red","purple","orange","blue"]; flowers.push({x,y,stage:0,alive:true,wilted:false,wiltStart:null,bloomType:Math.floor(Math.random()*3),leaves:1+Math.floor(Math.random()*3),color:colors[Math.floor(Math.random()*colors.length)],fertilized:false,moisture:500,light:500}); }
+addFlower(canvas.width/2,yBase+60);
 
-// Update-Funktion
-function update(dt) {
-  const now = Date.now();
-  envMoisture -= 0.014*dt; envLight -= 0.012*dt; envWeed -= 0.03*dt;
-  if(rain) envMoisture = Math.min(1000, envMoisture+0.25*dt);
-  if(sun) envLight = Math.min(1000, envLight+0.2*dt);
+// Update
+function update(dt){
+  const now=Date.now();
+  envMoisture=Math.max(0,Math.min(1000,envMoisture-(0.014*dt)+(rain?0.25*dt:0)));
+  envLight=Math.max(0,Math.min(1000,envLight-(0.012*dt)+(sun?0.2*dt:0)));
+  envWeed=Math.max(0,Math.min(1000,envWeed-0.03*dt));
 
   flowers.forEach(f=>{
     if(!f.alive) return;
-    envMoisture = Math.max(0, envMoisture - 0.014*dt);
-    envLight = Math.max(0, envLight - 0.012*dt);
-    envWeed = Math.max(0, envWeed - 0.03*dt);
+    if(rain) f.moisture=Math.min(1000,f.moisture+0.25*dt);
+    if(sun) f.light=Math.min(1000,f.light+0.2*dt);
+    let growthBoost=(mode==="fertilizer" && fertilizer>0)?2:1;
+    if(f.moisture>30 && f.light>30 && f.stage<10) f.stage+=0.001*growthBoost*dt;
 
-    if(rain) f.moisture = Math.min(1000,f.moisture+0.25*dt);
-    if(sun) f.light = Math.min(1000,f.light+0.2*dt);
-    let growthBoost = (mode==="fertilizer"&&fertilizer>0)?2:1;
-    if(f.moisture>30 && f.light>30 && f.weed>30 && f.stage<10) f.stage +=0.001*growthBoost*dt;
-
-    if(f.moisture<10 || f.moisture>900 || f.light<10 || f.light>900 || f.weed<10 || f.weed>900){
-      if(!f.wiltStart) f.wiltStart=now;
-      f.wilted=true;
-      if(now-f.wiltStart>5000){ f.alive=false; seeds+= f.stage>=9?2:1; }
-    } else { f.wilted=false; f.wiltStart=null; }
+    // Welken nur bei extremen globalen Bedingungen
+    if(envMoisture<10||envMoisture>900||envLight<10||envLight>900||envWeed<30||envWeed>970){
+      if(!f.wiltStart) f.wiltStart=now; f.wilted=true;
+      if(now-f.wiltStart>5000){ f.alive=false; seeds+=f.stage>=9?2:1; }
+    }else{ f.wilted=false; f.wiltStart=null; }
   });
 
-  // Schaden durch zu wenig Unkraut
-if(envWeed < 50){
-    flowers.forEach(f=>{
-        if(f.alive){
-            f.stage -= 0.005*dt; // Blumen schrumpfen etwas
-            if(f.stage < 0) f.stage = 0; // nicht negativ
-        }
-    });
-}
+  // Langsamer Schaden bei wenig Unkraut
+  if(envWeed<20){ flowers.forEach(f=>{ if(f.alive){ f.stage=Math.max(0,f.stage-0.002*dt); } }); }
 
+  // Zufälliges Absterben ausgewachsener nicht gedüngter Blumen
+  if(now-lastRandomKill>20000){ const adults=flowers.filter(f=>f.alive&&f.stage>=10&&!f.fertilized); if(adults.length){ adults[Math.floor(Math.random()*adults.length)].alive=false; seeds+=2; } lastRandomKill=now; }
 
-  if(now-lastRandomKill>20000){
-    const adults=flowers.filter(f=>f.alive && f.stage>=10 && !f.fertilized);
-    if(adults.length){ adults[Math.floor(Math.random()*adults.length)].alive=false; seeds+=2; }
-    lastRandomKill=now;
-  }
-
+  // Graswachstum
   grass.forEach(g=>{ if(g.height<g.maxHeight) g.height+=0.01; });
 
+  // Regenpartikel
   if(rain){ for(let i=0;i<3;i++) particles.push({x:Math.random()*canvas.width,y:0,vy:2+Math.random()*2}); }
   for(let i=particles.length-1;i>=0;i--){ particles[i].y+=particles[i].vy*dt; if(particles[i].y>canvas.height) particles.splice(i,1); }
 
+  // Statusanzeigen
   document.getElementById("statusSeeds").textContent=`Samen: ${seeds}`;
   document.getElementById("statusFertilizer").textContent=`Dünger: ${fertilizer}`;
   document.getElementById("statusMode").textContent=`Modus: ${mode}`;
-
-  document.getElementById("barMoisture").style.width=Math.min(100, envMoisture/10)+"%";
-  document.getElementById("barLight").style.width=Math.min(100, envLight/10)+"%";
-  document.getElementById("barWeed").style.width=Math.min(100, envWeed/10)+"%";
+  document.getElementById("barMoisture").style.width=Math.min(100,envMoisture/10)+"%";
+  document.getElementById("barLight").style.width=Math.min(100,envLight/10)+"%";
+  document.getElementById("barWeed").style.width=Math.min(100,envWeed/10)+"%";
 }
 
-// Draw-Funktion
+// Draw
 function draw(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
   ctx.fillStyle=sun?"#FFDFA0":"#87CEEB"; ctx.fillRect(0,0,canvas.width,yBase);
   ctx.fillStyle="#88cc88"; ctx.fillRect(0,yBase,canvas.width,canvas.height-yBase);
-
   grass.forEach(g=>{ ctx.fillStyle=`rgb(30,${g.green},30)`; ctx.fillRect(g.x,g.y-g.height,2,g.height); });
-
   flowers.forEach(f=>{
     const h=20+f.stage*6; ctx.save(); ctx.translate(f.x,f.y); if(f.wilted) ctx.rotate(-0.4);
     ctx.fillStyle=f.alive?"#228B22":"#654321"; ctx.fillRect(-2,-h,4,h);
     ctx.fillStyle="#2e8b57"; for(let i=0;i<f.leaves;i++){ const d=i%2?-1:1; ctx.beginPath(); ctx.ellipse(d*(6+f.stage),-h/2-i*5,4+f.stage/3,8+f.stage/2,d*0.5,0,Math.PI*2); ctx.fill(); }
     if(f.alive){ ctx.fillStyle=f.wilted?"#888":f.color; for(let i=0;i<6;i++){ const a=i*Math.PI/3; ctx.beginPath(); if(f.bloomType===0) ctx.arc(Math.cos(a)*(6+f.stage),-h+Math.sin(a)*(6+f.stage),4+f.stage/2,0,Math.PI*2); else if(f.bloomType===1) ctx.ellipse(Math.cos(a)*(8+f.stage),-h+Math.sin(a)*(8+f.stage),3+f.stage/2,10+f.stage,a,0,Math.PI*2); else ctx.ellipse(Math.cos(a)*(6+f.stage),-h+Math.sin(a)*(6+f.stage),6+f.stage,4+f.stage/2,a,0,Math.PI*2); ctx.fill(); } ctx.fillStyle="yellow"; ctx.beginPath(); ctx.arc(0,-h,4+f.stage/2,0,Math.PI*2); ctx.fill(); } ctx.restore();
   });
-
   ctx.fillStyle="#00f"; particles.forEach(p=>ctx.fillRect(p.x,p.y,2,2));
 }
 
 function loop(){ update(1); draw(); requestAnimationFrame(loop); }
 loop();
 
-// --- UI Events ---
+// UI Events
 function momentary(type){ if(type==="rain"){ rain=true; setTimeout(()=>rain=false,5000);} if(type==="sun"){ sun=true; setTimeout(()=>sun=false,5000);} }
 btnRain.onclick=()=>momentary("rain");
 btnSun.onclick=()=>momentary("sun");
@@ -415,58 +237,15 @@ btnFertilizer.onclick=()=>mode="fertilizer";
 canvas.onclick=e=>{
   const r=canvas.getBoundingClientRect(), x=e.clientX-r.left, y=e.clientY-r.top;
   if(y<yBase)return;
-  if(mode==="seed" && seeds>0){ addFlower(x,y); seeds--; }
-  if(mode==="shovel"){
-    for(let i=flowers.length-1;i>=0;i--){
-      const f = flowers[i];
-      const h = 20 + f.stage * 6;
-
-      if(
-        !f.alive &&
-        x > f.x - 20 && x < f.x + 20 &&
-        y > f.y - h && y < f.y
-      ){
-        flowers.splice(i,1);
-        fertilizer++;
-        break;
-      }
-    }
-  }
-
-  if(mode==="fertilizer" && fertilizer>0){ flowers.forEach(f=>{ const h=20+f.stage*6; if(f.alive && Math.hypot(x-f.x,y-(f.y-h))<30){ f.stage+=2; f.fertilized=true; fertilizer--; } }); }
+  if(mode==="seed"&&seeds>0){ addFlower(x,y); seeds--; }
+  if(mode==="shovel"){ for(let i=flowers.length-1;i>=0;i--){ const f=flowers[i]; const h=20+f.stage*6; if(!f.alive&&x>f.x-20&&x<f.x+20&&y>f.y-h&&y<f.y){ flowers.splice(i,1); fertilizer++; break; } } }
+  if(mode==="fertilizer"&&fertilizer>0){ flowers.forEach(f=>{ const h=20+f.stage*6; if(f.alive&&Math.hypot(x-f.x,y-(f.y-h))<30){ f.stage+=2; f.fertilized=true; fertilizer--; } }); }
 };
 
-// --- Export / Import ---
-document.getElementById("btnExport").onclick=()=>{
-  const saveData={seeds,fertilizer,flowers,grass,envMoisture,envLight,envWeed};
-  const blob=new Blob([JSON.stringify(saveData,null,2)],{type:"application/json"});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement("a"); a.href=url; a.download="blumen_simulator_save.json"; a.click(); URL.revokeObjectURL(url);
-};
-document.getElementById("btnImport").onclick=()=>{ document.getElementById("fileInput").click(); }
-document.getElementById("fileInput").addEventListener("change", e=>{
-  const file=e.target.files[0]; if(!file) return;
-  const reader=new FileReader();
-  reader.onload=evt=>{
-    try{
-      const data=JSON.parse(evt.target.result);
-      seeds=data.seeds??seeds;
-      fertilizer=data.fertilizer??fertilizer;
-      flowers=data.flowers??flowers;
-      grass=data.grass??grass;
-      envMoisture=data.envMoisture??envMoisture;
-      envLight=data.envLight??envLight;
-      envWeed=data.envWeed??envWeed;
-    } catch(err){ console.error(err); }
-  };
-  reader.readAsText(file);
-});
-
-// --- Overlay Anleitung ---
-const guide=document.getElementById("guideOverlay");
-document.getElementById("btnGuide").onclick=()=>{ guide.classList.add("show"); window.scrollTo({top:0,behavior:"smooth"}); }
-document.getElementById("closeGuide").onclick=()=>{ guide.classList.remove("show"); }
+// Export / Import
+document.getElementById("btnExport").onclick=()=>{ const saveData={seeds,fertilizer,flowers,grass,envMoisture,envLight,envWeed}; const blob=new Blob([JSON.stringify(saveData,null,2)],{type:"application/json"}); const url=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url; a.download="blumen_simulator_save.json"; a.click(); URL.revokeObjectURL(url); };
+document.getElementById("btnImport").onclick=()=>{ document.getElementById("fileInput").click(); };
+document.getElementById("fileInput").addEventListener("change", e=>{ const file=e.target.files[0]; if(!file)return; const reader=new FileReader(); reader.onload=evt=>{ try{ const data=JSON.parse(evt.target.result); seeds=data.seeds??seeds; fertilizer=data.fertilizer??fertilizer; flowers=data.flowers??flowers; grass=data.grass??grass; envMoisture=data.envMoisture??envMoisture; envLight=data.envLight??envLight; envWeed=data.envWeed??envWeed; } catch(err){ console.error(err); } }; reader.readAsText(file); });
 </script>
 </body>
 </html>
-
