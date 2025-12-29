@@ -351,6 +351,17 @@ function update(dt) {
     } else { f.wilted=false; f.wiltStart=null; }
   });
 
+  // Schaden durch zu wenig Unkraut
+if(envWeed < 50){
+    flowers.forEach(f=>{
+        if(f.alive){
+            f.stage -= 0.005*dt; // Blumen schrumpfen etwas
+            if(f.stage < 0) f.stage = 0; // nicht negativ
+        }
+    });
+}
+
+
   if(now-lastRandomKill>20000){
     const adults=flowers.filter(f=>f.alive && f.stage>=10 && !f.fertilized);
     if(adults.length){ adults[Math.floor(Math.random()*adults.length)].alive=false; seeds+=2; }
