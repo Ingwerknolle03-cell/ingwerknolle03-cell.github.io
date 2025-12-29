@@ -63,7 +63,6 @@ canvas { background:#88cc88; border:1px solid #444; }
   <canvas id="canvas" width="800" height="500"></canvas>
 </div>
 
-<!-- Export / Import UI unten links -->
 <div id="saveLoad" style="position:fixed; bottom:10px; left:10px; background:rgba(0,0,0,0.7); color:white; padding:8px; border-radius:5px; font-size:14px;">
   <button id="btnExport">📤 Export</button>
   <button id="btnImport">📥 Import</button>
@@ -110,7 +109,8 @@ function addFlower(x, y) {
     wiltStart: null,
     bloomType: Math.floor(Math.random() * 3),
     leaves: 1 + Math.floor(Math.random() * 3),
-    color: colors[Math.floor(Math.random() * colors.length)]
+    color: colors[Math.floor(Math.random() * colors.length)],
+    fertilized: false // NEU: Flag für Dünger
   });
 }
 addFlower(canvas.width / 2, yBase + 60);
@@ -153,8 +153,9 @@ function update(dt) {
     }
   });
 
+  // Random Kill durch Alter nur für ungefertigte Blumen
   if (now - lastRandomKill > 20000) {
-    const adults = flowers.filter(f => f.alive && f.stage >= 10);
+    const adults = flowers.filter(f => f.alive && f.stage >= 10 && !f.fertilized);
     if (adults.length) {
       const toKill = adults[Math.floor(Math.random() * adults.length)];
       toKill.alive = false;
@@ -183,7 +184,7 @@ function update(dt) {
   document.getElementById("barWeed").style.width = Math.min(100, envWeed / 10) + "%";
 }
 
-// Zeichnen
+// Zeichnen (unverändert)
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = sun ? "#FFDFA0" : "#87CEEB";
@@ -250,7 +251,7 @@ function momentary(type) {
 btnRain.onclick = () => momentary("rain");
 btnSun.onclick = () => momentary("sun");
 
-// ✅ Angepasste btnGrass.onclick
+// Grass
 btnGrass.onclick = () => {
   flowers.forEach(f => { if (f.alive) f.weed = Math.min(1000, f.weed + 80); });
   grass.forEach(g => g.height = Math.max(2, g.height - 10));
@@ -269,6 +270,7 @@ canvas.onclick = e => {
   if (y < yBase) return;
 
   if (mode === "seed" && seeds > 0) { addFlower(x, y); seeds--; }
+
   if (mode === "shovel") {
     for (let i = flowers.length - 1; i >= 0; i--) {
       const f = flowers[i];
@@ -280,15 +282,20 @@ canvas.onclick = e => {
       }
     }
   }
+
   if (mode === "fertilizer" && fertilizer > 0) {
     flowers.forEach(f => {
       const h = 20 + f.stage * 6;
-      if (f.alive && Math.hypot(x - f.x, y - (f.y - h)) < 30) { f.stage += 2; fertilizer--; }
+      if (f.alive && Math.hypot(x - f.x, y - (f.y - h)) < 30) {
+        f.stage += 2;
+        f.fertilized = true; // NEU: markiere als gedüngt
+        fertilizer--;
+      }
     });
   }
 };
 
-// --- Spielstand Export / Import ---
+// Export / Import
 document.getElementById("btnExport").onclick = () => {
   const saveData = { seeds, fertilizer, flowers, grass, envMoisture, envLight, envWeed };
   const blob = new Blob([JSON.stringify(saveData, null, 2)], {type: "application/json"});
@@ -329,4 +336,5 @@ document.getElementById("fileInput").addEventListener("change", e => {
 </script>
 </body>
 </html>
+
 
