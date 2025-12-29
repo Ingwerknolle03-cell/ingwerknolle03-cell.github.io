@@ -63,6 +63,13 @@ canvas { background:#88cc88; border:1px solid #444; }
   <canvas id="canvas" width="800" height="500"></canvas>
 </div>
 
+<!-- Export / Import UI unten links -->
+<div id="saveLoad" style="position:fixed; bottom:10px; left:10px; background:rgba(0,0,0,0.7); color:white; padding:8px; border-radius:5px; font-size:14px;">
+  <button id="btnExport">📤 Export</button>
+  <button id="btnImport">📥 Import</button>
+  <input type="file" id="fileInput" style="display:none" accept=".json">
+</div>
+
 <script>
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
@@ -247,7 +254,7 @@ btnSun.onclick = () => momentary("sun");
 btnGrass.onclick = () => {
   flowers.forEach(f => { if (f.alive) f.weed = Math.min(1000, f.weed + 80); });
   grass.forEach(g => g.height = Math.max(2, g.height - 10));
-  envWeed = Math.min(1000, envWeed + 80);  // Unkrautwert steigt beim Schneiden
+  envWeed = Math.min(1000, envWeed + 80);
 };
 
 btnSeed.onclick = () => mode = "seed";
@@ -280,6 +287,45 @@ canvas.onclick = e => {
     });
   }
 };
+
+// --- Spielstand Export / Import ---
+document.getElementById("btnExport").onclick = () => {
+  const saveData = { seeds, fertilizer, flowers, grass, envMoisture, envLight, envWeed };
+  const blob = new Blob([JSON.stringify(saveData, null, 2)], {type: "application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "blumen_simulator_save.json";
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
+document.getElementById("btnImport").onclick = () => {
+  document.getElementById("fileInput").click();
+};
+
+document.getElementById("fileInput").addEventListener("change", e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = evt => {
+    try {
+      const data = JSON.parse(evt.target.result);
+      seeds = data.seeds ?? seeds;
+      fertilizer = data.fertilizer ?? fertilizer;
+      flowers = data.flowers ?? flowers;
+      grass = data.grass ?? grass;
+      envMoisture = data.envMoisture ?? envMoisture;
+      envLight = data.envLight ?? envLight;
+      envWeed = data.envWeed ?? envWeed;
+      alert("Spielstand geladen!");
+    } catch (err) {
+      alert("Fehler beim Laden des Spielstands!");
+      console.error(err);
+    }
+  };
+  reader.readAsText(file);
+});
 </script>
 </body>
 </html>
