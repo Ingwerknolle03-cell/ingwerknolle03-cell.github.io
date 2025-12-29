@@ -335,7 +335,10 @@ function update(dt) {
 
   flowers.forEach(f=>{
     if(!f.alive) return;
-    f.moisture -=0.014*dt; f.light -=0.012*dt; f.weed -=0.03*dt;
+    envMoisture = Math.max(0, envMoisture - 0.014*dt);
+    envLight = Math.max(0, envLight - 0.012*dt);
+    envWeed = Math.max(0, envWeed - 0.03*dt);
+
     if(rain) f.moisture = Math.min(1000,f.moisture+0.25*dt);
     if(sun) f.light = Math.min(1000,f.light+0.2*dt);
     let growthBoost = (mode==="fertilizer"&&fertilizer>0)?2:1;
