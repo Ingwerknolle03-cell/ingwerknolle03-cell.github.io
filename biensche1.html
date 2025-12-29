@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>Blumen-Simulator</title>
+<title>lukasssBlümelche</title>
 <style>
 body { margin:0; background:#a0dca0; display:flex; height:100vh; font-family:sans-serif; }
 #gui { width:250px; background:rgba(0,0,0,0.7); padding:10px; display:flex; flex-direction:column; gap:15px; }
@@ -84,7 +84,7 @@ canvas { background:#88cc88; border:1px solid #444; }
     <div class="status-bar">
       <div>Feuchtigkeit</div>
       <div style="background:#444"><div id="barMoisture" class="status-fill" style="background:#0f0"></div></div>
-      <div>Licht</div>
+      <div>Energie</div>
       <div style="background:#444"><div id="barLight" class="status-fill" style="background:#ff0"></div></div>
       <div>Unkraut</div>
       <div style="background:#444"><div id="barWeed" class="status-fill" style="background:#f00"></div></div>
@@ -107,55 +107,70 @@ canvas { background:#88cc88; border:1px solid #444; }
 
 <div id="guideOverlay">
   <div class="guideContent">
-    <h1>📖 Anleitung</h1>
+    <h1>Anleitung</h1>
 
     <div class="accordion">
-      <button class="accordionButton">🎯 Ziel des Spiels</button>
+      <button class="accordionButton">Ziel des Spiels</button>
       <div class="accordionPanel">
         <p>
-          Pflege eine gesunde, blühende Blumenwiese. Pflanze Blumen, gieße sie, setze sie der Sonne aus, entferne Unkraut und gib Dünger. Gedüngte Blumen sind widerstandsfähiger.
+          Pflege eine gesunde, blühende Blumenwiese. Pflanze Blumen, gieße sie, setze sie der Sonne aus, entferne Unkraut und gib Dünger. Um einen Modus auszuwählen, klicke auf ein Werkzeug.
         </p>
       </div>
 
-      <button class="accordionButton">⛏ Schaufel</button>
+      
+  
+      <button class="accordionButton">Spielstand speichern und laden</button>
+      <div class="accordionPanel">
+        <p>
+        Jetzigen Spielstand speichern:
+Klicke auf „Spielstand exportieren“. Dein Browser lädt eine Datei herunter. Diese Datei enthält deinen Spielstand.
+
+Letzten Spielstand laden:
+Klicke auf „Spielstand importieren“ und wähle die zuvor gespeicherte Datei aus.
+
+Tipp: Bewahre die Datei an einem sicheren Ort auf, z. B. im Dokumente-Ordner (Anfangs taucht sie meist im (Browser) Downloadsordner auf).
+        </p>
+      </div>
+
+      <button class="accordionButton">Schaufel</button>
       <div class="accordionPanel">
         <p>
           Entferne verwelkte Blumen, um Dünger zu erhalten.
         </p>
       </div>
 
-      <button class="accordionButton">🌧 Regen</button>
+      <button class="accordionButton">Regen</button>
       <div class="accordionPanel">
         <p>
-          Erhöht kurzzeitig die Feuchtigkeit der Blumen, fördert das Wachstum.
+          Erhöht die Feuchtigkeit der Blumen und fördert das Wachstum. Zu viel oder zu wenig ist schlecht.
         </p>
       </div>
 
-      <button class="accordionButton">☀ Sonne</button>
+      <button class="accordionButton">Sonne</button>
       <div class="accordionPanel">
         <p>
-          Erhöht kurzzeitig das Licht für die Blumen, beschleunigt Wachstum.
+          Erhöht kurzzeitig das Licht für die Blumen, beschleunigt Wachstum. Zu viel oder zu wenig ist schlecht.
         </p>
       </div>
 
-      <button class="accordionButton">✂ Gras</button>
+      <button class="accordionButton">Gras</button>
       <div class="accordionPanel">
         <p>
-          Schneide das Gras, um Unkraut zu reduzieren und die Wiese gepflegt zu halten.
+          Schneide das Gras, um Unkraut zu reduzieren und die Wiese gepflegt zu halten. Es sollte auf keinen Fall das Unkrauf deine wunderschönen Blümelchen überragen! 
         </p>
       </div>
 
-      <button class="accordionButton">🌱 Samen</button>
+      <button class="accordionButton">Samen</button>
       <div class="accordionPanel">
         <p>
-          Du benötigst Samen, um neue Blumen zu pflanzen. Klicke dafür auf den Boden im Samen-Modus.
+          Du benötigst Samen, um neue Blumen zu pflanzen. Klicke dafür auf den Boden, wenn der Samen-Modus aktiviert ist.
         </p>
       </div>
 
-      <button class="accordionButton">💩 Dünger</button>
+      <button class="accordionButton">Dünger</button>
       <div class="accordionPanel">
         <p>
-          Dünger gibt einem ausgewählten Blumenexemplar einen Wachstumsschub.
+          Dünger gibt einem ausgewählten Blumenexemplar einen Wachstumsschub. Gedüngte Blumen sind widerstandsfähiger, sie sterben im Alter nicht so schnell.
         </p>
       </div>
     </div>
