@@ -128,6 +128,77 @@ button:hover {
     padding:20px;
 }
 
+
+
+.smartzone-ad {
+  position: fixed;
+  right: 0;           /* Rechtsbündig */
+  top: 150px;         /* weiter nach unten */
+  width: 280px;
+  height: 380px;
+
+  background: radial-gradient(circle at center, #1a1a1a 0%, #000 70%);
+  border-left: 3px solid #333;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  image-rendering: pixelated;
+  filter: contrast(1.2) brightness(0.85);
+  box-shadow:
+    inset 0 0 30px rgba(0,255,200,0.1),
+    0 0 20px rgba(0,0,0,0.8);
+
+  overflow: hidden;
+  z-index: 1;          /* weiter nach hinten */
+  transform: translateX(-20px); /* leicht nach links, in die Mitte */
+  opacity: 0.3;        /* bisschen durchsichtig, wirkt wie Hintergrund */
+}
+
+/* Scanlines wie alter Monitor */
+.smartzone-ad::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.03),
+    rgba(255,255,255,0.03) 1px,
+    transparent 2px,
+    transparent 4px
+  );
+  pointer-events: none;
+}
+
+/* Text im Retro-Stil */
+.smartzone-ad-text {
+  text-align: center;
+  font-family: "Courier New", monospace;
+  color: #00ffcc;
+  text-shadow: 0 0 6px rgba(0,255,200,0.8);
+  transform: scale(1.05);
+}
+
+.smartzone-ad-text h2 {
+  margin: 0;
+  font-size: 1.6em;
+  letter-spacing: 2px;
+}
+
+.smartzone-ad-text p {
+  margin-top: 10px;
+  font-size: 0.9em;
+  color: #88ffee;
+}
+
+@media (max-width: 900px) {
+  .smartzone-ad {
+    display: none;
+  }
+}
+
+
 /* 🔥 SmartZone Highlight – dezent */
 .info-box.smartzone-highlight {
     background:linear-gradient(135deg,#2d3f6f,#4a2f6f);
@@ -452,6 +523,12 @@ document.addEventListener('click',e=>{
 });
 </script>
 
+<div class="smartzone-ad">
+  <div class="smartzone-ad-text">
+    <h2>SMARTZONE HUB</h2>
+    <p>Lernen · Denken · Verstehen</p>
+  </div>
+</div>
 
     
 
