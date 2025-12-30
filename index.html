@@ -246,7 +246,7 @@ button:hover {
 
     <!-- Lernspiele -->
     <div class="accordion-item">
-        <div class="accordion-header">Lernspiele <span>▼</span></div>
+        <div class="accordion-header">Lernspiele <span> </span></div>
         <div class="accordion-content">
             <div class="button-container">
                 <a href="vokabeltrainer.html"><button>Spaßiger Vokabeltrainer</button></a>
@@ -261,7 +261,7 @@ button:hover {
 
     <!-- Python -->
     <div class="accordion-item">
-        <div class="accordion-header">Python <span>▼</span></div>
+        <div class="accordion-header">Python <span> </span></div>
         <div class="accordion-content">
             <div class="button-container">
                 <a href="grundlagenpython.html"><button>Python Grundlagen</button></a>
@@ -280,7 +280,7 @@ button:hover {
 
     <!-- Naturspiele --> 
     <div class="accordion-item">
-        <div class="accordion-header">Naturspiele <span>▼</span></div>
+        <div class="accordion-header">Naturspiele <span> </span></div>
         <div class="accordion-content">
             <div class="button-container">
                 <a href="Chronos1.3.html"><button>CHRONOS V.1.3</button></a>
@@ -295,7 +295,7 @@ button:hover {
 
     <!-- Allgemeinwissen -->
     <div class="accordion-item">
-        <div class="accordion-header">Allgemeinwissen <span>▼</span></div>
+        <div class="accordion-header">Allgemeinwissen <span> </span></div>
         <div class="accordion-content">
             <div class="button-container">
                 <a href="dasgroßeQuiz.html"><button>Das große Quiz</button></a>
@@ -316,7 +316,7 @@ button:hover {
     <!-- 🔥 Highlight -->
     <div class="info-box smartzone-highlight">
         <div class="info-box-header">
-            <span>InfoSphäre</span><span>▼</span>
+            <span>InfoSphäre</span><span> </span>
         </div>
         <div class="info-box-content">
             <p><strong>Ein neues Internet.</strong><br>Sehr spannende Inhalte. Ähnlich wie Wikipedia oder Google, nur interessanter und besser erklärt, ohne Ablenkungen.</p>
@@ -327,7 +327,7 @@ button:hover {
 
 <div class="info-box storygames-highlight">
     <div class="info-box-header">
-        <span>Storygames</span><span>▼</span>
+        <span>Storygames</span><span> </span>
     </div>
     <div class="info-box-content">
         <p>Der Zeitstrahl!</p>
@@ -346,7 +346,7 @@ button:hover {
     
     <div class="info-box"> 
     <div class="info-box-header">
-        <span>Alte Versionen</span><span>▼</span>
+        <span>Alte Versionen</span><span> </span>
     </div>
     <div class="info-box-content">
         <p>Generalüberholtes Python Spiel, spiele lieber das neuere unter "Python" -> PythonGAME neueste Version</p>
@@ -374,10 +374,10 @@ document.querySelectorAll('.accordion-header').forEach(h=>{
         const c=h.nextElementSibling;
         const open=c.style.maxHeight;
         document.querySelectorAll('.accordion-content').forEach(x=>x.style.maxHeight=null);
-        document.querySelectorAll('.accordion-header span').forEach(s=>s.textContent='▼');
+        document.querySelectorAll('.accordion-header span').forEach(s=>s.textContent=' ');
         if(!open){
             c.style.maxHeight=c.scrollHeight+'px';
-            h.querySelector('span').textContent='▲';
+            h.querySelector('span').textContent=' ';
         }
     });
 });
@@ -389,7 +389,7 @@ document.querySelectorAll('.info-box-header').forEach(h=>{
         const open=c.classList.contains('open');
         document.querySelectorAll('.info-box-content').forEach(x=>x.classList.remove('open'));
         if(!open) c.classList.add('open');
-        h.querySelector('span:last-child').textContent=open?'▼':'▲';
+        h.querySelector('span:last-child').textContent=open?' ':' ';
     });
 });
 
