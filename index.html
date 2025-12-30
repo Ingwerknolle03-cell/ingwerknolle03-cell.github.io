@@ -169,6 +169,32 @@ button:hover {
     100% { transform:scale(1); }
 }
 
+
+/* ✨ Storygames – dezenter Glow (ca. 50%) */
+.info-box.storygames-highlight {
+    background: linear-gradient(135deg,#262b3a,#2f2a3a);
+    box-shadow: 0 0 9px rgba(106,17,203,0.25);
+    animation: glow-soft 8s infinite ease-in-out;
+}
+
+.storygames-highlight .info-box-header {
+    background: rgba(0,0,0,0.35);
+    color: #9fb4ff;
+    font-size: 1.25em;
+}
+
+.storygames-highlight .info-box-content {
+    color: #dcdcdc;
+    font-size: 1.05em;
+}
+
+/* 🌫️ Weicher Glow */
+@keyframes glow-soft {
+    0%   { box-shadow:0 0 8px rgba(106,17,203,0.22); }
+    50%  { box-shadow:0 0 14px rgba(120,150,220,0.30); }
+    100% { box-shadow:0 0 8px rgba(106,17,203,0.22); }
+}
+
 /* Info Panel */
 #info-panel {
     position:fixed;
@@ -299,7 +325,7 @@ button:hover {
     </div>
 
 
-<div class="info-box">
+<div class="info-box storygames-highlight">
     <div class="info-box-header">
         <span>Storygames</span><span>▼</span>
     </div>
