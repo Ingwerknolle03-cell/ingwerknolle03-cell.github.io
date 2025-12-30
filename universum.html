@@ -66,38 +66,166 @@ window.addEventListener("resize", () => {
 
 // Timeline mit allen 30 Events
 const events = [
-  {year:"13,8 Mrd. v.Chr.", text:"Das Universum entsteht aus einer Singularität.", anim:"bigBang", text:"Urknall – der Beginn von Raum und Zeit."},
-  {year:"13,5 Mrd. v.Chr.", text:"Erste Galaxien bilden sich und Sterne beginnen zu leuchten.", anim:"galaxies", text:"Die ersten Galaxien und Sternsysteme entstehen."},
-  {year:"4,5 Mrd. v.Chr.", text:"Die Erde entsteht. Ozeane und Kontinente formen sich.", anim:"earthForming", text:"Zeitalter der Planetbildung."},
-  {year:"3,5 Mrd. v.Chr.", text:"Mikroben erscheinen.", anim:"microbes", text:"Zeitalter der ersten Lebensformen."},
-  {year:"600 Mio. v.Chr.", text:"Komplexe Lebewesen entwickeln sich, erste Pflanzen und Tiere.", anim:"plantsAnimals", text:"Zeitalter der frühen Tiere und Pflanzen."},
-  {year:"250 Mio. v.Chr.", text:"Dinosaurier dominieren die Erde.", anim:"dinosaurs", text:"Zeitalter der Dinosaurier."},
-  {year:"65 Mio. v.Chr.", text:"Meteoriteneinschlag führt zum Aussterben der Dinosaurier.", anim:"meteor", text:"Das Aussterbeereignis am Ende der Kreidezeit."},
-  {year:"60 Mio. v.Chr.", text:"Frühe Säugetiere entwickeln sich.", anim:"earlyMammals", text:"Frühes Säugetier-Zeitalter."},
-  {year:"2 Mio. v.Chr.", text:"Erste Menschen erscheinen.", anim:"earlyHumans", text:"Zeitalter der Frühmenschen."},
-  {year:"10.000 v.Chr.", text:"Landwirtschaft entsteht.", anim:"farming", text:"Neolithisches Zeitalter – Beginn der Landwirtschaft."},
-  {year:"3.500 v.Chr.", text:"Schrift und Städte entwickeln sich.", anim:"cities", text:"Zeitalter der frühen Zivilisationen."},
-  {year:"500 v.Chr.", text:"Griechische Philosophie und Mathematik blühen.", anim:"greeks", text:"Zeitalter der griechischen Philosophie und Wissenschaft."},
-  {year:"1 n.Chr.", text:"Römisches Reich mit Infrastruktur.", anim:"rome", text:"Zeitalter des Römischen Reiches."},
-  {year:"800 n.Chr.", text:"Mittelalterliche Burgen und Handel.", anim:"medieval", text:"Mittelalter – Burgen, Handel und Ritter."},
-  {year:"1500 n.Chr.", text:"Renaissance bringt Kunst und Wissenschaft.", anim:"renaissance", text:"Renaissance – Kunst und Wissenschaft blühen auf."},
-  {year:"1700 n.Chr.", text:"Industrielle Revolution startet.", anim:"industry", text:"Industrielle Revolution – Beginn moderner Technik."},
-  {year:"1800 n.Chr.", text:"Eisenbahn und Städtewachstum.", anim:"steam", text:"Zeitalter der Dampfmaschinen und urbaner Expansion."},
-  {year:"1914 n.Chr.", text:"Erster Weltkrieg.", anim:"ww1", text:"Zeitalter der globalen Konflikte."},
-  {year:"1939 n.Chr.", text:"Zweiter Weltkrieg.", anim:"ww2", text:"Zeitalter der totalen Kriege."},
-  {year:"1969 n.Chr.", text:"Mondlandung.", anim:"moonLanding", text:"Zeitalter der Raumfahrt."},
-  {year:"1989 n.Chr.", text:"Fall der Berliner Mauer.", anim:"berlinWall", text:"Zeitalter der politischen Umbrüche."},
-  {year:"1990 n.Chr.", text:"Internet verbindet die Welt.", anim:"internet", text:"Zeitalter der globalen Vernetzung."},
-  {year:"2000 n.Chr.", text:"Technologie-Revolution: Smartphones, KI.", anim:"tech", text:"Digitales Zeitalter – Technologie und KI verbreiten sich."},
-  {year:"2010 n.Chr.", text:"Private Raumfahrtmissionen, Mars-Rover.", anim:"mars", text:"Zeitalter der kommerziellen Raumfahrt."},
-  {year:"2020 n.Chr.", text:"Globale Herausforderungen: Klimawandel, Pandemie.", anim:"earthChallenges", text:"Zeitalter globaler Herausforderungen."},
-  {year:"2030 n.Chr.", text:"Terraforming auf Mars, autonome KI-Systeme.", anim:"futureMars", text:"Zeitalter der Mars-Kolonisation."},
-  {year:"2050 n.Chr.", text:"Interstellare Sonden erkunden neue Systeme.", anim:"spaceProbes", text:"Zeitalter interstellarer Erkundungen."},
-  {year:"2100 n.Chr.", text:"Kolonien in anderen Sonnensystemen.", anim:"colonies", text:"Zeitalter der interstellaren Kolonien."},
-  {year:"2200 n.Chr.", text:"Interstellare Wirtschaft und Handel.", anim:"trade", text:"Zeitalter des interstellaren Handels."},
-  {year:"2300 n.Chr.", text:"KIs entwickeln autonom neue Technologien.", anim:"aiFuture", text:"Zeitalter der autonomen Künstlichen Intelligenzen."},
-  {year:"2400 n.Chr.", text:"Menschheit erreicht ferne Galaxien.", anim:"galactic", text:"Zeitalter der galaktischen Expansion."}
+
+  {
+    year: "13,8 Mrd. v.Chr.",
+    text: "Das Universum entsteht aus einer Singularität. Mit dem Urknall beginnen Raum, Zeit, Materie und die physikalischen Naturgesetze zu existieren.",
+    anim: "bigBang"
+  },
+  {
+    year: "13,5 Mrd. v.Chr.",
+    text: "Aus gewaltigen Gaswolken bilden sich die ersten Galaxien. In ihrem Inneren beginnen Sterne zu leuchten und prägen die Struktur des Universums.",
+    anim: "galaxies"
+  },
+  {
+    year: "4,5 Mrd. v.Chr.",
+    text: "Die Erde entsteht aus kosmischem Staub. Ozeane, Kontinente und eine stabile Atmosphäre formen sich über Millionen von Jahren.",
+    anim: "earthForming"
+  },
+  {
+    year: "3,5 Mrd. v.Chr.",
+    text: "Die ersten einfachen Lebensformen erscheinen in den Ozeanen. Mikroorganismen legen den Grundstein für alles spätere Leben.",
+    anim: "microbes"
+  },
+  {
+    year: "600 Mio. v.Chr.",
+    text: "Komplexe Lebewesen entwickeln sich. Pflanzen und Tiere breiten sich aus und verändern die Umwelt nachhaltig.",
+    anim: "plantsAnimals"
+  },
+  {
+    year: "250 Mio. v.Chr.",
+    text: "Dinosaurier dominieren die Erde über viele Millionen Jahre und werden zu den größten Landtieren der Erdgeschichte.",
+    anim: "dinosaurs"
+  },
+  {
+    year: "65 Mio. v.Chr.",
+    text: "Ein gewaltiger Meteorit schlägt auf der Erde ein und führt zum Aussterben der Dinosaurier sowie vieler weiterer Arten.",
+    anim: "meteor"
+  },
+  {
+    year: "60 Mio. v.Chr.",
+    text: "Nach dem Aussterben der Dinosaurier entwickeln sich Säugetiere weiter und besetzen neue ökologische Nischen.",
+    anim: "earlyMammals"
+  },
+  {
+    year: "2 Mio. v.Chr.",
+    text: "Die ersten frühen Menschen erscheinen. Sie nutzen Werkzeuge, leben in Gruppen und passen sich an unterschiedliche Lebensräume an.",
+    anim: "earlyHumans"
+  },
+  {
+    year: "10.000 v.Chr.",
+    text: "Der Mensch beginnt mit Ackerbau und Viehzucht. Die Landwirtschaft ermöglicht feste Siedlungen und dauerhaftes Zusammenleben.",
+    anim: "farming"
+  },
+  {
+    year: "3.500 v.Chr.",
+    text: "Schrift entsteht und erste Städte wachsen heran. Verwaltung, Handel und Kultur entwickeln sich in frühen Hochzivilisationen.",
+    anim: "cities"
+  },
+  {
+    year: "500 v.Chr.",
+    text: "In Griechenland blühen Philosophie, Mathematik und Wissenschaft. Logisches Denken und Theorie prägen das Weltverständnis.",
+    anim: "greeks"
+  },
+  {
+    year: "1 n.Chr.",
+    text: "Das Römische Reich verbindet große Teile Europas durch Straßen, Städtebau, Rechtssysteme und technische Innovationen.",
+    anim: "rome"
+  },
+  {
+    year: "800 n.Chr.",
+    text: "Das Mittelalter ist geprägt von Burgen, Handel und feudalen Strukturen. Religion und lokale Herrschaft bestimmen das Leben.",
+    anim: "medieval"
+  },
+  {
+    year: "1500 n.Chr.",
+    text: "Die Renaissance bringt eine Wiederentdeckung von Kunst, Wissenschaft und Wissen der Antike. Neues Denken verändert Europa.",
+    anim: "renaissance"
+  },
+  {
+    year: "1700 n.Chr.",
+    text: "Die Industrielle Revolution beginnt. Maschinen, Fabriken und neue Energiequellen verändern Arbeit und Gesellschaft grundlegend.",
+    anim: "industry"
+  },
+  {
+    year: "1800 n.Chr.",
+    text: "Eisenbahnen verbinden Städte und Regionen. Die Industrialisierung beschleunigt Urbanisierung und wirtschaftliches Wachstum.",
+    anim: "steam"
+  },
+  {
+    year: "1914 n.Chr.",
+    text: "Der Erste Weltkrieg erschüttert die Welt. Moderne Waffen und globale Bündnisse verändern die Kriegsführung dauerhaft.",
+    anim: "ww1"
+  },
+  {
+    year: "1939 n.Chr.",
+    text: "Der Zweite Weltkrieg führt zu beispielloser Zerstörung. Er endet mit tiefgreifenden politischen und gesellschaftlichen Umbrüchen.",
+    anim: "ww2"
+  },
+  {
+    year: "1969 n.Chr.",
+    text: "Der Mensch betritt erstmals den Mond. Die Raumfahrt wird zum Symbol technologischen Fortschritts.",
+    anim: "moonLanding"
+  },
+  {
+    year: "1989 n.Chr.",
+    text: "Der Fall der Berliner Mauer markiert das Ende der deutschen Teilung und steht für den Zusammenbruch des Ostblocks.",
+    anim: "berlinWall"
+  },
+  {
+    year: "1990 n.Chr.",
+    text: "Das Internet verbreitet sich weltweit und verbindet Menschen, Wissen und Märkte wie nie zuvor.",
+    anim: "internet"
+  },
+  {
+    year: "2000 n.Chr.",
+    text: "Digitale Technologien, Smartphones und künstliche Intelligenz verändern Kommunikation, Arbeit und Alltag.",
+    anim: "tech"
+  },
+  {
+    year: "2010 n.Chr.",
+    text: "Private Unternehmen treiben die Raumfahrt voran. Mars-Rover und neue Raketen eröffnen neue Möglichkeiten der Exploration.",
+    anim: "mars"
+  },
+  {
+    year: "2020 n.Chr.",
+    text: "Klimawandel und globale Pandemien zeigen die Verletzlichkeit der Erde und erfordern weltweite Zusammenarbeit.",
+    anim: "earthChallenges"
+  },
+  {
+    year: "2030 n.Chr.",
+    text: "Erste Konzepte zur Mars-Kolonisation und autonome KI-Systeme werden Realität und verändern das Bild der Zukunft.",
+    anim: "futureMars"
+  },
+  {
+    year: "2050 n.Chr.",
+    text: "Interstellare Sonden verlassen das Sonnensystem und liefern Daten aus bisher unerforschten Regionen des Alls.",
+    anim: "spaceProbes"
+  },
+  {
+    year: "2100 n.Chr.",
+    text: "Menschen gründen erste Kolonien in fremden Sonnensystemen und erweitern den Lebensraum der Menschheit.",
+    anim: "colonies"
+  },
+  {
+    year: "2200 n.Chr.",
+    text: "Ein interstellares Handelsnetz verbindet ferne Welten und ermöglicht wirtschaftlichen Austausch über Lichtjahre hinweg.",
+    anim: "trade"
+  },
+  {
+    year: "2300 n.Chr.",
+    text: "Künstliche Intelligenzen entwickeln eigenständig neue Technologien und unterstützen den Fortschritt der Zivilisation.",
+    anim: "aiFuture"
+  },
+  {
+    year: "2400 n.Chr.",
+    text: "Die Menschheit erreicht ferne Galaxien und wird zu einer intergalaktischen Zivilisation.",
+    anim: "galactic"
+  }
+
 ];
+
+
 
 
 
