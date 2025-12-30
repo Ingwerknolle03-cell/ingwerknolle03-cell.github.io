@@ -61,15 +61,24 @@ header {
     box-shadow:0 4px 12px rgba(0,0,0,0.5);
 }
 .accordion-header {
-    padding:20px;
-    background:#333;
-    color:#0af;
-    font-size:1.2em;
-    cursor:pointer;
-    display:flex;
-    justify-content:space-between;
+    padding: 20px;
+    background: linear-gradient(90deg, #222, #333); /* schöner Farbverlauf */
+    color: #0af;
+    font-size: 1.2em;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    border-radius: 8px;
+    box-shadow: 0 0 8px rgba(0, 170, 255, 0.5); /* sanfter Glow */
+    transition: all 0.3s ease;
 }
-.accordion-header:hover { background:#444; }
+
+.accordion-header:hover {
+    background: linear-gradient(90deg, #0af, #33f);
+    box-shadow: 0 0 18px rgba(0, 170, 255, 0.8); /* stärkerer Glow beim Hover */
+    transform: scale(1.02); /* leichtes „aufpoppen“ */
+}
+
 .accordion-content {
     max-height:0;
     overflow:hidden;
