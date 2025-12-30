@@ -99,6 +99,8 @@ const events = [
   {year:"2400 n.Chr.", text:"Menschheit erreicht ferne Galaxien.", anim:"galactic", era:"Zeitalter der galaktischen Expansion."}
 ];
 
+// Aktuelles Event anzeigen
+textContainer.innerHTML = `<strong>${events[index].year}</strong><br>${events[index].text} ${events[index].era}`;
 
 
 let index = 0;
