@@ -161,7 +161,7 @@ button {
     </div>
 </header>
 
-<button onclick="location.href='info1.html'">Info</button>
+
 
 
 <div class="main-container">
@@ -310,16 +310,11 @@ document.querySelectorAll('.info-box-header').forEach(h=>{
     });
 });
 
-const infoBtn=document.getElementById('info-btn');
-const infoPanel=document.getElementById('info-panel');
-infoBtn.onclick=e=>{
-    infoPanel.style.display=infoPanel.style.display==='block'?'none':'block';
-    e.stopPropagation();
+const infoBtn = document.getElementById('info-btn');
+infoBtn.onclick = () => {
+    location.href = 'info1.html';
 };
-document.addEventListener('click',e=>{
-    if(!infoPanel.contains(e.target)&&e.target!==infoBtn)
-        infoPanel.style.display='none';
-});
+
 </script>
 
 </body>
