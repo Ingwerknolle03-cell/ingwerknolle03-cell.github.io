@@ -62,12 +62,20 @@ header {
     overflow-y:auto;
 }
 #searchInput {
-    width:100%;
-    padding:10px;
-    border-radius:6px;
-    border:none;
-    margin-bottom:15px;
-    font-size:16px;
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: none;
+    margin-bottom: 15px;
+    font-size: 16px;
+    
+    background-color: #1e1e1e; /* dunkler Hintergrund */
+    color: #e0e0e0; /* helle Schrift */
+}
+
+#searchInput::placeholder {
+    color: #888; /* dunklerer Platzhaltertext */
+
 }
 
 /* Texte / Struktur */
