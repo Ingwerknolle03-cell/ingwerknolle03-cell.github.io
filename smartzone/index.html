@@ -4,9 +4,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Smartzone Hub</title>
 
-<!-- Google Fonts -->
+<title>Smartzone Hub</title>
+<meta name="description" content="Smartzone Hub – Lernspiele, Wissen, Python, Quizze und interaktive Inhalte. Verständlich erklärt, modern gestaltet und ohne Ablenkung.">
+
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
 
@@ -19,7 +20,6 @@ body {
     font-family:'Montserrat', sans-serif;
 }
 
-/* Header */
 header {
     background: linear-gradient(90deg,#6a11cb,#2575fc);
     color:#fff;
@@ -42,7 +42,6 @@ header {
 }
 .header-right button:hover { background:#0af; }
 
-/* Layout */
 .main-container {
     display:flex;
     flex-wrap:wrap;
@@ -53,7 +52,6 @@ header {
 }
 .left-column,.right-column { flex:1; min-width:300px; }
 
-/* Accordion */
 .accordion-item {
     background:#1e1e1e;
     border-radius:12px;
@@ -62,71 +60,54 @@ header {
     box-shadow:0 4px 12px rgba(0,0,0,0.5);
 }
 .accordion-header {
-    padding: 20px;
-    background: linear-gradient(90deg, #222, #333); /* schöner Farbverlauf */
-    color: #0af;
-    font-size: 1.2em;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    border-radius: 8px;
-    box-shadow: 0 0 8px rgba(0, 170, 255, 0.5); /* sanfter Glow */
-    transition: all 0.3s ease;
+    padding:20px;
+    background: linear-gradient(90deg, #222, #333);
+    color:#0af;
+    font-size:1.2em;
+    cursor:pointer;
+    display:flex;
+    justify-content:space-between;
+    border-radius:8px;
+    box-shadow:0 0 8px rgba(0,170,255,0.5);
+    transition:0.3s;
 }
-
 .accordion-header:hover {
     background: linear-gradient(90deg, #05a, #1a3fca);
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* stärkerer Glow beim Hover */
-    transform: scale(1.02); /* leichtes „aufpoppen“ */
+    transform:scale(1.02);
 }
-
 .accordion-content {
     max-height:0;
     overflow:hidden;
-    transition:max-height 0.5s ease;
+    transition:0.5s;
     background:#1a1a1a;
-    border-left: 3px solid #0af; /* optional Glimmstreifen */
+    border-left:3px solid #0af;
 }
 .button-container {
     padding:20px;
     border-bottom:1px solid #333;
 }
-.button-container:last-child { border-bottom:none; }
 button {
-    font-size: 16px;
-    padding: 12px 25px;
-    border: none;
-    border-radius: 12px;
+    font-size:16px;
+    padding:12px 25px;
+    border:none;
+    border-radius:12px;
     background: linear-gradient(135deg, #6a11cb, #2575fc);
-    color: white;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 10px rgba(106, 17, 203, 0.5);
+    color:white;
+    cursor:pointer;
+    transition:0.3s;
 }
 
-button:hover {
-    background: linear-gradient(135deg, #0af, #33f);
-    box-shadow: 0 0 15px rgba(10, 255, 255, 0.7);
-    transform: scale(1.05); /* leichtes Pop-up */
-
-}
-
-/* Info Boxes */
 .info-box {
-    background: #1e1e1e;
-    border-radius: 12px;
-    margin-bottom: 25px;
-    overflow: hidden;
-    box-shadow: 0 0 12px rgba(0, 170, 255, 0.3);
-    transition: box-shadow 1s ease-in-out;
-    animation: pulseGlow 4s infinite ease-in-out;
+    background:#1e1e1e;
+    border-radius:12px;
+    margin-bottom:25px;
+    overflow:hidden;
+    box-shadow:0 0 12px rgba(0,170,255,0.3);
+    animation:pulseGlow 4s infinite;
 }
-
 @keyframes pulseGlow {
-    0%, 100% { box-shadow: 0 0 12px rgba(0, 0, 0, 0.3); }  /* schwaches schwarzes Glühen */
-    50%      { box-shadow: 0 0 20px rgba(0, 0, 0, 0.6); }  /* stärkeres schwarzes Glühen */
-
-
+    0%,100%{box-shadow:0 0 12px rgba(0,0,0,0.3);}
+    50%{box-shadow:0 0 20px rgba(0,0,0,0.6);}
 }
 .info-box-header {
     padding:15px 20px;
@@ -138,7 +119,6 @@ button:hover {
     display:flex;
     justify-content:space-between;
 }
-.info-box-header:hover { background:#444; }
 .info-box-content {
     max-height:0;
     overflow:hidden;
@@ -150,169 +130,24 @@ button:hover {
     padding:20px;
 }
 
-
-
-
-
-/* Scanlines wie alter Monitor */
-.smartzone-ad::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    to bottom,
-    rgba(255,255,255,0.03),
-    rgba(255,255,255,0.03) 1px,
-    transparent 2px,
-    transparent 4px
-  );
-  pointer-events: none;
-}
-
-
-
-/* 🔥 SmartZone Highlight – dezent */
 .info-box.smartzone-highlight {
     background:linear-gradient(135deg,#2d3f6f,#4a2f6f);
     box-shadow:0 0 18px rgba(106,17,203,0.45);
-    animation:glow 6s infinite ease-in-out;
 }
-
 .smartzone-highlight .info-box-header {
-    background: rgba(0,0,0,0.35);
-    color: #00c6ff;  /* Blau für Text und Pfeil */
-    font-size: 1.45em;
+    color:#00c6ff;
+    font-size:1.45em;
 }
 
-.smartzone-highlight .info-box-content {
-    color:#e6e6e6;
-    font-size:1.1em;
-}
-
-.smartzone-highlight button {
-    background:linear-gradient(90deg,#3aa0c8,#2b6fae);
-    border-radius:30px;
-    font-size:1.05em;
-    padding:13px 30px;
-    box-shadow:0 0 12px rgba(80,160,220,0.45);
-    animation:pulse 4s infinite ease-in-out;
-}
-
-/* 🌫️ Sanfter Glow */
-@keyframes glow {
-    0%   { box-shadow:0 0 14px rgba(106,17,203,0.35); }
-    50%  { box-shadow:0 0 22px rgba(120,150,220,0.45); }
-    100% { box-shadow:0 0 14px rgba(106,17,203,0.35); }
-}
-
-/* 🔄 Mini-Pulse */
-@keyframes pulse {
-    0%   { transform:scale(1); }
-    50%  { transform:scale(1.03); }
-    100% { transform:scale(1); }
-}
-
-
-/* ✨ Storygames – dezenter Glow (ca. 50%) */
-.info-box.storygames-highlight {
-    background: linear-gradient(135deg,#262b3a,#2f2a3a);
-    box-shadow: 0 0 9px rgba(106,17,203,0.25);
-    animation: glow-soft 8s infinite ease-in-out;
-}
-
-.storygames-highlight .info-box-header {
-    background: rgba(0,0,0,0.35);
-    color: #9fb4ff;
-    font-size: 1.25em;
-}
-
-.storygames-highlight .info-box-content {
-    color: #dcdcdc;
-    font-size: 1.05em;
-}
-
-/* 🌫️ Weicher Glow */
-@keyframes glow-soft {
-    0%   { box-shadow:0 0 8px rgba(106,17,203,0.22); }
-    50%  { box-shadow:0 0 14px rgba(120,150,220,0.30); }
-    100% { box-shadow:0 0 8px rgba(106,17,203,0.22); }
-}
-
-/* Info Panel */
-#info-panel {
-    position:fixed;
-    top:70px;
-    right:20px;
-    width:300px;
-    background:#1e1e1e;
-    border:2px solid #6a11cb;
-    border-radius:12px;
-    padding:20px;
-    display:none;
-    z-index:999;
-}
-
-/* Footer */
 .footer-text {
     text-align:center;
     padding:40px;
     color:#888;
 }
 
-/* Responsive */
 @media(max-width:900px){
     .main-container{flex-direction:column;}
 }
-
-
-.smartzone-ad {
-  position: fixed;
-  right: 0;
-  top: 80px;
-  width: 260px;
-  height: 360px;
-
-  background: radial-gradient(circle at center, #1a1a1a 0%, #000 70%);
-  border-left: 3px solid #333;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  image-rendering: pixelated;
-  filter: contrast(1.2) brightness(0.9);
-  box-shadow:
-    inset 0 0 30px rgba(0,255,200,0.1),
-    0 0 20px rgba(0,0,0,0.8);
-
-  overflow: hidden;
-  z-index: 10;
-}
-
-/* Scanlines wie alter Monitor */
-.smartzone-ad::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    to bottom,
-    rgba(255,255,255,0.03),
-    rgba(255,255,255,0.03) 1px,
-    transparent 2px,
-    transparent 4px
-  );
-  pointer-events: none;
-}
-
-
-
-
-
-
-
-
-    
-
 </style>
 </head>
 
@@ -457,39 +292,27 @@ button:hover {
 </div>
 </div>
 
-<p class="footer-text">
- 
-</p>
+<p class="footer-text"></p>
 
 <script>
-// Accordion
 document.querySelectorAll('.accordion-header').forEach(h=>{
     h.addEventListener('click',()=>{
         const c=h.nextElementSibling;
         const open=c.style.maxHeight;
         document.querySelectorAll('.accordion-content').forEach(x=>x.style.maxHeight=null);
-        document.querySelectorAll('.accordion-header span').forEach(s=>s.textContent=' ');
         if(!open){
             c.style.maxHeight=c.scrollHeight+'px';
-            h.querySelector('span').textContent=' ';
         }
     });
-
-    
 });
 
-// Info Boxes
 document.querySelectorAll('.info-box-header').forEach(h=>{
     h.addEventListener('click',()=>{
         const c=h.nextElementSibling;
-        const open=c.classList.contains('open');
-        document.querySelectorAll('.info-box-content').forEach(x=>x.classList.remove('open'));
-        if(!open) c.classList.add('open');
-        h.querySelector('span:last-child').textContent=open?' ':' ';
+        c.classList.toggle('open');
     });
 });
 
-// Info Panel
 const infoBtn=document.getElementById('info-btn');
 const infoPanel=document.getElementById('info-panel');
 infoBtn.onclick=e=>{
@@ -502,13 +325,6 @@ document.addEventListener('click',e=>{
 });
 </script>
 
-
-
-
-    
-
-
-    
 </body>
 </html>
 
