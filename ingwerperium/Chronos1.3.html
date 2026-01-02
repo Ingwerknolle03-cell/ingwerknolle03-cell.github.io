@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>Chronos Ökosystem</title>
+<title>Chronos</title>
 <style>
 html,body{margin:0;padding:0;height:100%;width:100%;font-family:monospace;background:#1c1c1c;color:#ccc;}
 body{display:flex;flex-direction:row;}
@@ -19,7 +19,7 @@ input[type=file]{display:none;}
 <body>
 
 <div id="main">
-  <h1>Chronos Ökosystem</h1>
+  <h1>Chronos</h1>
   <div id="log"></div>
   <div id="table"></div>
   <div>
@@ -50,35 +50,30 @@ let stepCount=0;
 let seasonIndex=0;
 const seasons=["Frühling","Sommer","Herbst","Winter"];
 
-/* ================= SUBSTRATE ================= */
-let substrates={
-  Erde:{faktor:1.0,max:10},         // # Land
-  Wasser:{faktor:1.0,max:10},       // # Wasserflächen
-  Sand:{faktor:0.5,max:10},         // # trockene Regionen
-  Sumpf:{faktor:0.7,max:10}         // # Feuchtgebiete
-};
+/* ================= SUBSTRAT ================= */
+const substrates={Erde:2.6,Wasser:1.8,Sand:1.1,Sumpf:1.9}; // # Wachstum hängt von Substratfaktor ab
 
 /* ================= ARTEN ================= */
-// # Pflanzenarten
 const species={
-  Gräser:{typ:"pflanze",wachstum:0.25,max:1200,substrat:["Erde","Sumpf"]}, 
-  Farne:{typ:"pflanze",wachstum:0.18,max:800,substrat:["Erde","Sumpf"]}, 
-  Buchen:{typ:"pflanze",wachstum:0.08,max:600,substrat:["Erde"]}, 
-  Algen:{typ:"pflanze",wachstum:0.3,max:500,substrat:["Wasser","Sumpf"]},
+  // Pflanzen # # Pflanzenarten hinzufügen
+  "Gräser":{typ:"pflanze",wachstum:0.25,max:1200},
+  "Buchen":{typ:"pflanze",wachstum:0.08,max:600},
+  "Farne":{typ:"pflanze",wachstum:0.18,max:800},
+  "Algen":{typ:"pflanze",wachstum:0.22,max:500},
 
-  // # Tiere
-  Mammut:{typ:"tier",frisst:["Gräser"],feinde:["Säbelzahntiger"],wachstum:0.06,max:200,substrat:["Erde","Sumpf"]},
-  Pferd:{typ:"tier",frisst:["Gräser"],feinde:["Säbelzahntiger","Wolf"],wachstum:0.08,max:150,substrat:["Erde"]},
-  Säbelzahntiger:{typ:"tier",frisst:["Mammut","Pferd"],feinde:[],wachstum:0.05,max:80,substrat:["Erde","Sumpf"]},
-  Wolf:{typ:"tier",frisst:["Pferd"],feinde:[],wachstum:0.07,max:60,substrat:["Erde"]},
-  Kellerasseln:{typ:"tier",frisst:["Farne"],feinde:["Mammut","Pferd"],wachstum:0.15,max:300,substrat:["Erde","Sumpf"]},
+  // Tiere # # Tierarten hinzufügen
+  "Mammut":{typ:"tier",frisst:["Gräser"],feinde:["Säbelzahntiger"],wachstum:0.06,max:200},
+  "Pferd":{typ:"tier",frisst:["Gräser"],feinde:["Säbelzahntiger","Wolf"],wachstum:0.08,max:150},
+  "Säbelzahntiger":{typ:"tier",frisst:["Mammut","Pferd"],feinde:[],wachstum:0.05,max:80},
+  "Wolf":{typ:"tier",frisst:["Pferd"],feinde:[],wachstum:0.07,max:60},
+  "Kellerasseln":{typ:"tier",frisst:["Farne"],feinde:["Pferd","Mammut"],wachstum:0.15,max:300},
 
-  // # Aquatische Tiere
-  Urzeitfisch:{typ:"tier",frisst:["Algen"],feinde:["Räuberfisch"],wachstum:0.12,max:120,substrat:["Wasser"]}, 
-  Räuberfisch:{typ:"tier",frisst:["Urzeitfisch"],feinde:[],wachstum:0.08,max:50,substrat:["Wasser"]},
+  // Aquatische Tiere # # Fische hinzufügen
+  "Urzeitfisch":{typ:"tier",frisst:["Algen"],feinde:["Räuberfisch"],wachstum:0.12,max:120},
+  "Räuberfisch":{typ:"tier",frisst:["Urzeitfisch"],feinde:[],wachstum:0.08,max:50},
 
-  // # Pilze
-  Pilze:{typ:"pilz",zersetzt:true,wachstum:0.2,max:900,substrat:["Erde","Sumpf"]}
+  // Pilze # # Pilzgattungen hinzufügen
+  "Pilze":{typ:"pilz",zersetzt:true,wachstum:0.2,max:900}
 };
 
 /* ================= WELT ================= */
@@ -88,64 +83,56 @@ let biomass=0; // organische Masse für Pilze
 
 /* ================= LOG ================= */
 function log(text){
-  logBox.innerText+=text+"\n";
-  logBox.scrollTop=logBox.scrollHeight; // # Automatisches Scrollen
-  tableBox.scrollTop=tableBox.scrollHeight;
+  logBox.innerText += text + "\n";
+  logBox.scrollTop = logBox.scrollHeight; // # Automatisches Scrollen oben
 }
 
 /* ================= DARSTELLUNG ================= */
 function draw(){
-  tableBox.innerHTML=`<b>Jahreszeit:</b> ${seasons[seasonIndex]}<br><br>`;
+  tableBox.innerHTML=`Jahreszeit: ${seasons[seasonIndex]}<br><br>`;
   tableBox.innerHTML+="<b>Substrate:</b><br>";
   Object.entries(substrates).forEach(([k,v])=>{
-    tableBox.innerHTML+=`${k}: Faktor ${v.faktor}<br>`;
+    tableBox.innerHTML+=`${k}: Faktor ${v}<br>`;
   });
   tableBox.innerHTML+="<br><b>Arten:</b><br>";
   Object.entries(world).forEach(([k,v])=>{
     if(v>0) tableBox.innerHTML+=`${k}: ${v}<br>`;
   });
-  tableBox.scrollTop=tableBox.scrollHeight;
 }
 
 /* ================= SIMULATION ================= */
 function step(){
   stepCount++;
-
-  // # Jahreszeit alle 50 Schritte
   if(stepCount % 50 === 0){
     seasonIndex=(seasonIndex+1)%4;
     log(`— Neue Jahreszeit: ${seasons[seasonIndex]} —`);
   }
 
-  // # Klima / Temperaturfaktor
-  let climateFactor=1;
-  if(seasons[seasonIndex]==="Winter") climateFactor=0.5;
-  if(seasons[seasonIndex]==="Sommer") climateFactor=1.2;
-
-  /* Wachstum & Sterben */
+  // Wachstum & Überleben
   Object.entries(species).forEach(([name,sp])=>{
     if(world[name]<=0) return;
 
-    // # Substratfaktor: Durchschnitt aus allen möglichen Substraten
-    let subFactor=0;
-    sp.substrat.forEach(sub=>{
-      subFactor+=substrates[sub]?.faktor||0;
-    });
-    subFactor/=sp.substrat.length;
+    let seasonFactor=1;
+    if(seasons[seasonIndex]==="Winter") seasonFactor=0.4;
+    if(seasons[seasonIndex]==="Sommer") seasonFactor=1.2;
 
-    // # Nahrungseinfluss für Tiere
     let foodFactor=1;
     if(sp.frisst){
       const food=sp.frisst.reduce((s,f)=>s+(world[f]||0),0);
       if(food<=0) foodFactor=0.2;
     }
 
-    const delta=Math.floor(world[name]*sp.wachstum*climateFactor*foodFactor*subFactor*(1-world[name]/sp.max));
+    // Substratfaktor berücksichtigen
+    let substrateFactor=1;
+    if(sp.typ==="pflanze") substrateFactor = substrates.Erde;
+    if(sp.typ==="tier" && sp.frisst.includes("Algen")) substrateFactor = substrates.Wasser;
+
+    const delta=Math.floor(world[name]*sp.wachstum*seasonFactor*foodFactor*substrateFactor*(1-world[name]/sp.max));
 
     if(delta>0){
       world[name]+=delta;
       log(`${name} wachsen (+${delta})`);
-    } else if(sp.typ==="tier" && sp.frisst && foodFactor<0.5){
+    } else if(sp.frisst && foodFactor<0.5){
       const sterbe=Math.max(1,Math.floor(world[name]*0.05));
       world[name]-=sterbe;
       log(`${name} stirbt wegen Nahrungsknappheit (-${sterbe})`);
@@ -153,7 +140,7 @@ function step(){
     }
   });
 
-  /* Fressen */
+  // Fressen
   Object.entries(species).forEach(([pred,sp])=>{
     if(!sp.frisst||world[pred]<=0) return;
     sp.frisst.forEach(prey=>{
@@ -161,14 +148,14 @@ function step(){
         const eat=Math.min(world[prey],Math.floor(world[pred]*0.15));
         if(eat>0){
           world[prey]-=eat;
-          biomass+=eat;
+          biomass+=eat; 
           log(`${pred} fressen ${prey} (-${eat})`);
         }
       }
     });
   });
 
-  /* Pilze zersetzen Biomasse */
+  // Pilze – Zersetzer
   if(world["Pilze"]>0 && biomass>0){
     const grow=Math.floor(biomass*0.1);
     const actualGrow=Math.min(grow, species["Pilze"].max-world["Pilze"]);
@@ -200,15 +187,11 @@ function addButtons(){
     ).appendChild(b);
   });
 
-  // # Substrate Buttons: Faktor erhöhen
-  Object.entries(substrates).forEach(([name,sub])=>{
+  // Substrate fix hinzufügen
+  Object.keys(substrates).forEach(sub=>{
     const b=document.createElement("button");
-    b.innerText=`+ ${name}`;
-    b.onclick=()=>{
-      sub.faktor=Math.min(sub.max, sub.faktor+0.2);
-      log(`${name} Faktor erhöht auf ${sub.faktor.toFixed(1)}`);
-      draw();
-    };
+    b.innerText=sub+" (Faktor bleibt fix)";
+    b.onclick=()=>{ log(`${sub} ist vorhanden. Wachstum hängt vom Faktor ab.`); draw(); };
     document.getElementById("substrates").appendChild(b);
   });
 }
@@ -218,7 +201,7 @@ draw();
 
 /* ================= SPIEL SPEICHERN & LADEN ================= */
 function saveGame(){
-  const data=JSON.stringify({world,biomass,stepCount,seasonIndex,substrates});
+  const data=JSON.stringify({world,biomass,stepCount,seasonIndex});
   const blob=new Blob([data],{type:"application/json"});
   const url=URL.createObjectURL(blob);
   const a=document.createElement("a");
@@ -240,7 +223,6 @@ function loadGame(event){
       biomass=data.biomass||0;
       stepCount=data.stepCount||0;
       seasonIndex=data.seasonIndex||0;
-      substrates=data.substrates||substrates;
       log("Spiel geladen.");
       draw();
     }catch{
@@ -253,3 +235,4 @@ function loadGame(event){
 </script>
 </body>
 </html>
+
