@@ -19,7 +19,7 @@ input[type=file]{display:none;}
 <body>
 
 <div id="main">
-  <h1>Chronos</h1>
+  <h1>Chronos – Urzeitliches Ökosystem</h1>
   <div id="log"></div>
   <div id="table"></div>
   <div>
@@ -37,7 +37,7 @@ input[type=file]{display:none;}
   <div id="animals"></div>
   <h2>Pilze</h2>
   <div id="fungi"></div>
-  <h2>Substrat</h2>
+  <h2>Substrate</h2>
   <div id="substrates"></div>
 </div>
 
@@ -50,29 +50,34 @@ let stepCount=0;
 let seasonIndex=0;
 const seasons=["Frühling","Sommer","Herbst","Winter"];
 
-/* ================= SUBSTRAT ================= */
-const substrat={Erde:1.0}; // # Faktor für Wachstum (mehr Erde -> besser für Landpflanzen/-tiere)
+/* ================= SUBSTRATE ================= */
+const substrate={
+  Erde:{faktor:1.0,typ:"Land"}, // # Landpflanzen/-tiere wachsen besser
+  Sand:{faktor:0.5,typ:"Land"}, // # Pflanzen weniger geeignet
+  Wasser:{faktor:1.0,typ:"Wasser"} // # Fische wachsen nur hier
+  // # Neue Substrate hier hinzufügen
+};
 
 /* ================= ARTEN ================= */
 const species={
-  // Pflanzen # # Pflanzenarten hinzufügen
-  Gräser:{typ:"pflanze",wachstum:0.25,max:1200}, // # kann erweitert werden
-  Buchen:{typ:"pflanze",wachstum:0.08,max:600}, 
-  Farne:{typ:"pflanze",wachstum:0.18,max:800},
+  /* Pflanzen # # Pflanzenarten hinzufügen */
+  Gräser:{typ:"pflanze",substrat:"Land",wachstum:0.25,max:1200}, 
+  Buchen:{typ:"pflanze",substrat:"Land",wachstum:0.08,max:600}, 
+  Farne:{typ:"pflanze",substrat:"Land",wachstum:0.18,max:800},
 
-  // Tiere # # Tierarten hinzufügen
-  Mammut:{typ:"tier",frisst:["Gräser"],feinde:["Säbelzahntiger"],wachstum:0.06,max:200},
-  Pferd:{typ:"tier",frisst:["Gräser"],feinde:["Säbelzahntiger"],wachstum:0.08,max:150},
-  Säbelzahntiger:{typ:"tier",frisst:["Mammut","Pferd"],feinde:[],wachstum:0.05,max:80},
-  Wolf:{typ:"tier",frisst:["Pferd"],feinde:[],wachstum:0.07,max:60},
-  Kellerasseln:{typ:"tier",frisst:["Farne"],feinde:["Pferd","Mammut"],wachstum:0.15,max:300},
+  /* Tiere # # Tierarten hinzufügen */
+  Mammut:{typ:"tier",substrat:"Land",frisst:["Gräser"],feinde:["Säbelzahntiger"],wachstum:0.06,max:200},
+  Pferd:{typ:"tier",substrat:"Land",frisst:["Gräser"],feinde:["Säbelzahntiger"],wachstum:0.08,max:150},
+  Säbelzahntiger:{typ:"tier",substrat:"Land",frisst:["Mammut","Pferd"],feinde:[],wachstum:0.05,max:80},
+  Wolf:{typ:"tier",substrat:"Land",frisst:["Pferd"],feinde:[],wachstum:0.07,max:60},
+  Kellerasseln:{typ:"tier",substrat:"Land",frisst:["Farne"],feinde:["Pferd","Mammut"],wachstum:0.15,max:300},
 
-  // Aquatische Tiere # # Fische hinzufügen
-  Urzeitfisch:{typ:"tier",frisst:["Farne"],feinde:["Räuberfisch"],wachstum:0.12,max:120}, 
-  Räuberfisch:{typ:"tier",frisst:["Urzeitfisch"],feinde:[],wachstum:0.08,max:50},
+  /* Aquatische Tiere # # Fische hinzufügen */
+  Urzeitfisch:{typ:"tier",substrat:"Wasser",frisst:["Farne"],feinde:["Räuberfisch"],wachstum:0.12,max:120}, 
+  Räuberfisch:{typ:"tier",substrat:"Wasser",frisst:["Urzeitfisch"],feinde:[],wachstum:0.08,max:50},
 
-  // Pilze # # Pilzgattungen hinzufügen
-  Pilze:{typ:"pilz",zersetzt:true,wachstum:0.2,max:900}
+  /* Pilze # # Pilzgattungen hinzufügen */
+  Pilze:{typ:"pilz",substrat:"Land",zersetzt:true,wachstum:0.2,max:900}
 };
 
 /* ================= WELT ================= */
@@ -90,9 +95,9 @@ function log(text){
 /* ================= DARSTELLUNG ================= */
 function draw(){
   tableBox.innerHTML=`Jahreszeit: ${seasons[seasonIndex]}<br><br>`;
-  tableBox.innerHTML+="<b>Substrat:</b><br>";
-  Object.entries(substrat).forEach(([k,v])=>{
-    tableBox.innerHTML+=`${k}: Faktor ${v}<br>`;
+  tableBox.innerHTML+="<b>Substrate:</b><br>";
+  Object.entries(substrate).forEach(([k,v])=>{
+    tableBox.innerHTML+=`${k} (${v.typ}): Faktor ${v.faktor}<br>`;
   });
   tableBox.innerHTML+="<br><b>Arten:</b><br>";
   Object.entries(world).forEach(([k,v])=>{
@@ -105,6 +110,7 @@ function draw(){
 function step(){
   stepCount++;
 
+  /* Jahreszeiten */
   if(stepCount % 50 === 0){
     seasonIndex=(seasonIndex+1)%4;
     log(`— Neue Jahreszeit: ${seasons[seasonIndex]} —`);
@@ -118,13 +124,18 @@ function step(){
     if(seasons[seasonIndex]==="Winter") seasonFactor=0.4;
     if(seasons[seasonIndex]==="Sommer") seasonFactor=1.2;
 
+    /* Substrat-Faktor */
+    const subFaktor=substrate[sp.substrat]?.faktor || 0.1;
+
+    /* Nahrung */
     let foodFactor=1;
     if(sp.frisst){
       const food=sp.frisst.reduce((s,f)=>s+(world[f]||0),0);
       if(food<=0) foodFactor=0.2;
     }
 
-    const delta=Math.floor(world[name]*sp.wachstum*seasonFactor*foodFactor*substrat.Erde*(1-world[name]/sp.max));
+    /* Wachstum */
+    const delta=Math.floor(world[name]*sp.wachstum*seasonFactor*foodFactor*subFaktor*(1-world[name]/sp.max));
 
     if(delta>0){
       world[name]+=delta;
@@ -183,11 +194,14 @@ function addButtons(){
       s.typ==="pflanze"?"plants":s.typ==="tier"?"animals":"fungi"
     ).appendChild(b);
   });
-  // # Substrat hinzufügen, bleibt fixer Faktor
-  const b=document.createElement("button");
-  b.innerText="Erde (Faktor bleibt)";
-  b.onclick=()=>{log("Erde ist immer da. Wachstum hängt vom Faktor ab."); draw();};
-  document.getElementById("substrates").appendChild(b);
+
+  /* Substrate hinzufügen */
+  Object.keys(substrate).forEach(sub=>{
+    const b=document.createElement("button");
+    b.innerText=sub+` (${substrate[sub].typ})`;
+    b.onclick=()=>{log(`${sub} ist vorhanden. Wachstum hängt vom Faktor ab.`); draw();};
+    document.getElementById("substrates").appendChild(b);
+  });
 }
 
 addButtons();
