@@ -4,8 +4,7 @@
 <meta charset="UTF-8">
 <title>Chronos – Urzeitliches Ökosystem</title>
 <style>
-/* ================= STYLES ================= */
-html,body{margin:0;padding:0;height:100%;width:100%;font-family:monospace;background:#1a1a1a;color:#ccc;}
+html,body{margin:0;padding:0;height:100%;width:100%;font-family:monospace;background:#1c1c1c;color:#ccc;}
 body{display:flex;flex-direction:row;}
 #main{flex:3;display:flex;flex-direction:column;padding:16px;border-right:1px solid #444;height:100vh;box-sizing:border-box;overflow:hidden;}
 #side{flex:1;display:flex;flex-direction:column;padding:16px;background:#111;height:100vh;box-sizing:border-box;overflow-y:auto;}
@@ -52,27 +51,31 @@ let seasonIndex=0;
 const seasons=["Frühling","Sommer","Herbst","Winter"];
 
 /* ================= SUBSTRATE ================= */
-const substrates={ 
-  Erde:{typ:"substrat"},   // # Hier weitere Substrate hinzufügen
-  Sand:{typ:"substrat"},
-  Wasser:{typ:"substrat"}
+const substrates={
+  Erde:{typ:"substrat",menge:1000},    // # Erde hinzufügen/ändern
+  Sand:{typ:"substrat",menge:800},     // # Sand hinzufügen/ändern
+  Wasser:{typ:"substrat",menge:1000}   // # Wasser hinzufügen/ändern
 };
 
 /* ================= ARTEN (Gattungen) ================= */
 const species={
-  // Pflanzen # # Hier neue Pflanzenarten hinzufügen
-  Poaceae:{typ:"pflanze",wachstum:0.25,max:1200,substrat:["Erde","Sand"]},      // Gräser
-  Fagus:{typ:"pflanze",wachstum:0.08,max:600,substrat:["Erde"]},                // Buchen
-  Pteridophyta:{typ:"pflanze",wachstum:0.18,max:800,substrat:["Erde","Sand"]},  // Farne
+  // Pflanzen # # Pflanzenarten hinzufügen
+  Poaceae:{typ:"pflanze",wachstum:0.25,max:1200,substrat:["Erde","Sand"]}, // Gräser
+  Fagus:{typ:"pflanze",wachstum:0.08,max:600,substrat:["Erde"]},            // Buchen
+  Pteridophyta:{typ:"pflanze",wachstum:0.18,max:800,substrat:["Erde","Sand"]}, // Farne
 
-  // Tiere # # Hier neue Tiergattungen hinzufügen
-  Mammuthus:{typ:"tier",frisst:["Poaceae"],feinde:["Smilodon"],wachstum:0.06,max:200}, // Mammut
-  Equus:{typ:"tier",frisst:["Poaceae"],feinde:["Smilodon"],wachstum:0.08,max:150},    // frühe Pferde
-  Smilodon:{typ:"tier",frisst:["Mammuthus","Equus"],feinde:[],wachstum:0.05,max:80},   // Säbelzahntiger
-  Canis:{typ:"tier",frisst:["Equus"],feinde:[],wachstum:0.07,max:60},                  // frühe Wölfe
-  Insecta:{typ:"tier",frisst:["Pteridophyta"],feinde:["Equus","Mammuthus"],wachstum:0.15,max:300}, // Kellerasseln
+  // Tiere # # Tiergattungen hinzufügen
+  Mammuthus:{typ:"tier",frisst:["Poaceae"],feinde:["Smilodon"],substrat:["Erde"],wachstum:0.06,max:200}, // Mammut
+  Equus:{typ:"tier",frisst:["Poaceae"],feinde:["Smilodon"],substrat:["Erde"],wachstum:0.08,max:150},    // frühe Pferde
+  Smilodon:{typ:"tier",frisst:["Mammuthus","Equus"],feinde:[],substrat:["Erde"],wachstum:0.05,max:80},   // Säbelzahntiger
+  Canis:{typ:"tier",frisst:["Equus"],feinde:[],substrat:["Erde"],wachstum:0.07,max:60},                  // frühe Wölfe
+  Insecta:{typ:"tier",frisst:["Pteridophyta"],feinde:["Equus","Mammuthus"],substrat:["Erde"],wachstum:0.15,max:300}, // Kellerasseln
 
-  // Pilze # # Hier neue Pilzgattungen hinzufügen
+  // Aquatische Tiere # # Fische hinzufügen
+  Actinopterygii:{typ:"tier",frisst:["Pteridophyta"],feinde:["DunkleAal"],substrat:["Wasser"],wachstum:0.12,max:120}, // Urzeitfisch
+  DunkleAal:{typ:"tier",frisst:["Actinopterygii"],feinde:[],substrat:["Wasser"],wachstum:0.08,max:50}, // Räuberfisch
+
+  // Pilze # # Pilzgattungen hinzufügen
   Basidiomycota:{typ:"pilz",zersetzt:true,wachstum:0.2,max:900} 
 };
 
@@ -89,7 +92,12 @@ function log(text){
 
 /* ================= DARSTELLUNG ================= */
 function draw(){
-  tableBox.innerHTML=`Jahreszeit: ${seasons[seasonIndex]}<br>Biomasse: ${biomass}<br><br>`;
+  tableBox.innerHTML=`Jahreszeit: ${seasons[seasonIndex]}<br><br>`;
+  tableBox.innerHTML+="<b>Substrate:</b><br>";
+  Object.entries(substrates).forEach(([k,v])=>{
+    tableBox.innerHTML+=`${k}: ${v.menge}<br>`;
+  });
+  tableBox.innerHTML+="<br><b>Arten:</b><br>";
   Object.entries(world).forEach(([k,v])=>{
     if(v>0) tableBox.innerHTML+=`${k}: ${v}<br>`;
   });
@@ -100,7 +108,6 @@ function draw(){
 function step(){
   stepCount++;
 
-  // Jahreszeiten ändern nur alle 50 Schritte
   if(stepCount % 50 === 0){
     seasonIndex=(seasonIndex+1)%4;
     log(`— Neue Jahreszeit: ${seasons[seasonIndex]} —`);
@@ -117,13 +124,14 @@ function step(){
     let foodFactor=1;
     if(sp.frisst){
       const food=sp.frisst.reduce((s,f)=>s+(world[f]||0),0);
-      if(food<=0) foodFactor=0.2; // zu wenig Nahrung -> langsames Sterben
+      if(food<=0) foodFactor=0.2;
     }
 
     let substrateFactor=1;
     if(sp.substrat){
-      const suitable=sp.substrat.some(sub=>world[sub]>0);
-      if(!suitable) substrateFactor=0.3; // falsches Substrat
+      const totalSubstrate=sp.substrat.reduce((s,sb)=>s+ (substrates[sb]?.menge||0),0);
+      if(totalSubstrate<=0) substrateFactor=0.1;
+      else substrateFactor=Math.min(1,totalSubstrate/1000); // mehr Substrat = besseres Wachstum
     }
 
     const delta=Math.floor(world[name]*sp.wachstum*seasonFactor*foodFactor*substrateFactor*(1-world[name]/sp.max));
@@ -147,7 +155,7 @@ function step(){
         const eat=Math.min(world[prey],Math.floor(world[pred]*0.15));
         if(eat>0){
           world[prey]-=eat;
-          biomass+=eat; // tote Biomasse für Pilze
+          biomass+=eat; 
           log(`${pred} fressen ${prey} (-${eat})`);
         }
       }
@@ -169,7 +177,7 @@ function step(){
 }
 
 /* ================= ZEIT ================= */
-setInterval(()=>{ if(running) step(); },2000); // langsam, damit Nutzer folgen kann
+setInterval(()=>{ if(running) step(); },2000);
 
 /* ================= BUTTONS ================= */
 function addButtons(){
@@ -188,7 +196,7 @@ function addButtons(){
   Object.keys(substrates).forEach(sub=>{
     const b=document.createElement("button");
     b.innerText=sub;
-    b.onclick=()=>{world[sub]=1000; log(`${sub} vorhanden`); draw();};
+    b.onclick=()=>{substrates[sub].menge+=500; log(`${sub} hinzugefügt (+500)`); draw();};
     document.getElementById("substrates").appendChild(b);
   });
 }
@@ -198,7 +206,7 @@ draw();
 
 /* ================= SPIEL SPEICHERN & LADEN ================= */
 function saveGame(){
-  const data=JSON.stringify({world,biomass,stepCount,seasonIndex});
+  const data=JSON.stringify({world,biomass,stepCount,seasonIndex,substrates});
   const blob=new Blob([data],{type:"application/json"});
   const url=URL.createObjectURL(blob);
   const a=document.createElement("a");
@@ -220,6 +228,7 @@ function loadGame(event){
       biomass=data.biomass||0;
       stepCount=data.stepCount||0;
       seasonIndex=data.seasonIndex||0;
+      if(data.substrates) Object.keys(substrates).forEach(s=>substrates[s].menge=data.substrates[s].menge||substrates[s].menge);
       log("Spiel geladen.");
       draw();
     }catch{
