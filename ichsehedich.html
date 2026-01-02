@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>CoolGame</title>
+<style>
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  background:#0b0f1a;
+  overflow:hidden;
+  font-family:Arial, sans-serif;
+}
+
+/* GAME WINDOW */
+#gameWindow{
+  width:720px;
+  height:420px;
+  background:#111827;
+  color:white;
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  border-radius:12px;
+  box-shadow:0 0 40px rgba(0,0,0,.8);
+  overflow:hidden;
+}
+
+#titlebar{
+  background:#1f2937;
+  padding:10px;
+  font-weight:bold;
+}
+
+#content{
+  padding:20px;
+  text-align:center;
+}
+
+button{
+  padding:10px 20px;
+  background:#2563eb;
+  border:none;
+  color:white;
+  border-radius:8px;
+  font-size:16px;
+  cursor:pointer;
+}
+
+/* WINDOWS */
+.win{
+  position:absolute;
+  width:300px;
+  background:#050505;
+  border:2px solid #00ff88;
+  color:#00ff88;
+  font-family:monospace;
+  box-shadow:0 0 25px rgba(0,255,136,.6);
+}
+
+.bar{height:12px;background:#222;margin-top:6px}
+.fill{height:100%;width:0;background:#00ff88}
+
+/* EFFECTS */
+.shake{animation:shake .15s infinite}
+@keyframes shake{
+  0%{transform:translate(1px,1px)}
+  50%{transform:translate(-2px,-1px)}
+  100%{transform:translate(1px,-2px)}
+}
+</style>
+</head>
+<body>
+
+<div id="gameWindow">
+  <div id="titlebar">CoolGame v1.0</div>
+  <div id="content">
+    <h2>Willkommen!</h2>
+    <p>Ein ganz normales Spiel.</p>
+    <button id="start">Spiel starten</button>
+  </div>
+</div>
+
+<script>
+let phase=0;
+const jokes=[
+  "Das Spiel schaut dich an.",
+  "Warum hast du das gestartet?",
+  "Patch 1 von 46.",
+  "Cursor nicht gefunden.",
+  "System sagt nein.",
+  "Dieses Fenster lügt.",
+  "Du klickst zu aggressiv.",
+  "Wir haben dein Klicken bemerkt.",
+  "Update rückgängig machen… fehlgeschlagen."
+];
+
+function rand(a,b){return Math.floor(Math.random()*(b-a)+a)}
+
+function makeWin(text, warn=false){
+  const w=document.createElement("div");
+  w.className="win"+(warn?" shake":"");
+  w.style.left=rand(0,innerWidth-320)+"px";
+  w.style.top=rand(0,innerHeight-200)+"px";
+  w.innerHTML=`<div style="background:${warn?"red":"#00ff88"};color:black;padding:5px">
+  ${warn?"SYSTEM":"Browser Tab"}</div>
+  <div style="padding:8px">${text}</div>`;
+  document.body.appendChild(w);
+  return w;
+}
+
+document.getElementById("start").onclick=()=>{
+  document.getElementById("content").innerHTML=
+  "<p>Lade Ressourcen…</p><div class='bar'><div class='fill' id='f'></div></div>";
+  let p=0;
+  const f=document.getElementById("f");
+  const iv=setInterval(()=>{
+    p+=rand(1,4); f.style.width=p+"%";
+    if(p>100){clearInterval(iv); phase=1; startPhase1();}
+  },80);
+};
+
+function startPhase1(){
+  makeWin("Patch wird geprüft…");
+  setTimeout(()=>phase=2,4000);
+  loop();
+}
+
+function loop(){
+  if(phase>=2){
+    makeWin(jokes[rand(0,jokes.length)]);
+  }
+  if(phase>=3){
+    makeWin("Download läuft…<div class='bar'><div class='fill' style='width:"+rand(10,90)+"%'></div></div>",true);
+  }
+  if(phase>=4){
+    document.body.style.cursor=["none","crosshair","progress","wait"][rand(0,4)];
+  }
+  if(phase<5) setTimeout(loop,rand(600,1400));
+}
+
+setInterval(()=>{
+  if(phase===2 && Math.random()<0.3) phase=3;
+  if(phase===3 && Math.random()<0.2) phase=4;
+  if(phase===4 && Math.random()<0.15) phase=5;
+},2000);
+
+// TODESMODUS
+setInterval(()=>{
+  if(phase>=5){
+    for(let i=0;i<5;i++){
+      makeWin("ABBRUCH NICHT MÖGLICH",true);
+    }
+    document.body.classList.toggle("shake");
+  }
+},1500);
+</script>
+
+</body>
+</html>
