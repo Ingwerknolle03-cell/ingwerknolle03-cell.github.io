@@ -179,6 +179,7 @@ let score = 0;
 function shuffle(array) {
     return array.sort(() => Math.random() - 0.5);
 }
+shuffle(questions);
 
 function showQuestion() {
     document.getElementById('infoBox').style.display = 'none';
