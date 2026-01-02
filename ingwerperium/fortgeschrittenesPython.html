@@ -5,181 +5,291 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Python Advanced Simulation</title>
 <style>
-body {
-    font-family: 'Arial', sans-serif;
-    background: linear-gradient(120deg, #ff9a9e, #fad0c4);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
+body{
+    font-family:Arial, sans-serif;
+    background:linear-gradient(120deg,#ff9a9e,#fad0c4);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    margin:0;
 }
-
-.container {
-    background: white;
-    padding: 30px;
-    border-radius: 25px;
-    box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-    width: 500px;
-    text-align: center;
-    animation: fadeIn 1s;
+.container{
+    background:#fff;
+    padding:30px;
+    border-radius:25px;
+    width:520px;
+    box-shadow:0 15px 30px rgba(0,0,0,.25);
+    text-align:center;
 }
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.9);}
-    to { opacity: 1; transform: scale(1);}
+h1{color:#ff6f61;}
+.score{margin-bottom:10px;font-size:18px;}
+.timer{font-size:16px;margin-bottom:10px;color:#333;}
+.question{text-align:left;font-size:18px;margin-bottom:10px;}
+input{
+    width:90%;
+    padding:10px;
+    font-size:16px;
+    margin-bottom:10px;
 }
-
-h1 {
-    color: #ff6f61;
-    margin-bottom: 20px;
+button{
+    padding:12px 25px;
+    border:none;
+    border-radius:12px;
+    background:#6a11cb;
+    color:#fff;
+    font-size:16px;
+    cursor:pointer;
+    margin:5px;
 }
-
-button {
-    background-color: #6a11cb;
-    color: white;
-    border: none;
-    padding: 12px 25px;
-    margin: 10px;
-    border-radius: 12px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: 0.3s;
-}
-
-button:hover {
-    background-color: #2575fc;
-}
-
-input {
-    padding: 10px;
-    font-size: 16px;
-    width: 80%;
-    margin-bottom: 15px;
-}
-
-.score {
-    font-size: 18px;
-    margin-bottom: 20px;
-    color: #555;
-}
-
-.question {
-    font-size: 18px;
-    margin-bottom: 15px;
-    text-align: left;
-}
-
-.feedback {
-    font-weight: bold;
-    margin-top: 10px;
-}
-
-.feedback.correct {
-    color: green;
-}
-
-.feedback.wrong {
-    color: red;
-}
-
-.correct-answer {
-    color: green;
-    font-weight: bold;
-    margin-left: 10px;
-}
+button:hover{background:#2575fc;}
+.feedback{margin-top:10px;font-weight:bold;}
+.correct{color:green;}
+.wrong{color:red;}
 </style>
 </head>
 <body>
 
 <div class="container" id="startScreen">
     <h1>Python Simulation</h1>
-    <p>Bereit für schwerere Python-Challenges?</p>
-    <button onclick="startSimulation()">Start</button>
+    <p>100 Fragen · Python-spezifisch · Zeitbonus</p>
+    <button onclick="startGame()">Start</button>
 </div>
 
-<div class="container" id="simScreen" style="display:none;">
+<div class="container" id="gameScreen" style="display:none;">
     <h1>Python Simulation</h1>
-    <div class="score">Score: <span id="score">0</span></div>
-    <div class="question" id="question">Lade Frage...</div>
-    <input type="text" id="userInput" placeholder="Hier deinen Code oder Wert eingeben">
+    <div class="score">Punkte: <span id="score">0</span> | Frage <span id="count">1</span>/100</div>
+    <div class="timer">Zeit: <span id="time">0.0</span>s</div>
+    <div class="question" id="question"></div>
+    <input id="input" placeholder="Antwort eingeben" autocomplete="off">
     <br>
-    <button id="submitBtn">Prüfen</button>
-    <button id="skipBtn">Überspringen</button>
+    <button id="submit">Prüfen</button>
+    <button id="skip">Überspringen</button>
     <div id="feedback" class="feedback"></div>
 </div>
 
 <script>
-const challenges = [
-    { question: "Setze die Variable x auf 10", check: input => input.trim() === "10", explanation: "x = 10" },
-    { question: "Welche Ausgabe ergibt print('Hello' + 'World')?", check: input => input.trim() === "HelloWorld", explanation: "print('Hello' + 'World')" },
-    { question: "Schreibe True wenn 5 > 3, sonst False", check: input => input.trim().toLowerCase() === "true", explanation: "5 > 3 ergibt True" },
-    { question: "Setze die Liste numbers auf [1, 2, 3]", check: input => input.trim() === "1,2,3", explanation: "numbers = [1,2,3] (für Input einfach 1,2,3)" },
-    { question: "Was ergibt len('Python')?", check: input => input.trim() === "6", explanation: "len('Python') = 6" },
-    { question: "Was ist das Ergebnis von 3 * 4?", check: input => input.trim() === "12", explanation: "3 * 4 = 12" },
-    { question: "Wenn x = 5, was ergibt x > 2?", check: input => input.trim().toLowerCase() === "true", explanation: "5 > 2 = True" },
+/* ================= FRAGENPOOL ================= */
+const baseQuestions = [
+ {q:"Datentyp von []?", a:v=>v==="list", e:"[] ist list"},
+ {q:"None == False?", a:v=>v==="false", e:"None ist nicht False"},
+ {q:"type(5)?", a:v=>v==="int", e:"5 ist int"},
+ {q:"bool(0)?", a:v=>v==="false", e:"0 ist False"},
+ {q:"Was macht break?", a:v=>v==="break", e:"Beendet Schleife"},
+ {q:"len([])?", a:v=>v==="0", e:"Leere Liste → 0"},
+ {q:"Datentyp für Schlüssel-Wert?", a:v=>v==="dict", e:"Dictionary = dict"},
+ {q:"type(True)?", a:v=>v==="bool", e:"True ist bool"},
+ {q:"'a' in 'abc'?", a:v=>v==="true", e:"'a' ist enthalten"},
+ {q:"Was macht continue?", a:v=>v==="continue", e:"Springt zum nächsten Durchlauf"},
+ {q:"Leere Menge?", a:v=>v==="set", e:"set() erzeugt Menge"},
+ {q:"Leerer String?", a:v=>v==="str", e:"'' ist str"},
+ {q:"range(5) Typ?", a:v=>v==="range", e:"range(5) ist range"},
+ {q:"x=[1,2]; x[0]?", a:v=>v==="1", e:"x[0] = 1"},
+ {q:"x={'a':1}; x['a']?", a:v=>v==="1", e:"Wert = 1"},
+ {q:"Boolean NOT True?", a:v=>v==="false", e:"not True = False"},
+ {q:"Boolean OR True/False?", a:v=>v==="true", e:"True or False = True"},
+ {q:"Boolean AND True/False?", a:v=>v==="false", e:"True and False = False"},
+ {q:"type({'a':1})?", a:v=>v==="dict", e:"Dictionary"},
+ {q:"type((1,2))?", a:v=>v==="tuple", e:"Tuple"},
+{q:"x=None; bool(x)?", a:v=>v==="false", e:"None ist False"},
+{q:"'' == False?", a:v=>v==="false", e:"Leerer String ist nicht False"},
+{q:"type(3.14)?", a:v=>v==="float", e:"3.14 ist float"},
+{q:"type([])?", a:v=>v==="list", e:"Liste = list"},
+{q:"type({})?", a:v=>v==="dict", e:"{} ist dict"},
+{q:"tuple aus [1,2,3]?", a:v=>v==="(1,2,3)", e:"tuple([1,2,3]) = (1,2,3)"},
+{q:"x=('a',); type(x)?", a:v=>v==="tuple", e:"Ein Element → tuple"},
+{q:"type(range(3,7))?", a:v=>v==="range", e:"range = range"},
+{q:"x=[1,2]; x[-1]?", a:v=>v==="2", e:"Letztes Element"},
+{q:"x='abc'; x[1]?", a:v=>v==="b", e:"Index beginnt bei 0"},
+{q:"x='abc'; 'b' in x?", a:v=>v==="true", e:"'b' enthalten"},
+{q:"x=[1,2,3]; 2 in x?", a:v=>v==="true", e:"2 ist in Liste"},
+{q:"type(True)?", a:v=>v==="bool", e:"True ist bool"},
+{q:"x='5'; int(x)?", a:v=>v==="5", e:"Konvertierung zu int"},
+{q:"x=5; str(x)?", a:v=>v==="5", e:"Konvertierung zu str"},
+{q:"type(3+4j)?", a:v=>v==="complex", e:"Komplexe Zahl"},
+{q:"x='abc'; x.upper()?", a:v=>v==="ABC", e:"Alles groß"},
+{q:"x='ABC'; x.lower()?", a:v=>v==="abc", e:"Alles klein"},
+{q:"x=' abc '; x.strip()?", a:v=>v==="abc", e:"Whitespace entfernen"},
+{q:"x='abc'; x.replace('a','z')?", a:v=>v==="zbc", e:"Ersetzt Zeichen"},
+{q:"x='abc'; x.split('b')?", a:v=>v==="['a','c']", e:"Teilen an 'b'"},
+{q:"x=[1,2]; x.append(3); x?", a:v=>v==="[1,2,3]", e:"An Liste anhängen"},
+{q:"x=[1,2,3]; x.pop()?", a:v=>v==="3", e:"Letztes Element entfernen"},
+{q:"x={'a':1}; x.keys()?", a:v=>v==="dict_keys(['a'])", e:"Schlüssel abrufen"},
+{q:"x={'a':1}; x.values()?", a:v=>v==="dict_values([1])", e:"Werte abrufen"},
+{q:"x={'a':1}; 'a' in x?", a:v=>v==="true", e:"Schlüssel prüfen"},
+{q:"x={'a':1}; 'b' in x?", a:v=>v==="false", e:"Schlüssel nicht vorhanden"},
+{q:"set([1,2,2])?", a:v=>v==="set([1,2])", e:"Duplikate werden entfernt"},
+{q:"x={1,2}; x.add(3); x?", a:v=>v==="set([1,2,3])", e:"Menge erweitern"},
+{q:"x={1,2,3}; 2 in x?", a:v=>v==="true", e:"Element prüfen"},
+{q:"x={1,2,3}; 4 in x?", a:v=>v==="false", e:"Nicht enthalten"},
+{q:"x='abc'; len(x)?", a:v=>v==="3", e:"3 Zeichen"},
+{q:"x=[1,2,3]; len(x)?", a:v=>v==="3", e:"3 Elemente"},
+{q:"y=x.copy(); x==y?", a:v=>v==="true", e:"Inhalt gleich"},
+{q:"y=x.copy(); x is y?", a:v=>v==="false", e:"Nicht dasselbe Objekt"},
+{q:"x=[1,2]; y=x; x is y?", a:v=>v==="true", e:"Dasselbe Objekt"},
+{q:"x=[1,2]; y=x; x==y?", a:v=>v==="true", e:"Inhalt gleich"},
+{q:"x=(1,2); x[1]?", a:v=>v==="2", e:"Index 1"},
+{q:"x=(1,2); x[1]=3?", a:v=>v==="error", e:"Tuple unveränderlich"},
+{q:"x='abc'; x[0]='z'?", a:v=>v==="error", e:"String unveränderlich"},
+{q:"x=[1,2]; x[0]=5; x?", a:v=>v==="[5,2]", e:"Element ersetzt"},
+{q:"x='abc'; x*2?", a:v=>v==="abcabc", e:"String wiederholt"},
+{q:"[1,2]*3?", a:v=>v==="[1,2,1,2,1,2]", e:"Liste wiederholt"},
+{q:"x=True; not x?", a:v=>v==="false", e:"Boolean invertieren"},
+{q:"x=False; not x?", a:v=>v==="true", e:"Boolean invertieren"},
+{q:"x=True and False?", a:v=>v==="false", e:"AND Operation"},
+{q:"x=True or False?", a:v=>v==="true", e:"OR Operation"},
+{q:"x=5; x>2?", a:v=>v==="true", e:"Vergleich"},
+{q:"x=5; x<2?", a:v=>v==="false", e:"Vergleich"},
+{q:"x=5; x==5?", a:v=>v==="true", e:"Vergleich"},
+{q:"x=5; x!=5?", a:v=>v==="false", e:"Vergleich"},
+{q:"x=5; x>=5?", a:v=>v==="true", e:"Vergleich"},
+{q:"x=5; x<=4?", a:v=>v==="false", e:"Vergleich"},
+{q:"x=[1,2,3]; 2 not in x?", a:v=>v==="false", e:"Element ist in Liste"},
+{q:"x='abc'; 'd' not in x?", a:v=>v==="true", e:"Nicht enthalten"},
+{q:"x={'a':1}; 'a' in x?", a:v=>v==="true", e:"Schlüssel enthalten"},
+{q:"x={'a':1}; 'b' not in x?", a:v=>v==="true", e:"Nicht enthalten"},
+{q:"x=[1,2]; x.append([3,4]); x?", a:v=>v==="[1,2,[3,4]]", e:"Liste in Liste"},
+{q:"x=[1,2,[3,4]]; x[2][1]?", a:v=>v==="4", e:"Verschachteltes Element"},
+{q:"x={'a':[1,2]}; x['a'][1]?", a:v=>v==="2", e:"Wert aus Liste"},
+{q:"x=(1,[2,3]); x[1][0]?", a:v=>v==="2", e:"Verschachteltes Tuple-Element"},
+{q:"x='Python'; x[::2]?", a:v=>v==="Pto", e:"Jedes zweite Zeichen"},
+{q:"x='Python'; x[::-1]?", a:v=>v==="nohtyP", e:"String umkehren"},
+{q:"x=[1,2,3,4]; x[1:3]?", a:v=>v==="[2,3]", e:"Slicing"},
+{q:"x=[1,2,3,4]; x[:2]?", a:v=>v==="[1,2]", e:"Slicing"},
+{q:"x=[1,2,3,4]; x[2:]?", a:v=>v==="[3,4]", e:"Slicing"},
+{q:"x=(1,2,3,4); x[1:3]?", a:v=>v==="(2,3)", e:"Slicing Tuple"},
+{q:"x='abcd'; x.replace('b','z')?", a:v=>v==="azcd", e:"Zeichen ersetzen"},
+{q:"x='abcd'; x.find('c')?", a:v=>v==="2", e:"Index von 'c'"},
+{q:"x='abcd'; x.index('d')?", a:v=>v==="3", e:"Index von 'd'"},
+{q:"x=[1,2,3]; x.index(2)?", a:v=>v==="1", e:"Index von 2"},
+{q:"x='a,b,c'; x.split(',')?", a:v=>v==="['a','b','c']", e:"String teilen"},
+{q:"','.join(['a','b','c'])?", a:v=>v==="a,b,c", e:"Liste zu String"},
+{q:"x={'a':1,'b':2}; list(x.keys())?", a:v=>v==="['a','b']", e:"Schlüsselliste"},
+{q:"x={'a':1,'b':2}; list(x.values())?", a:v=>v==="[1,2]", e:"Wertliste"},
+{q:"x={'a':1,'b':2}; list(x.items())?", a:v=>v==="[('a',1),('b',2)]", e:"Items"},
+{q:"x={1,2,3}; len(x)?", a:v=>v==="3", e:"Menge hat 3 Elemente"},
+{q:"x={1,2}; x.add(3); len(x)?", a:v=>v==="3", e:"Add Element"},
+{q:"x={1,2}; x.remove(2); x?", a:v=>v==="set([1])", e:"Entfernt Element"},
+{q:"x={'a':1}; x.get('a')?", a:v=>v==="1", e:"Wert abrufen"},
+{q:"x={'a':1}; x.get('b','NA')?", a:v=>v==="NA", e:"Default Wert"},
+{q:"x=range(5); list(x)?", a:v=>v==="[0,1,2,3,4]", e:"Range zu Liste"},
+{q:"x=range(2,5); list(x)?", a:v=>v==="[2,3,4]", e:"Range zu Liste"},
+{q:"x=range(5,10,2); list(x)?", a:v=>v==="[5,7,9]", e:"Range mit Schritt"},
+{q:"x=['a','b','c']; ''.join(x)?", a:v=>v==="abc", e:"Liste zu String"},
+{q:"x=tuple('abc'); x?", a:v=>v==="('a','b','c')", e:"String zu Tuple"},
+{q:"x={'x':1}; x.clear(); x?", a:v=>v==="{}", e:"Leeres dict"},
+{q:"x=[1,2,3]; x.clear(); x?", a:v=>v==="[]", e:"Leere Liste"},
+{q:"x={1,2,3}; x.clear(); x?", a:v=>v==="set()", e:"Leere Menge"},
+{q:"x='abc'; x.isalpha()?", a:v=>v==="true", e:"Nur Buchstaben"},
+{q:"x='123'; x.isdigit()?", a:v=>v==="true", e:"Nur Ziffern"},
+{q:"x='abc123'; x.isalnum()?", a:v=>v==="true", e:"Alphanumerisch"},
+{q:"x='abc'; x.islower()?", a:v=>v==="true", e:"Kleinbuchstaben"},
+{q:"x='ABC'; x.isupper()?", a:v=>v==="true", e:"Großbuchstaben"},
+{q:"x='abc'; x.startswith('a')?", a:v=>v==="true", e:"Start"},
+{q:"x='abc'; x.endswith('c')?", a:v=>v==="true", e:"Ende"},
+{q:"x=['a','b']; ','.join(x)?", a:v=>v==="a,b", e:"Join Liste"}
 ];
 
-let score = 0;
-let asked = [];
-let currentChallenge = null;
+/* 100 Fragen generieren */
+let questions=[];
+while(questions.length<100){
+    questions.push(...baseQuestions.map(q=>({
+        question:q.q,
+        check:input=>q.a(input.replace(/\s/g,"").toLowerCase()),
+        explanation:q.e
+    })));
+}
+questions = questions.slice(0,100);
 
-function startSimulation() {
-    document.getElementById('startScreen').style.display = 'none';
-    document.getElementById('simScreen').style.display = 'block';
-    showChallenge();
+/* ================= SPIELSTATUS ================= */
+let index=0;
+let score=0;
+let startTime=0;
+let timerInterval=null;
+let waiting=false;
+
+/* ================= START ================= */
+function startGame(){
+    // Zufällige Reihenfolge bei jedem Start
+    questions = questions.sort(()=>Math.random()-0.5);
+    document.getElementById("startScreen").style.display="none";
+    document.getElementById("gameScreen").style.display="block";
+    showQuestion();
 }
 
-function getRandomChallenge() {
-    let remaining = challenges.filter((_, i) => !asked.includes(i));
-    if(remaining.length === 0) return null;
-    let idx = Math.floor(Math.random() * remaining.length);
-    let realIdx = challenges.indexOf(remaining[idx]);
-    asked.push(realIdx);
-    return challenges[realIdx];
+/* ================= TIMER ================= */
+function startTimer(){
+    startTime=Date.now();
+    timerInterval=setInterval(()=>{
+        document.getElementById("time").innerText=((Date.now()-startTime)/1000).toFixed(1);
+    },100);
+}
+function stopTimer(){
+    clearInterval(timerInterval);
 }
 
-function showChallenge() {
-    const challenge = getRandomChallenge();
-    currentChallenge = challenge;
-    const feedbackDiv = document.getElementById('feedback');
-    feedbackDiv.innerHTML = '';
-    feedbackDiv.className = 'feedback';
-
-    if(!challenge) {
-        document.getElementById('question').innerText = `Simulation beendet! Du hast ${score} Punkte erreicht.`;
-        document.getElementById('userInput').style.display = 'none';
-        document.getElementById('submitBtn').style.display = 'none';
-        document.getElementById('skipBtn').style.display = 'none';
+/* ================= FRAGE ================= */
+function showQuestion(){
+    if(index>=100){
+        endGame();
         return;
     }
-    document.getElementById('question').innerText = challenge.question;
-    document.getElementById('userInput').value = '';
+    waiting=false;
+    document.getElementById("feedback").innerText="";
+    document.getElementById("input").value="";
+    document.getElementById("question").innerText=questions[index].question;
+    document.getElementById("count").innerText=index+1;
+    startTimer();
 }
 
-document.getElementById('submitBtn').addEventListener('click', () => {
-    const input = document.getElementById('userInput').value;
-    const feedbackDiv = document.getElementById('feedback');
+/* ================= PRÜFEN ================= */
+document.getElementById("submit").onclick=()=>{
+    if(waiting) return;
+    stopTimer();
+    const t=(Date.now()-startTime)/1000;
+    const input=document.getElementById("input").value;
+    const q=questions[index];
+    const fb=document.getElementById("feedback");
 
-    if(currentChallenge.check(input)) {
-        score++;
-        feedbackDiv.innerHTML = `Richtig ✅ <span class="correct-answer">Antwort: ${currentChallenge.explanation}</span>`;
-        feedbackDiv.classList.add('correct');
-    } else {
-        feedbackDiv.innerHTML = `Falsch ❌ <span class="correct-answer">Richtige Antwort: ${currentChallenge.explanation}</span><br>Du hast eingegeben: ${input}`;
-        feedbackDiv.classList.add('wrong');
+    if(q.check(input)){
+        let bonus=Math.max(0,Math.floor(10-t)); // Zeitbonus
+        score+=5+bonus;
+        fb.innerHTML=`Richtig ✅ (+${5+bonus})<br>${q.explanation}`;
+        fb.className="feedback correct";
+    }else{
+        fb.innerHTML=`Falsch ❌<br>Richtig: ${q.explanation}`;
+        fb.className="feedback wrong";
     }
+    document.getElementById("score").innerText=score;
+    waiting=true;
+};
 
-    document.getElementById('score').innerText = score;
-    
-setTimeout(showChallenge, 5000); // 5000ms = 5 Sekunden
+/* ================= SKIP ================= */
+document.getElementById("skip").onclick=()=>{
+    stopTimer();
+    index++;
+    showQuestion();
+};
 
+/* ================= ENTER STEUERUNG ================= */
+document.addEventListener("keydown",e=>{
+    if(e.key!=="Enter") return;
+    if(!waiting){
+        document.getElementById("submit").click();
+    }else{
+        index++;
+        showQuestion();
+    }
 });
 
-document.getElementById('skipBtn').addEventListener('click', () => {
-    showChallenge();
-});
+/* ================= ENDE ================= */
+function endGame(){
+    document.getElementById("gameScreen").innerHTML=
+    `<h1>Fertig 🎉</h1>
+     <p>Endpunktzahl: <b>${score}</b></p>
+     <p>100 Fragen · Python-spezifisch · Normal–Schwer</p>
+     <button onclick="location.reload()">Neu starten</button>`;
+}
 </script>
 </body>
 </html>
-
