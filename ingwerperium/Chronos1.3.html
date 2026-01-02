@@ -2,76 +2,33 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>Chronos – Urzeit</title>
-
+<title>Chronos – Urzeit Ökosystem</title>
 <style>
-body{
-  margin:0;
-  font-family:monospace;
-  background:#1c1f24;
-  color:#d6d6d6;
-  display:flex;
-  height:100vh;
-}
-
-#main{
-  flex:3;
-  padding:16px;
-  border-right:1px solid #444;
-}
-
-#side{
-  flex:1;
-  padding:16px;
-  background:#171a1f;
-}
-
-h1,h2{
-  margin:0 0 10px;
-  color:#e0e0e0;
-}
-
-#log{
-  height:45%;
-  background:#111;
-  border:1px solid #333;
-  padding:8px;
-  overflow:auto;
-  font-size:13px;
-}
-
-#table{
-  height:40%;
-  background:#111;
-  border:1px solid #333;
-  padding:8px;
-  margin-top:10px;
-  overflow:auto;
-  font-size:13px;
-}
-
-button{
-  background:#2a2f36;
-  color:#ddd;
-  border:1px solid #555;
-  padding:6px;
-  margin:4px 0;
-  width:100%;
-  cursor:pointer;
-}
-button:hover{
-  background:#3a4048;
-}
+/* ================= STYLES ================= */
+html,body{margin:0;padding:0;height:100%;width:100%;font-family:monospace;background:#1c1f24;color:#d6d6d6;}
+body{display:flex;flex-direction:row;}
+#main{flex:3;display:flex;flex-direction:column;padding:16px;border-right:1px solid #444;height:100vh;box-sizing:border-box;}
+#side{flex:1;display:flex;flex-direction:column;padding:16px;background:#171a1f;height:100vh;box-sizing:border-box;overflow-y:auto;}
+h1,h2{margin:0 0 10px;color:#e0e0e0;}
+#log{flex:1;background:#111;border:1px solid #333;padding:8px;overflow:auto;font-size:13px;margin-bottom:10px;}
+#table{flex:1;background:#111;border:1px solid #333;padding:8px;overflow:auto;font-size:13px;}
+button{background:#2a2f36;color:#ddd;border:1px solid #555;padding:6px;margin:4px 0;cursor:pointer;width:100%;}
+button:hover{background:#3a4048;}
+input[type=file]{display:none;}
 </style>
 </head>
-
 <body>
 
 <div id="main">
   <h1>Chronos – Urzeitliches Ökosystem</h1>
   <div id="log"></div>
   <div id="table"></div>
-  <button onclick="running=!running">Start / Pause</button>
+  <div>
+    <button onclick="running=!running">Start / Pause</button>
+    <button onclick="saveGame()">Speichern</button>
+    <button onclick="document.getElementById('fileInput').click()">Laden</button>
+    <input type="file" id="fileInput" accept=".json" onchange="loadGame(event)">
+  </div>
 </div>
 
 <div id="side">
@@ -87,35 +44,36 @@ button:hover{
 /* ================= BASIS ================= */
 const logBox=document.getElementById("log");
 const tableBox=document.getElementById("table");
-
-function log(text){
-  logBox.innerText+=text+"\n";
-  logBox.scrollTop=logBox.scrollHeight;
-}
-
 let running=true;
 let stepCount=0;
 let seasonIndex=0;
 const seasons=["Frühling","Sommer","Herbst","Winter"];
 
-/* ================= ARTEN (NUR GATTUNGEN) ================= */
+/* ================= ARTEN (Gattungen) ================= */
 const species={
-  // Pflanzen
-  Gräser:{typ:"pflanze",wachstum:0.25,max:1200},
-  Bäume:{typ:"pflanze",wachstum:0.08,max:600},
-  Farne:{typ:"pflanze",wachstum:0.18,max:800},
+  // Pflanzen # hier neue Pflanzenarten hinzufügen
+  Poaceae:{typ:"pflanze",wachstum:0.25,max:1200},      // Gräser
+  Fagus:{typ:"pflanze",wachstum:0.08,max:600},         // Bäume
+  Pteridophyta:{typ:"pflanze",wachstum:0.18,max:800},  // Farne
 
-  // Tiere
-  Pflanzenfresser:{typ:"tier",frisst:["Gräser","Farne"],wachstum:0.12,max:400},
-  Großpflanzenfresser:{typ:"tier",frisst:["Gräser","Bäume"],wachstum:0.06,max:200},
-  Räuber:{typ:"tier",frisst:["Pflanzenfresser"],wachstum:0.05,max:120},
+  // Tiere # hier neue Tiergattungen hinzufügen
+  Proboscidea:{typ:"tier",frisst:["Poaceae","Pteridophyta"],wachstum:0.06,max:200}, // Mammuthus
+  Equus:{typ:"tier",frisst:["Poaceae"],wachstum:0.08,max:150}, // frühe Pferde
+  Carnivora:{typ:"tier",frisst:["Proboscidea","Equus"],wachstum:0.05,max:120}, // Raubtiere
+  Insecta:{typ:"tier",frisst:["Pteridophyta"],wachstum:0.15,max:300}, // z.B. Kellerasseln
 
-  // Pilze
-  Pilze:{typ:"pilz",zersetzt:true, wachstum:0.2,max:900}
+  // Pilze # hier neue Pilzgattungen hinzufügen
+  Basidiomycota:{typ:"pilz",zersetzt:true, wachstum:0.2,max:900} 
 };
 
 let world={};
 Object.keys(species).forEach(s=>world[s]=0);
+
+/* ================= LOG ================= */
+function log(text){
+  logBox.innerText+=text+"\n";
+  logBox.scrollTop=logBox.scrollHeight;
+}
 
 /* ================= DARSTELLUNG ================= */
 function draw(){
@@ -136,28 +94,33 @@ function step(){
     log(`— Neue Jahreszeit: ${seasons[seasonIndex]} —`);
   }
 
-  /* Wachstum */
+  /* Wachstum & Überleben */
   Object.entries(species).forEach(([name,sp])=>{
     if(world[name]<=0) return;
 
     let seasonFactor=1;
-    if(seasons[seasonIndex]==="Winter" && stepCount%50===0) seasonFactor=0.4;
-    if(seasons[seasonIndex]==="Sommer" && stepCount%50===0) seasonFactor=1.2;
+    if(seasons[seasonIndex]==="Winter") seasonFactor=0.4;
+    if(seasons[seasonIndex]==="Sommer") seasonFactor=1.2;
 
     let foodFactor=1;
     if(sp.frisst){
       const food=sp.frisst.reduce((s,f)=>s+(world[f]||0),0);
-      if(food<=0) foodFactor=0.2;
+      if(food<=0) foodFactor=0.2; // zu wenig Nahrung -> langsames Sterben
     }
 
     const delta=Math.floor(
-      world[name]*sp.wachstum*seasonFactor*foodFactor*
-      (1-world[name]/sp.max)
+      world[name]*sp.wachstum*seasonFactor*foodFactor*(1-world[name]/sp.max)
     );
 
     if(delta>0){
       world[name]+=delta;
       log(`${name} wachsen (+${delta})`);
+    } else if(sp.frisst && foodFactor<0.5){ 
+      // langsam sterben ohne Nahrung # hier kann man Sterberaten anpassen
+      const sterbe=Math.max(1,Math.floor(world[name]*0.05));
+      world[name]-=sterbe;
+      log(`${name} stirbt wegen Nahrungsknappheit (-${sterbe})`);
+      if(world[name]<0) world[name]=0;
     }
   });
 
@@ -176,12 +139,12 @@ function step(){
   });
 
   /* Pilze – Zersetzer */
-  if(world["Pilze"]>0){
+  if(world["Basidiomycota"]>0){
     const tote=Math.floor(
-      (world["Pflanzenfresser"]+world["Großpflanzenfresser"])*0.03
+      (world["Proboscidea"]+world["Equus"])*0.03
     );
     if(tote>0){
-      world["Pilze"]+=tote;
+      world["Basidiomycota"]+=tote;
       log(`Pilze vermehren sich durch Zersetzung (+${tote})`);
     }
   }
@@ -189,7 +152,7 @@ function step(){
   draw();
 }
 
-/* ================= ZEIT (LANGSAM) ================= */
+/* ================= ZEIT ================= */
 setInterval(()=>{ if(running) step(); },5000);
 
 /* ================= BUTTONS ================= */
@@ -210,7 +173,39 @@ function addButtons(){
 
 addButtons();
 draw();
+
+/* ================= SPIEL SPEICHERN & LADEN ================= */
+function saveGame(){
+  const data=JSON.stringify(world);
+  const blob=new Blob([data],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download="chronos_save.json";
+  a.click();
+  URL.revokeObjectURL(url);
+  log("Spiel gespeichert.");
+}
+
+function loadGame(event){
+  const file=event.target.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      Object.keys(world).forEach(k=>world[k]=data[k]||0);
+      log("Spiel geladen.");
+      draw();
+    }catch{
+      alert("Fehler beim Laden.");
+    }
+  };
+  reader.readAsText(file);
+  event.target.value="";
+}
 </script>
 </body>
 </html>
+
 
