@@ -2,36 +2,89 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>Chronos – Ökosystem</title>
+<title>Chronos – Urzeit</title>
+
 <style>
-body{margin:0;font-family:monospace;background:#071;color:#bfb;display:flex;height:100vh}
-#left{flex:3;padding:15px;border-right:2px solid #3f3}
-#right{flex:1;padding:15px;background:#020}
-h1,h2{margin:0 0 10px}
-#log{height:45%;overflow:auto;border:1px solid #3f3;padding:8px;background:#000}
-#table{height:40%;overflow:auto;border:1px solid #3f3;margin-top:10px}
-button{background:#040;color:#cfc;border:1px solid #3f3;padding:5px;margin:3px;cursor:pointer}
-button:hover{background:#090}
+body{
+  margin:0;
+  font-family:monospace;
+  background:#1c1f24;
+  color:#d6d6d6;
+  display:flex;
+  height:100vh;
+}
+
+#main{
+  flex:3;
+  padding:16px;
+  border-right:1px solid #444;
+}
+
+#side{
+  flex:1;
+  padding:16px;
+  background:#171a1f;
+}
+
+h1,h2{
+  margin:0 0 10px;
+  color:#e0e0e0;
+}
+
+#log{
+  height:45%;
+  background:#111;
+  border:1px solid #333;
+  padding:8px;
+  overflow:auto;
+  font-size:13px;
+}
+
+#table{
+  height:40%;
+  background:#111;
+  border:1px solid #333;
+  padding:8px;
+  margin-top:10px;
+  overflow:auto;
+  font-size:13px;
+}
+
+button{
+  background:#2a2f36;
+  color:#ddd;
+  border:1px solid #555;
+  padding:6px;
+  margin:4px 0;
+  width:100%;
+  cursor:pointer;
+}
+button:hover{
+  background:#3a4048;
+}
 </style>
 </head>
 
 <body>
-<div id="left">
-<h1>Chronos – Ökosystem</h1>
-<div id="log"></div>
-<div id="table"></div>
-<button onclick="running=!running">Start / Stop</button>
+
+<div id="main">
+  <h1>Chronos – Urzeitliches Ökosystem</h1>
+  <div id="log"></div>
+  <div id="table"></div>
+  <button onclick="running=!running">Start / Pause</button>
 </div>
 
-<div id="right">
-<h2>Pflanzen</h2>
-<div id="plants"></div>
-<h2>Tiere</h2>
-<div id="animals"></div>
+<div id="side">
+  <h2>Pflanzen</h2>
+  <div id="plants"></div>
+  <h2>Tiere</h2>
+  <div id="animals"></div>
+  <h2>Pilze</h2>
+  <div id="fungi"></div>
 </div>
 
 <script>
-/* ========= HILFSFUNKTION ========= */
+/* ================= BASIS ================= */
 const logBox=document.getElementById("log");
 const tableBox=document.getElementById("table");
 
@@ -40,135 +93,124 @@ function log(text){
   logBox.scrollTop=logBox.scrollHeight;
 }
 
-/* ========= ZEIT ========= */
 let running=true;
+let stepCount=0;
 let seasonIndex=0;
 const seasons=["Frühling","Sommer","Herbst","Winter"];
 
-/* ========= ARTEN ========= */
+/* ================= ARTEN (NUR GATTUNGEN) ================= */
 const species={
-  Gras:{typ:"pflanze",wachstum:0.4,max:1200},
-  Beeren:{typ:"pflanze",wachstum:0.25,max:600},
-  Eiche:{typ:"pflanze",wachstum:0.05,max:300},
-  Pilze:{typ:"pflanze",wachstum:0.2,max:500,symbiose:["Eiche"]},
-  Algen:{typ:"pflanze",wachstum:0.6,max:2000},
+  // Pflanzen
+  Gräser:{typ:"pflanze",wachstum:0.25,max:1200},
+  Bäume:{typ:"pflanze",wachstum:0.08,max:600},
+  Farne:{typ:"pflanze",wachstum:0.18,max:800},
 
-  Raupe:{typ:"tier",frisst:["Gras","Beeren"],wachstum:0.3,max:400,krankheit:"Pilzbefall"},
-  Hase:{typ:"tier",frisst:["Gras","Beeren"],wachstum:0.2,max:250},
-  Reh:{typ:"tier",frisst:["Gras","Beeren"],wachstum:0.15,max:180},
-  Fisch:{typ:"tier",frisst:["Algen"],wachstum:0.25,max:400},
+  // Tiere
+  Pflanzenfresser:{typ:"tier",frisst:["Gräser","Farne"],wachstum:0.12,max:400},
+  Großpflanzenfresser:{typ:"tier",frisst:["Gräser","Bäume"],wachstum:0.06,max:200},
+  Räuber:{typ:"tier",frisst:["Pflanzenfresser"],wachstum:0.05,max:120},
 
-  Vogel:{typ:"tier",frisst:["Raupe"],wachstum:0.2,max:150},
-  Fuchs:{typ:"tier",frisst:["Hase","Raupe"],wachstum:0.12,max:90},
-  Wolf:{typ:"tier",frisst:["Reh","Hase"],wachstum:0.08,max:70},
-  Otter:{typ:"tier",frisst:["Fisch"],wachstum:0.1,max:60},
+  // Pilze
+  Pilze:{typ:"pilz",zersetzt:true, wachstum:0.2,max:900}
 };
 
-/* ========= KRANKHEITEN ========= */
-const diseases={
-  Pilzbefall:{chance:0.25,verlust:0.2}
-};
-
-/* ========= WELT ========= */
 let world={};
 Object.keys(species).forEach(s=>world[s]=0);
 
-/* ========= DARSTELLUNG ========= */
+/* ================= DARSTELLUNG ================= */
 function draw(){
-  tableBox.innerHTML=`🌍 Jahreszeit: ${seasons[seasonIndex]}<br><br>`;
+  tableBox.innerHTML=`Jahreszeit: ${seasons[seasonIndex]}<br><br>`;
   Object.entries(world).forEach(([k,v])=>{
     if(v>0) tableBox.innerHTML+=`${k}: ${v}<br>`;
   });
   tableBox.scrollTop=tableBox.scrollHeight;
 }
 
-/* ========= SIMULATION ========= */
+/* ================= SIMULATION ================= */
 function step(){
-  seasonIndex=(seasonIndex+1)%4;
-  log(`— ${seasons[seasonIndex]} beginnt —`);
+  stepCount++;
 
-  // Wachstum
+  // Jahreszeiten ändern nur alle 50 Schritte
+  if(stepCount % 50 === 0){
+    seasonIndex=(seasonIndex+1)%4;
+    log(`— Neue Jahreszeit: ${seasons[seasonIndex]} —`);
+  }
+
+  /* Wachstum */
   Object.entries(species).forEach(([name,sp])=>{
     if(world[name]<=0) return;
 
     let seasonFactor=1;
-    if(seasons[seasonIndex]==="Winter"&&sp.typ==="pflanze") seasonFactor=0.3;
-    if(seasons[seasonIndex]==="Frühling") seasonFactor=1.3;
+    if(seasons[seasonIndex]==="Winter" && stepCount%50===0) seasonFactor=0.4;
+    if(seasons[seasonIndex]==="Sommer" && stepCount%50===0) seasonFactor=1.2;
 
     let foodFactor=1;
     if(sp.frisst){
       const food=sp.frisst.reduce((s,f)=>s+(world[f]||0),0);
-      if(food<=0) foodFactor=0.25;
-    }
-
-    let symbiose=1;
-    if(sp.symbiose){
-      sp.symbiose.forEach(p=>{
-        if(world[p]>0) symbiose+=0.2;
-      });
+      if(food<=0) foodFactor=0.2;
     }
 
     const delta=Math.floor(
-      world[name]*sp.wachstum*seasonFactor*foodFactor*symbiose*
+      world[name]*sp.wachstum*seasonFactor*foodFactor*
       (1-world[name]/sp.max)
     );
 
     if(delta>0){
       world[name]+=delta;
-      log(`${name} wächst (+${delta})`);
+      log(`${name} wachsen (+${delta})`);
     }
   });
 
-  // Fressen
+  /* Fressen */
   Object.entries(species).forEach(([pred,sp])=>{
     if(!sp.frisst||world[pred]<=0) return;
     sp.frisst.forEach(prey=>{
       if(world[prey]>0){
-        const eat=Math.min(world[prey],Math.floor(world[pred]*0.2));
+        const eat=Math.min(world[prey],Math.floor(world[pred]*0.15));
         if(eat>0){
           world[prey]-=eat;
-          log(`${pred} frisst ${prey} (-${eat})`);
+          log(`${pred} fressen ${prey} (-${eat})`);
         }
       }
     });
   });
 
-  // Krankheiten
-  Object.entries(species).forEach(([name,sp])=>{
-    if(world[name]<=0||!sp.krankheit) return;
-    const d=diseases[sp.krankheit];
-    if(Math.random()<d.chance){
-      const loss=Math.floor(world[name]*d.verlust);
-      world[name]-=loss;
-      log(`⚠️ ${name} erkrankt (-${loss})`);
+  /* Pilze – Zersetzer */
+  if(world["Pilze"]>0){
+    const tote=Math.floor(
+      (world["Pflanzenfresser"]+world["Großpflanzenfresser"])*0.03
+    );
+    if(tote>0){
+      world["Pilze"]+=tote;
+      log(`Pilze vermehren sich durch Zersetzung (+${tote})`);
     }
-  });
+  }
 
   draw();
 }
 
-setInterval(()=>{ if(running) step(); },1200);
+/* ================= ZEIT (LANGSAM) ================= */
+setInterval(()=>{ if(running) step(); },5000);
 
-/* ========= BUTTONS ========= */
-const p=document.getElementById("plants");
-const a=document.getElementById("animals");
+/* ================= BUTTONS ================= */
+function addButtons(){
+  Object.entries(species).forEach(([n,s])=>{
+    const b=document.createElement("button");
+    b.innerText=n;
+    b.onclick=()=>{
+      world[n]+=s.typ==="pflanze"?80: s.typ==="tier"?20:40;
+      log(`${n} entstehen`);
+      draw();
+    };
+    document.getElementById(
+      s.typ==="pflanze"?"plants":s.typ==="tier"?"animals":"fungi"
+    ).appendChild(b);
+  });
+}
 
-Object.entries(species).forEach(([n,s])=>{
-  const b=document.createElement("button");
-  b.innerText=n;
-  b.onclick=()=>{
-    world[n]+=s.typ==="pflanze"?50:10;
-    log(`${n} erschaffen`);
-    draw();
-  };
-  (s.typ==="pflanze"?p:a).appendChild(b);
-});
-
+addButtons();
 draw();
 </script>
-</body>
-</html>
-
 </body>
 </html>
 
