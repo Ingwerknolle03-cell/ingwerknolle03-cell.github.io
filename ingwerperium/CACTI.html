@@ -302,7 +302,6 @@ class World {
         this.spawnParticles(fb.x+fb.w/2,fb.y,fb.color);
         this.saveSP();
 
-        // Plop-Sound – Pan je nach x-Position in der Welt
         const pan = ((fb.x + fb.w/2) / this.ww) * 2 - 1;
         playPlop(pan * 0.6);
 
@@ -432,7 +431,7 @@ function startGame(m){
     :[new World(0,800,'Du','ArrowLeft','ArrowRight')];
   running=true;
   if(raf)cancelAnimationFrame(raf);
-  // AudioContext erst nach User-Geste starten
+
   getAudio().resume().then(startMusic);
   lastTime=performance.now();
   loop(lastTime);
@@ -454,7 +453,6 @@ function loop(time){
     const secs=totalSecs%60;
     ctx.fillStyle='#1a3d0a';
     ctx.font='bold 13px Courier New'; ctx.textAlign='center';
-    ctx.fillText(`${mins}:${secs.toString().padStart(2,'0')}                          `,400,18);
 
     const deadPlayers=worlds.filter(w=>w.missedBlock>=20);
     if(deadPlayers.length>0){
