@@ -428,7 +428,7 @@ function startGame(m){
   document.getElementById('touch-controls').style.display=isMobile?'flex':'none';
   worlds=m==='pvp'
     ?[new World(0,400,'P1','a','d'),new World(400,400,'P2','ArrowLeft','ArrowRight')]
-    :[new World(0,800,'Du','ArrowLeft','ArrowRight')];
+    :[new World(0,800,'ArrowLeft','ArrowRight')];
   running=true;
   if(raf)cancelAnimationFrame(raf);
 
