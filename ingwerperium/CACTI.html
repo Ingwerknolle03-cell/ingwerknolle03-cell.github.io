@@ -398,7 +398,7 @@ class World {
     if(mode==='sp'){
       ctx.font='12px Courier New';
       ctx.fillStyle='#7a4a10';
-      ctx.fillText(`Rekord: ${spBestHeight}`,8,42);
+      ctx.fillText(`Record: ${spBestHeight}`,8,42);
     } else if(mode==='pvp'){
       ctx.font='12px Courier New';
       ctx.fillStyle='#cc2200';
@@ -454,7 +454,7 @@ function loop(time){
     const secs=totalSecs%60;
     ctx.fillStyle='#1a3d0a';
     ctx.font='bold 13px Courier New'; ctx.textAlign='center';
-    ctx.fillText(`${mins}:${secs.toString().padStart(2,'0')}`,400,18);
+    ctx.fillText(`${mins}:${secs.toString().padStart(2,'0')}                          `,400,18);
 
     const deadPlayers=worlds.filter(w=>w.missedBlock>=20);
     if(deadPlayers.length>0){
