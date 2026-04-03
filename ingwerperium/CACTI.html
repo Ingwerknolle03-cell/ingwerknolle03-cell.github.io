@@ -49,7 +49,6 @@ h1 { font-size:clamp(28px,6vw,56px); color:#1a3d0a; letter-spacing:4px; text-sha
 <script>
 (function(){
 
-/* ───────────── AUDIO ENGINE ───────────── */
 let audioCtx = null;
 let musicNodes = null;
 
@@ -58,7 +57,6 @@ function getAudio() {
   return audioCtx;
 }
 
-// Plop: kurzer Attack, schneller Decay
 function playPlop(pan) {
   const ac = getAudio();
   const osc = ac.createOscillator();
@@ -84,7 +82,6 @@ function playPlop(pan) {
   osc.stop(ac.currentTime + 0.2);
 }
 
-// Kristall: mehrere hohe Sinuswellen, kurzer Decay, leichtes Vibrato
 function playCrystal(pan) {
   const ac = getAudio();
   const master = ac.createGain();
@@ -92,7 +89,6 @@ function playCrystal(pan) {
   master.gain.setValueAtTime(0.45, ac.currentTime);
   master.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 1.4);
 
-  // Harmonisch gestimmte Partials – klingt wie eine Klangschale
   const partials = [
     {freq: 1047, gain: 0.5},
     {freq: 1568, gain: 0.35},
@@ -105,7 +101,7 @@ function playCrystal(pan) {
     const osc = ac.createOscillator();
     const g = ac.createGain();
     osc.type = 'sine';
-    // kleine Zufallsvariation damit es lebt
+
     osc.frequency.value = p.freq * (1 + (Math.random() - 0.5) * 0.004);
     g.gain.setValueAtTime(p.gain, ac.currentTime);
     g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 1.2);
@@ -115,7 +111,7 @@ function playCrystal(pan) {
     osc.stop(ac.currentTime + 1.5);
   }
 
-  // Shimmer: schneller tremolo
+
   const lfo = ac.createOscillator();
   const lfoGain = ac.createGain();
   lfo.frequency.value = 14;
@@ -134,7 +130,7 @@ function playCrystal(pan) {
   }
 }
 
-// Hintergrundmusik: ruhige pentatonische Melodie + leichter Bass-Puls
+
 function startMusic() {
   if (musicNodes) return;
   const ac = getAudio();
@@ -142,7 +138,6 @@ function startMusic() {
   masterGain.gain.value = 0.18;
   masterGain.connect(ac.destination);
 
-  // Pentatonische Töne (D-Dur Pentatonik)
   const scale = [293.66, 329.63, 369.99, 440.00, 493.88, 587.33, 659.26, 739.99];
   const bassDrums = [73.42, 110.00]; // D2, A2
 
@@ -181,7 +176,7 @@ function startMusic() {
     osc.stop(time + beat);
   }
 
-  // Loopahead-Scheduler
+
   let nextNoteTime = ac.currentTime + 0.1;
   let nextBassTime = ac.currentTime + 0.1;
   let melodyEvery = 2; // Melody alle 2 Beats
@@ -213,7 +208,7 @@ function stopMusic() {
   musicNodes = null;
 }
 
-/* ───────────── GAME ENGINE ───────────── */
+
 const canvas = document.getElementById('gc');
 const ctx = canvas.getContext('2d');
 const CW=800, CH=600, BW=46, BH=38, FALL_SPEED=1.5;
@@ -311,12 +306,12 @@ class World {
         const pan = ((fb.x + fb.w/2) / this.ww) * 2 - 1;
         playPlop(pan * 0.6);
 
-        // Blüte (20% Chance)
+     
         if(Math.random()<0.20){
           const offsetX=Math.random()*(fb.w-8)+2;
           this.flowers.push(new Flower(newIndex, offsetX, fb.y,
             FLOWER_COLS[Math.floor(Math.random()*FLOWER_COLS.length)]));
-          // Kristall-Sound
+        
           playCrystal(pan * 0.5);
         }
       } else if(fb.y>GROUND_Y+100){
