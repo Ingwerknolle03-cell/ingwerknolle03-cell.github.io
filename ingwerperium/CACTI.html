@@ -15,9 +15,30 @@ h1 { font-size:clamp(28px,6vw,56px); color:#1a3d0a; letter-spacing:4px; text-sha
 .btn { background:#1a3d0a; color:#c9933a; border:none; padding:12px 32px; font-size:clamp(13px,2.2vw,18px); font-family:'Courier New',monospace; cursor:pointer; letter-spacing:2px; margin:5px; border-radius:3px; }
 .btn:hover { background:#2d6b15; }
 .hint { font-size:11px; color:#2d5a1b; text-align:center; line-height:2; letter-spacing:1px; margin-top:16px; }
-#touch-controls { position: absolute; bottom: 20px; left: 20px; right: 20px; display: none; flex-direction: row; justify-content: space-between; align-items: flex-end; pointer-events: none; z-index: 100; }
-.touch-btn { width:72px; height:72px; border-radius:50%; background:rgba(26,93,10,0.8); border:3px solid #c9933a; display:flex; align-items:center; justify-content:center; font-size:22px; color:#c9933a; font-weight:bold; font-family:'Courier New',monospace; cursor:pointer; pointer-events:auto; }
+
+/* Single player: one button left, one right */
+#touch-controls-sp {
+  position: absolute; bottom: 20px; left: 20px; right: 20px;
+  display: none; flex-direction: row; justify-content: space-between; align-items: flex-end;
+  pointer-events: none; z-index: 100;
+}
+
+/* 2-player: P1 gets two buttons bottom-left, P2 gets two buttons bottom-right */
+#touch-controls-pvp {
+  position: absolute; bottom: 20px; left: 0; right: 0;
+  display: none; flex-direction: row; justify-content: space-between; align-items: flex-end;
+  pointer-events: none; z-index: 100; padding: 0 12px;
+}
+.touch-group { display: flex; flex-direction: row; gap: 10px; pointer-events: auto; }
+.touch-btn {
+  width:72px; height:72px; border-radius:50%;
+  background:rgba(26,93,10,0.8); border:3px solid #c9933a;
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; color:#c9933a; font-weight:bold; font-family:'Courier New',monospace;
+  cursor:pointer; pointer-events:auto; user-select:none; -webkit-user-select:none;
+}
 .touch-btn:active { background:rgba(45,107,21,0.9); transform:scale(0.95); }
+
 #win-msg { font-size:clamp(20px,4.5vw,40px); color:#1a3d0a; margin-bottom:20px; letter-spacing:2px; text-align:center; padding:0 20px; }
 </style>
 </head>
@@ -40,9 +61,23 @@ h1 { font-size:clamp(28px,6vw,56px); color:#1a3d0a; letter-spacing:4px; text-sha
   <div id="win-msg"></div>
   <button class="btn" onclick="resetGame()">↺</button>
 </div>
-<div id="touch-controls">
-  <div><div class="touch-btn" id="touch-left">←</div></div>
-  <div><div class="touch-btn" id="touch-right">→</div></div>
+
+<!-- Singleplayer touch controls: one button each side -->
+<div id="touch-controls-sp">
+  <div><div class="touch-btn" id="sp-left">←</div></div>
+  <div><div class="touch-btn" id="sp-right">→</div></div>
+</div>
+
+<!-- 2-Player touch controls: P1 has ← → on the left, P2 has ← → on the right -->
+<div id="touch-controls-pvp">
+  <div class="touch-group">
+    <div class="touch-btn" id="p1-left">←</div>
+    <div class="touch-btn" id="p1-right">→</div>
+  </div>
+  <div class="touch-group">
+    <div class="touch-btn" id="p2-left">←</div>
+    <div class="touch-btn" id="p2-right">→</div>
+  </div>
 </div>
 </div>
 
@@ -62,14 +97,11 @@ function playPlop(pan) {
   const osc = ac.createOscillator();
   const gain = ac.createGain();
   const panner = ac.createStereoPanner ? ac.createStereoPanner() : null;
-
   osc.type = 'sine';
   osc.frequency.setValueAtTime(260, ac.currentTime);
   osc.frequency.exponentialRampToValueAtTime(90, ac.currentTime + 0.12);
-
   gain.gain.setValueAtTime(0.55, ac.currentTime);
   gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.18);
-
   osc.connect(gain);
   if (panner) {
     panner.pan.value = Math.max(-1, Math.min(1, pan || 0));
@@ -88,20 +120,14 @@ function playCrystal(pan) {
   const panner = ac.createStereoPanner ? ac.createStereoPanner() : null;
   master.gain.setValueAtTime(0.45, ac.currentTime);
   master.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 1.4);
-
   const partials = [
-    {freq: 1047, gain: 0.5},
-    {freq: 1568, gain: 0.35},
-    {freq: 2093, gain: 0.2},
-    {freq: 2637, gain: 0.12},
-    {freq: 3520, gain: 0.07},
+    {freq: 1047, gain: 0.5},{freq: 1568, gain: 0.35},{freq: 2093, gain: 0.2},
+    {freq: 2637, gain: 0.12},{freq: 3520, gain: 0.07},
   ];
-
   for (const p of partials) {
     const osc = ac.createOscillator();
     const g = ac.createGain();
     osc.type = 'sine';
-
     osc.frequency.value = p.freq * (1 + (Math.random() - 0.5) * 0.004);
     g.gain.setValueAtTime(p.gain, ac.currentTime);
     g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 1.2);
@@ -110,8 +136,6 @@ function playCrystal(pan) {
     osc.start(ac.currentTime);
     osc.stop(ac.currentTime + 1.5);
   }
-
-
   const lfo = ac.createOscillator();
   const lfoGain = ac.createGain();
   lfo.frequency.value = 14;
@@ -120,7 +144,6 @@ function playCrystal(pan) {
   lfoGain.connect(master.gain);
   lfo.start(ac.currentTime);
   lfo.stop(ac.currentTime + 1.5);
-
   if (panner) {
     panner.pan.value = Math.max(-1, Math.min(1, pan || 0));
     master.connect(panner);
@@ -130,22 +153,17 @@ function playCrystal(pan) {
   }
 }
 
-
 function startMusic() {
   if (musicNodes) return;
   const ac = getAudio();
   const masterGain = ac.createGain();
   masterGain.gain.value = 0.18;
   masterGain.connect(ac.destination);
-
   const scale = [293.66, 329.63, 369.99, 440.00, 493.88, 587.33, 659.26, 739.99];
-  const bassDrums = [73.42, 110.00]; // D2, A2
-
-  let step = 0;
+  const bassDrums = [73.42, 110.00];
   let bassStep = 0;
   const BPM = 72;
   const beat = 60 / BPM;
-
   function scheduleMelodyNote(time) {
     const freq = scale[Math.floor(Math.random() * scale.length)];
     const osc = ac.createOscillator();
@@ -155,12 +173,9 @@ function startMusic() {
     g.gain.setValueAtTime(0, time);
     g.gain.linearRampToValueAtTime(0.4, time + 0.04);
     g.gain.exponentialRampToValueAtTime(0.001, time + beat * 1.8);
-    osc.connect(g);
-    g.connect(masterGain);
-    osc.start(time);
-    osc.stop(time + beat * 2);
+    osc.connect(g); g.connect(masterGain);
+    osc.start(time); osc.stop(time + beat * 2);
   }
-
   function scheduleBassNote(time) {
     const freq = bassDrums[bassStep % bassDrums.length];
     bassStep++;
@@ -170,23 +185,17 @@ function startMusic() {
     osc.frequency.value = freq;
     g.gain.setValueAtTime(0.6, time);
     g.gain.exponentialRampToValueAtTime(0.001, time + beat * 0.7);
-    osc.connect(g);
-    g.connect(masterGain);
-    osc.start(time);
-    osc.stop(time + beat);
+    osc.connect(g); g.connect(masterGain);
+    osc.start(time); osc.stop(time + beat);
   }
-
-
   let nextNoteTime = ac.currentTime + 0.1;
   let nextBassTime = ac.currentTime + 0.1;
-  let melodyEvery = 2; // Melody alle 2 Beats
   let melodyCount = 0;
-
   const intervalId = setInterval(() => {
     if (!musicNodes) { clearInterval(intervalId); return; }
     const lookAhead = 0.3;
     while (nextNoteTime < ac.currentTime + lookAhead) {
-      if (melodyCount % melodyEvery === 0) scheduleMelodyNote(nextNoteTime);
+      if (melodyCount % 2 === 0) scheduleMelodyNote(nextNoteTime);
       melodyCount++;
       nextNoteTime += beat;
     }
@@ -195,19 +204,15 @@ function startMusic() {
       nextBassTime += beat * 2;
     }
   }, 80);
-
   musicNodes = { masterGain, intervalId };
 }
 
 function stopMusic() {
   if (!musicNodes) return;
   clearInterval(musicNodes.intervalId);
-  try {
-    musicNodes.masterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
-  } catch(e){}
+  try { musicNodes.masterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5); } catch(e){}
   musicNodes = null;
 }
-
 
 const canvas = document.getElementById('gc');
 const ctx = canvas.getContext('2d');
@@ -218,9 +223,15 @@ const SAND='#c9933a', GROUND_Y=CH-55;
 const MOVE_SPEED=4.5;
 
 let worlds=[], mode=null, running=false, raf=null, gameTime=0;
-const keys={}, touchKeys={left:false,right:false};
-let spBestHeight=0;
+const keys={};
 
+// Separate touch state per player
+const touchKeys = {
+  p1: { left: false, right: false },
+  p2: { left: false, right: false }
+};
+
+let spBestHeight=0;
 try {
   const saved=localStorage.getItem('kaktus_sp');
   if(saved){const d=JSON.parse(saved);spBestHeight=d.bestHeight||0;}
@@ -250,9 +261,11 @@ class Flower {
   }
 }
 
+// World now takes a touchPlayer ('p1' or 'p2' or null for SP)
 class World {
-  constructor(ox,ww,name,lk,rk){
+  constructor(ox,ww,name,lk,rk,touchPlayer){
     this.ox=ox; this.ww=ww; this.name=name; this.lk=lk; this.rk=rk;
+    this.touchPlayer=touchPlayer; // 'p1', 'p2', or null
     this.score=0; this.camY=0; this.shake=0;
     this.particles=[]; this.flowers=[]; this.spawnTimer=100;
     this.missedBlock=0; this.missCooldown=0; this.gameOver=false;
@@ -262,6 +275,15 @@ class World {
   topBlock(){return this.stack[this.stack.length-1];}
   height(){return this.stack.length-1;}
 
+  isLeft() {
+    const tk = this.touchPlayer ? touchKeys[this.touchPlayer] : null;
+    return keys[this.lk] || (tk && tk.left);
+  }
+  isRight() {
+    const tk = this.touchPlayer ? touchKeys[this.touchPlayer] : null;
+    return keys[this.rk] || (tk && tk.right);
+  }
+
   update(){
     if(this.gameOver)return;
     this.shake*=0.8;
@@ -269,8 +291,8 @@ class World {
     const targetCam=top.y-CH*0.38;
     this.camY+=(targetCam-this.camY)*0.08;
 
-    if(keys[this.lk]||touchKeys.left) top.x-=MOVE_SPEED;
-    if(keys[this.rk]||touchKeys.right) top.x+=MOVE_SPEED;
+    if(this.isLeft()) top.x-=MOVE_SPEED;
+    if(this.isRight()) top.x+=MOVE_SPEED;
     top.x=Math.max(0,Math.min(this.ww-top.w,top.x));
 
     for(let i=this.stack.length-2;i>=0;i--){
@@ -301,16 +323,12 @@ class World {
         this.shake=3;
         this.spawnParticles(fb.x+fb.w/2,fb.y,fb.color);
         this.saveSP();
-
         const pan = ((fb.x + fb.w/2) / this.ww) * 2 - 1;
         playPlop(pan * 0.6);
-
-     
         if(Math.random()<0.20){
           const offsetX=Math.random()*(fb.w-8)+2;
           this.flowers.push(new Flower(newIndex, offsetX, fb.y,
             FLOWER_COLS[Math.floor(Math.random()*FLOWER_COLS.length)]));
-        
           playCrystal(pan * 0.5);
         }
       } else if(fb.y>GROUND_Y+100){
@@ -425,13 +443,27 @@ class World {
 function startGame(m){
   mode=m; gameTime=0;
   document.getElementById('overlay').style.display='none';
-  document.getElementById('touch-controls').style.display=isMobile?'flex':'none';
-  worlds=m==='pvp'
-    ?[new World(0,400,'P1','a','d'),new World(400,400,'P2','ArrowLeft','ArrowRight')]
-    :[new World(0,800,'☆','ArrowLeft','ArrowRight')];
+
+  // Show correct touch controls
+  const spCtrl = document.getElementById('touch-controls-sp');
+  const pvpCtrl = document.getElementById('touch-controls-pvp');
+  if (isMobile) {
+    spCtrl.style.display = m === 'sp' ? 'flex' : 'none';
+    pvpCtrl.style.display = m === 'pvp' ? 'flex' : 'none';
+  } else {
+    spCtrl.style.display = 'none';
+    pvpCtrl.style.display = 'none';
+  }
+
+  worlds = m === 'pvp'
+    ? [
+        new World(0,   400, 'P1', 'a', 'd',           'p1'),
+        new World(400, 400, 'P2', 'ArrowLeft', 'ArrowRight', 'p2')
+      ]
+    : [new World(0, 800, '☆', 'ArrowLeft', 'ArrowRight', 'p1')];
+
   running=true;
   if(raf)cancelAnimationFrame(raf);
-
   getAudio().resume().then(startMusic);
   lastTime=performance.now();
   loop(lastTime);
@@ -448,12 +480,6 @@ function loop(time){
 
   if(mode==='pvp'){
     ctx.fillStyle='#1a3d0a'; ctx.fillRect(400,0,2,CH);
-    const totalSecs=Math.floor(gameTime/60);
-    const mins=Math.floor(totalSecs/60);
-    const secs=totalSecs%60;
-    ctx.fillStyle='#1a3d0a';
-    ctx.font='bold 13px Courier New'; ctx.textAlign='center';
-
     const deadPlayers=worlds.filter(w=>w.missedBlock>=20);
     if(deadPlayers.length>0){
       running=false;
@@ -493,15 +519,29 @@ function resetGame(){
   stopMusic();
   document.getElementById('win-screen').style.display='none';
   document.getElementById('overlay').style.display='flex';
-  document.getElementById('touch-controls').style.display='none';
-  touchKeys.left=false; touchKeys.right=false;
+  document.getElementById('touch-controls-sp').style.display='none';
+  document.getElementById('touch-controls-pvp').style.display='none';
+  touchKeys.p1.left=false; touchKeys.p1.right=false;
+  touchKeys.p2.left=false; touchKeys.p2.right=false;
 }
 
-['touch-left','touch-right'].forEach((id,i)=>{
-  const el=document.getElementById(id);
-  el.addEventListener('touchstart',e=>{e.preventDefault();touchKeys[i?'right':'left']=true;},{passive:false});
-  el.addEventListener('touchend',e=>{e.preventDefault();touchKeys[i?'right':'left']=false;},{passive:false});
-});
+// Touch controls: bind each button to its player's state
+function bindTouch(id, player, dir) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('touchstart', e => { e.preventDefault(); touchKeys[player][dir] = true; }, {passive:false});
+  el.addEventListener('touchend',   e => { e.preventDefault(); touchKeys[player][dir] = false; }, {passive:false});
+  el.addEventListener('touchcancel',e => { e.preventDefault(); touchKeys[player][dir] = false; }, {passive:false});
+}
+
+// Singleplayer buttons → p1
+bindTouch('sp-left',  'p1', 'left');
+bindTouch('sp-right', 'p1', 'right');
+// 2-Player buttons → p1 and p2 separately
+bindTouch('p1-left',  'p1', 'left');
+bindTouch('p1-right', 'p1', 'right');
+bindTouch('p2-left',  'p2', 'left');
+bindTouch('p2-right', 'p2', 'right');
 
 window.addEventListener('keydown',e=>{
   keys[e.key.toLowerCase()]=keys[e.key]=true;
