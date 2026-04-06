@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ingwerperium Forum</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #fafafa; }
+        h1, h2 { color: #333; }
+        #postInput { width: 80%; height: 100px; margin-bottom: 10px; padding: 10px; border-radius: 5px; border: 1px solid #ccc; }
+        button { padding: 10px 15px; cursor: pointer; background-color: #ff7f50; color: white; border: none; border-radius: 5px; }
+        button:hover { background-color: #ff6333; }
+        #posts { margin-top: 20px; border-top: 1px solid #eee; padding-top: 10px; }
+        #posts p { background-color: #ffffff; padding: 10px; border-radius: 5px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    </style>
+</head>
+<body>
+    <h1>Ingwerperium Forum</h1>
+    <p>Share your thoughts about Ingwerperium below. No login needed!</p>
+
+    <div>
+        <textarea id="postInput" placeholder="Write your post here..."></textarea><br>
+        <button onclick="sendPost()">Post</button>
+    </div>
+
+    <h2>Latest Posts:</h2>
+    <div id="posts">
+        <!-- Posts will appear here -->
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+        import { getFirestore, addDoc, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBqkzJEJa94RQd9KYzpwR6rmIcvEouAJ-s",
+            authDomain: "ingwerperium.firebaseapp.com",
+            projectId: "ingwerperium",
+            storageBucket: "ingwerperium.firebasestorage.app",
+            messagingSenderId: "43358415912",
+            appId: "1:43358415912:web:a1d9053d2b22db7bde591d",
+            measurementId: "G-QSX1N83V89"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Anonymous Login
+        signInAnonymously(auth);
+        onAuthStateChanged(auth, user => {
+            if (user) console.log("User ID:", user.uid);
+        });
+
+        // Send post
+        window.sendPost = async function () {
+            const text = document.getElementById("postInput").value;
+            if (text.trim() === "") return;
+
+            await addDoc(collection(db, "posts"), {
+                text: text,
+                user: auth.currentUser.uid,
+                created: Date.now()
+            });
+            document.getElementById("postInput").value = "";
+        };
+
+        // Load posts live
+        const q = query(collection(db, "posts"), orderBy("created", "desc"));
+        onSnapshot(q, snapshot => {
+            const postsDiv = document.getElementById("posts");
+            postsDiv.innerHTML = "";
+            snapshot.forEach(doc => {
+                const p = document.createElement("p");
+                p.textContent = doc.data().text;
+                postsDiv.appendChild(p);
+            });
+        });
+    </script>
+</body>
+</html>
