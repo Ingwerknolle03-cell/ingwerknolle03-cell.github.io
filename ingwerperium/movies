@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Filme – Ingwerperium Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #111118;
+  --surface2: #17171f;
+  --surface3: #1e1e2a;
+  --border: rgba(255,255,255,0.07);
+  --accent: #7c5cfc;
+  --accent2: #00d4ff;
+  --red: #ff4444;
+  --text: #e8e8f0;
+  --text-muted: #888898;
+  --text-dim: #555566;
+  --glow: rgba(124,92,252,0.3);
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'DM Sans',sans-serif;
+  min-height:100vh;display:flex;flex-direction:column;
+}
+body::before{
+  content:'';position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 0%,rgba(124,92,252,0.07) 0%,transparent 55%),
+    radial-gradient(ellipse 60% 40% at 80% 90%,rgba(255,68,68,0.05) 0%,transparent 55%);
+  pointer-events:none;z-index:0;
+}
+
+/* ─── HEADER ─── */
+header{
+  position:sticky;top:0;z-index:100;
+  padding:0 32px;height:64px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(10,10,15,0.92);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.header-logo{
+  font-family:'Space Mono',monospace;font-size:0.85rem;font-weight:700;
+  color:var(--text-muted);letter-spacing:0.05em;
+  text-decoration:none;display:flex;align-items:center;gap:8px;transition:color 0.2s;
+}
+.header-logo:hover{color:var(--text);}
+.logo-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--accent);box-shadow:0 0 10px var(--accent);animation:pulse 2s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.header-title{
+  font-family:'Space Mono',monospace;font-size:0.95rem;font-weight:700;
+  color:var(--text);padding-left:20px;border-left:1px solid var(--border);
+}
+.header-nav{display:flex;align-items:center;gap:8px;}
+.lang-btn{
+  padding:6px 12px;border:1px solid var(--accent);border-radius:8px;
+  background:rgba(124,92,252,0.12);color:var(--accent);
+  font-family:'Space Mono',monospace;font-size:0.75rem;font-weight:700;
+  cursor:pointer;transition:all 0.2s;
+}
+.lang-btn:hover{background:rgba(124,92,252,0.25);box-shadow:0 0 14px var(--glow);}
+
+/* ─── MAIN ─── */
+main{position:relative;z-index:1;flex:1;padding:52px 40px 80px;max-width:1280px;margin:0 auto;width:100%;}
+
+/* ─── PAGE HERO ─── */
+.page-hero{margin-bottom:48px;}
+.page-label{
+  font-family:'Space Mono',monospace;font-size:0.68rem;
+  letter-spacing:0.2em;text-transform:uppercase;color:var(--red);
+  margin-bottom:14px;display:flex;align-items:center;gap:10px;
+}
+.page-label::before{content:'';width:20px;height:1px;background:var(--red);}
+.page-hero h1{
+  font-family:'Space Mono',monospace;font-size:2.2rem;font-weight:700;
+  color:var(--text);letter-spacing:-0.02em;margin-bottom:12px;line-height:1.2;
+}
+.page-hero p{color:var(--text-muted);font-size:0.95rem;line-height:1.7;max-width:560px;}
+
+/* ─── SEARCH + FILTER ─── */
+.search-section{margin-bottom:36px;}
+.search-wrap{
+  position:relative;margin-bottom:16px;
+}
+.search-icon{
+  position:absolute;left:16px;top:50%;transform:translateY(-50%);
+  color:var(--text-dim);font-size:1rem;pointer-events:none;
+}
+#searchInput{
+  width:100%;padding:14px 16px 14px 44px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-sm);color:var(--text);
+  font-family:'DM Sans',sans-serif;font-size:0.95rem;outline:none;
+  transition:border-color 0.2s,box-shadow 0.2s;
+}
+#searchInput:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,92,252,0.1);}
+#searchInput::placeholder{color:var(--text-dim);}
+
+.filters{display:flex;gap:8px;flex-wrap:wrap;}
+.filter-btn{
+  padding:7px 16px;border:1px solid var(--border);border-radius:20px;
+  background:transparent;color:var(--text-muted);
+  font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:500;
+  cursor:pointer;transition:all 0.2s;
+}
+.filter-btn:hover{border-color:var(--accent);color:var(--text);}
+.filter-btn.active{
+  border-color:var(--accent);color:var(--accent);
+  background:rgba(124,92,252,0.12);
+}
+
+/* ─── RESULTS INFO ─── */
+.results-info{
+  font-family:'Space Mono',monospace;font-size:0.7rem;
+  letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);
+  margin-bottom:20px;display:flex;align-items:center;gap:12px;
+}
+.results-info::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* ─── VIDEO GRID ─── */
+.video-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:20px;
+}
+
+/* ─── VIDEO CARD ─── */
+.video-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;
+  transition:transform 0.25s ease,border-color 0.25s ease,box-shadow 0.25s ease;
+  cursor:pointer;text-decoration:none;color:inherit;display:flex;flex-direction:column;
+}
+.video-card:hover{
+  transform:translateY(-5px);
+  border-color:rgba(255,68,68,0.35);
+  box-shadow:0 12px 40px rgba(255,68,68,0.1);
+}
+
+.video-thumb{
+  position:relative;aspect-ratio:16/9;overflow:hidden;
+  background:var(--surface2);flex-shrink:0;
+}
+.video-thumb img{
+  width:100%;height:100%;object-fit:cover;
+  transition:transform 0.4s ease;
+}
+.video-card:hover .video-thumb img{transform:scale(1.05);}
+
+.thumb-overlay{
+  position:absolute;inset:0;
+  background:rgba(0,0,0,0.4);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transition:opacity 0.25s;
+}
+.video-card:hover .thumb-overlay{opacity:1;}
+.play-icon{
+  width:52px;height:52px;border-radius:50%;
+  background:rgba(255,68,68,0.9);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.2rem;padding-left:4px;
+  box-shadow:0 0 30px rgba(255,68,68,0.5);
+}
+
+.video-duration{
+  position:absolute;bottom:8px;right:8px;
+  padding:3px 8px;border-radius:5px;
+  background:rgba(0,0,0,0.8);
+  font-family:'Space Mono',monospace;font-size:0.7rem;color:#fff;
+}
+
+.video-info{padding:18px;flex:1;display:flex;flex-direction:column;}
+.video-category{
+  font-family:'Space Mono',monospace;font-size:0.6rem;
+  letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:6px;
+}
+.video-title{
+  font-weight:600;font-size:0.95rem;color:var(--text);
+  line-height:1.4;margin-bottom:8px;flex:1;
+}
+.video-desc{
+  font-size:0.8rem;color:var(--text-muted);line-height:1.5;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  margin-bottom:12px;
+}
+.video-meta{
+  display:flex;align-items:center;gap:8px;
+  font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--text-dim);
+}
+.yt-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 10px;border-radius:6px;
+  background:rgba(255,68,68,0.1);border:1px solid rgba(255,68,68,0.2);
+  color:var(--red);font-size:0.68rem;font-family:'Space Mono',monospace;
+}
+
+/* ─── EMPTY ─── */
+.empty-state{
+  grid-column:1/-1;text-align:center;padding:80px 20px;color:var(--text-dim);
+}
+.empty-icon{font-size:3rem;margin-bottom:16px;display:block;opacity:0.4;}
+
+/* ─── MODAL ─── */
+#videoModal{
+  display:none;position:fixed;inset:0;z-index:500;
+  background:rgba(5,5,10,0.9);backdrop-filter:blur(16px);
+  align-items:center;justify-content:center;padding:20px;
+}
+#videoModal.open{display:flex;}
+.modal-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);width:100%;max-width:860px;
+  box-shadow:0 0 100px rgba(0,0,0,0.8);overflow:hidden;
+  animation:modalIn 0.3s cubic-bezier(0.34,1.4,0.64,1);
+}
+@keyframes modalIn{from{transform:scale(0.92);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-video{position:relative;aspect-ratio:16/9;background:#000;}
+.modal-video iframe{width:100%;height:100%;border:none;}
+.modal-info{padding:24px 28px;}
+.modal-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:10px;}
+.modal-title{font-family:'Space Mono',monospace;font-size:1.1rem;font-weight:700;color:var(--text);line-height:1.4;}
+.modal-close{
+  width:36px;height:36px;border:1px solid var(--border);border-radius:8px;
+  background:var(--surface2);color:var(--text-muted);
+  font-size:1rem;cursor:pointer;transition:all 0.2s;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.modal-close:hover{border-color:var(--red);color:var(--red);}
+.modal-desc{color:var(--text-muted);font-size:0.875rem;line-height:1.6;margin-bottom:16px;}
+.modal-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.open-yt{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:10px 20px;border-radius:8px;
+  background:var(--red);border:none;color:#fff;
+  font-family:'Space Mono',monospace;font-size:0.8rem;font-weight:700;
+  cursor:pointer;transition:all 0.2s;text-decoration:none;
+}
+.open-yt:hover{background:#cc0000;transform:translateY(-1px);}
+
+/* ─── FOOTER ─── */
+footer{
+  border-top:1px solid var(--border);padding:24px 40px;
+  display:flex;justify-content:space-between;align-items:center;
+  max-width:1280px;margin:0 auto;width:100%;position:relative;z-index:1;
+}
+.footer-copy{font-size:0.78rem;color:var(--text-dim);font-family:'Space Mono',monospace;}
+
+@media(max-width:900px){
+  main{padding:36px 20px 60px;}
+  header{padding:0 16px;}
+  .header-title{display:none;}
+  .page-hero h1{font-size:1.6rem;}
+  footer{padding:20px;}
+}
+@media(max-width:600px){
+  .video-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="header-logo">
+    <div class="logo-dot"></div>
+    <span data-de="← Hub" data-en="← Hub">← Hub</span>
+  </a>
+  <div class="header-title" data-de="Filme & Videos" data-en="Films & Videos">Filme & Videos</div>
+  <nav class="header-nav">
+    <button class="lang-btn" id="lang-toggle-btn" onclick="switchLang(LANG==='de'?'en':'de')">EN</button>
+  </nav>
+</header>
+
+<main>
+
+  <div class="page-hero">
+    <div class="page-label" data-de="Mediathek" data-en="Media Library">Mediathek</div>
+    <h1>
+      <span data-de="Filme &" data-en="Films &">Filme &</span>
+      <br><span data-de="Animationen" data-en="Animations">Animationen</span>
+    </h1>
+    <p data-de="Entdecke spannende Videos über das Universum, unsere Geschichte und die Zukunft der Menschheit. Suche und filtere nach Themen."
+       data-en="Discover fascinating videos about the universe, our history and the future of humanity. Search and filter by topic.">
+      Entdecke spannende Videos über das Universum, unsere Geschichte und die Zukunft der Menschheit.
+    </p>
+  </div>
+
+  <div class="search-section">
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input type="text" id="searchInput"
+             data-placeholder-de="Videos suchen …"
+             data-placeholder-en="Search videos …"
+             placeholder="Videos suchen …"
+             oninput="renderVideos()">
+    </div>
+    <div class="filters" id="filterRow">
+      <!-- rendered by JS -->
+    </div>
+  </div>
+
+  <div class="results-info" id="resultsInfo">
+    <span id="resultsCount">0</span>&nbsp;<span data-de="Videos" data-en="Videos">Videos</span>
+  </div>
+
+  <div class="video-grid" id="videoGrid">
+    <!-- rendered by JS -->
+  </div>
+
+</main>
+
+<footer>
+  <div class="footer-copy">© Ingwerperium Hub</div>
+  <a href="datenschutz.html" style="font-size:0.78rem;color:var(--text-dim);text-decoration:none;"
+     data-de="Datenschutz" data-en="Privacy">Datenschutz</a>
+</footer>
+
+<!-- ── MODAL ── -->
+<div id="videoModal">
+  <div class="modal-card" id="modalCard">
+    <div class="modal-video">
+      <iframe id="modalIframe" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+    </div>
+    <div class="modal-info">
+      <div class="modal-top">
+        <div class="modal-title" id="modalTitle">–</div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <p class="modal-desc" id="modalDesc"></p>
+      <div class="modal-footer">
+        <div class="yt-badge">▶ YouTube</div>
+        <a class="open-yt" id="modalYtLink" href="#" target="_blank"
+           data-de="↗ Auf YouTube öffnen" data-en="↗ Open on YouTube">↗ Auf YouTube öffnen</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ─── LANG ─── */
+let LANG = 'de';
+(function(){
+  const u=new URLSearchParams(window.location.search).get('lang');
+  const s=localStorage.getItem('ingw-lang');
+  const l=(u==='en'||u==='de')?u:(s==='en'||s==='de')?s:'de';
+  if(u) localStorage.setItem('ingw-lang',u);
+  LANG=l;window.LANG=l;document.documentElement.lang=l;
+})();
+
+function applyLang(lang){
+  LANG=lang;window.LANG=lang;
+  document.documentElement.lang=lang;
+  localStorage.setItem('ingw-lang',lang);
+  document.querySelectorAll('[data-de],[data-en]').forEach(el=>{
+    const t=el.getAttribute('data-'+lang);
+    if(t!==null) el.textContent=t;
+  });
+  document.querySelectorAll('[data-placeholder-de],[data-placeholder-en]').forEach(el=>{
+    const p=el.getAttribute('data-placeholder-'+lang);
+    if(p!==null) el.placeholder=p;
+  });
+  const btn=document.getElementById('lang-toggle-btn');
+  if(btn) btn.textContent=lang==='de'?'EN':'DE';
+  document.querySelectorAll('a[href]').forEach(a=>{
+    const h=a.getAttribute('href');
+    if(!h||h.startsWith('http')||h.startsWith('//')||h.startsWith('#')) return;
+    const [p,q]=h.split('?');
+    const params=new URLSearchParams(q||'');
+    params.set('lang',lang);
+    a.setAttribute('href',p+'?'+params.toString());
+  });
+  renderFilters();
+  renderVideos();
+}
+window.switchLang=function(l){applyLang(l);};
+
+/* ════════════════════════════════════════
+   VIDEO DATABASE
+   Füge hier deine Videos hinzu!
+   Format:
+   {
+     id: 'youtube-video-id',         ← die ID aus dem YouTube-Link
+     title_de: 'Titel auf Deutsch',
+     title_en: 'Title in English',
+     desc_de: 'Beschreibung',
+     desc_en: 'Description',
+     category: 'universum',          ← für den Filter
+     duration: '12:34',              ← optional
+     thumb: ''                       ← leer lassen = YouTube-Thumbnail
+   }
+════════════════════════════════════════ */
+const videos = [
+  {
+    id: 'wr0XuFjnDj0',
+    title_de: 'Wie groß ist das Universum?',
+    title_en: 'How Big is the Universe?',
+    desc_de: 'Eine faszinierende Reise durch die Dimensionen des Universums – von der Erde bis zu den Grenzen des Beobachtbaren.',
+    desc_en: 'A fascinating journey through the dimensions of the universe – from Earth to the edges of the observable cosmos.',
+    category: 'universum',
+    duration: '6:33',
+  },
+  {
+    id: '0FH9cgRhQ-k',
+    title_de: 'Schwarze Löcher erklärt',
+    title_en: 'Black Holes Explained',
+    desc_de: 'Was sind schwarze Löcher, wie entstehen sie, und was passiert, wenn man hineingerät?',
+    desc_en: 'What are black holes, how do they form, and what happens if you fall in?',
+    category: 'universum',
+    duration: '6:22',
+  },
+  {
+    id: 'cZH0YnFpjwU',
+    title_de: 'Die Entstehung des Lebens',
+    title_en: 'The Origin of Life',
+    desc_de: 'Wie entstand das erste Leben auf der Erde? Eine Reise zu den Anfängen der Biologie.',
+    desc_en: 'How did the first life arise on Earth? A journey to the beginnings of biology.',
+    category: 'natur',
+    duration: '5:38',
+  },
+  {
+    id: 'ThDYazipjSI',
+    title_de: 'Quantenphysik einfach erklärt',
+    title_en: 'Quantum Physics Simply Explained',
+    desc_de: 'Die seltsamen Regeln der Quantenwelt – Superposition, Verschränkung und die Unschärferelation.',
+    desc_en: 'The strange rules of the quantum world – superposition, entanglement and the uncertainty principle.',
+    category: 'physik',
+    duration: '7:48',
+  },
+  {
+    id: 'HneiEA1B8ks',
+    title_de: 'Die Zukunft der Menschheit',
+    title_en: 'The Future of Humanity',
+    desc_de: 'Wohin geht die Menschheit? KI, Raumfahrt und das Leben in 100 Jahren.',
+    desc_en: 'Where is humanity heading? AI, space travel and life in 100 years.',
+    category: 'zukunft',
+    duration: '8:01',
+  },
+  {
+    id: 'zSgiXGELjbc',
+    title_de: 'Das Sonnensystem – alle Planeten',
+    title_en: 'The Solar System – All Planets',
+    desc_de: 'Ein Überblick über alle Planeten unseres Sonnensystems mit faszinierenden Fakten.',
+    desc_en: 'An overview of all planets in our solar system with fascinating facts.',
+    category: 'universum',
+    duration: '9:15',
+  },
+  {
+    id: 'OfV3VNgjpJw',
+    title_de: 'Evolution der Arten',
+    title_en: 'Evolution of Species',
+    desc_de: 'Wie Millionen Jahre Evolution das Leben auf der Erde geformt haben.',
+    desc_en: 'How millions of years of evolution have shaped life on Earth.',
+    category: 'natur',
+    duration: '7:22',
+  },
+  {
+    id: 'yYmDCRbJhgs',
+    title_de: 'Künstliche Intelligenz – Wie funktioniert sie?',
+    title_en: 'Artificial Intelligence – How Does It Work?',
+    desc_de: 'Ein einfacher Einstieg in die Welt der KI – neuronale Netze, maschinelles Lernen und mehr.',
+    desc_en: 'A simple introduction to the world of AI – neural networks, machine learning and more.',
+    category: 'technologie',
+    duration: '8:45',
+  },
+  {
+    id: 'S4yfPuX_BPU',
+    title_de: 'Klimawandel verstehen',
+    title_en: 'Understanding Climate Change',
+    desc_de: 'Was ist der Klimawandel, welche Ursachen hat er, und was können wir dagegen tun?',
+    desc_en: 'What is climate change, what causes it, and what can we do about it?',
+    category: 'natur',
+    duration: '5:54',
+  },
+  {
+    id: 'L0iAaHuDOac',
+    title_de: 'Die Geschichte der Zeit',
+    title_en: 'A Brief History of Time',
+    desc_de: 'Was ist Zeit? Einsteins Relativitätstheorie, Zeitdilatation und die Natur der Zeit.',
+    desc_en: 'What is time? Einstein\'s relativity, time dilation and the nature of time.',
+    category: 'physik',
+    duration: '6:11',
+  },
+  {
+    id: 'oFtG0IFv-0c',
+    title_de: 'Raumfahrt – die nächsten 50 Jahre',
+    title_en: 'Space Travel – The Next 50 Years',
+    desc_de: 'Mondbasen, Mars-Missionen und interstellare Raumfahrt – was erwartet uns?',
+    desc_en: 'Moon bases, Mars missions and interstellar travel – what awaits us?',
+    category: 'zukunft',
+    duration: '10:02',
+  },
+  {
+    id: 'pVbLlnmxIbY',
+    title_de: 'Das menschliche Gehirn',
+    title_en: 'The Human Brain',
+    desc_de: 'Das komplexeste Objekt im bekannten Universum – wie funktioniert unser Gehirn?',
+    desc_en: 'The most complex object in the known universe – how does our brain work?',
+    category: 'natur',
+    duration: '7:30',
+  },
+];
+
+/* ─── CATEGORIES ─── */
+const categories = {
+  all:        {de:'Alle',       en:'All'},
+  universum:  {de:'Universum',  en:'Universe'},
+  natur:      {de:'Natur',      en:'Nature'},
+  physik:     {de:'Physik',     en:'Physics'},
+  technologie:{de:'Technologie',en:'Technology'},
+  zukunft:    {de:'Zukunft',    en:'Future'},
+};
+
+let activeFilter = 'all';
+
+function renderFilters(){
+  const row=document.getElementById('filterRow');
+  row.innerHTML='';
+  Object.entries(categories).forEach(([key,label])=>{
+    const btn=document.createElement('button');
+    btn.className='filter-btn'+(activeFilter===key?' active':'');
+    btn.textContent=label[LANG]||label.de;
+    btn.onclick=()=>{activeFilter=key;renderFilters();renderVideos();};
+    row.appendChild(btn);
+  });
+}
+
+/* ─── RENDER VIDEOS ─── */
+function getYtThumb(id){
+  return `https://img.youtube.com/vi/${id}/mqdefault.jpg`;
+}
+function getYtEmbed(id){
+  return `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`;
+}
+function getYtUrl(id){
+  return `https://www.youtube.com/watch?v=${id}`;
+}
+
+function renderVideos(){
+  const q=document.getElementById('searchInput').value.toLowerCase();
+  const grid=document.getElementById('videoGrid');
+
+  const filtered=videos.filter(v=>{
+    const matchCat=activeFilter==='all'||v.category===activeFilter;
+    const title=(v['title_'+LANG]||v.title_de).toLowerCase();
+    const desc=(v['desc_'+LANG]||v.desc_de).toLowerCase();
+    const matchSearch=!q||title.includes(q)||desc.includes(q)||v.category.includes(q);
+    return matchCat&&matchSearch;
+  });
+
+  document.getElementById('resultsCount').textContent=filtered.length;
+
+  if(filtered.length===0){
+    grid.innerHTML=`<div class="empty-state">
+      <span class="empty-icon">🎬</span>
+      <p>${LANG==='de'?'Keine Videos gefunden.':'No videos found.'}</p>
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML='';
+  filtered.forEach(v=>{
+    const title=v['title_'+LANG]||v.title_de;
+    const desc=v['desc_'+LANG]||v.desc_de;
+    const catLabel=(categories[v.category]||{de:v.category,en:v.category})[LANG];
+    const thumb=v.thumb||getYtThumb(v.id);
+
+    const card=document.createElement('div');
+    card.className='video-card';
+    card.innerHTML=`
+      <div class="video-thumb">
+        <img src="${thumb}" alt="${title}" loading="lazy">
+        <div class="thumb-overlay">
+          <div class="play-icon">▶</div>
+        </div>
+        ${v.duration?`<div class="video-duration">${v.duration}</div>`:''}
+      </div>
+      <div class="video-info">
+        <div class="video-category">${catLabel}</div>
+        <div class="video-title">${title}</div>
+        <div class="video-desc">${desc}</div>
+        <div class="video-meta">
+          <span class="yt-badge">▶ YouTube</span>
+        </div>
+      </div>
+    `;
+    card.addEventListener('click',()=>openModal(v));
+    grid.appendChild(card);
+  });
+}
+
+/* ─── MODAL ─── */
+function openModal(v){
+  const title=v['title_'+LANG]||v.title_de;
+  const desc=v['desc_'+LANG]||v.desc_de;
+  document.getElementById('modalTitle').textContent=title;
+  document.getElementById('modalDesc').textContent=desc;
+  document.getElementById('modalIframe').src=getYtEmbed(v.id);
+  document.getElementById('modalYtLink').href=getYtUrl(v.id);
+  document.getElementById('modalYtLink').textContent=
+    LANG==='de'?'↗ Auf YouTube öffnen':'↗ Open on YouTube';
+  document.getElementById('videoModal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(){
+  document.getElementById('videoModal').classList.remove('open');
+  document.getElementById('modalIframe').src='';
+  document.body.style.overflow='';
+}
+document.getElementById('videoModal').addEventListener('click',function(e){
+  if(e.target===this) closeModal();
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape') closeModal();});
+
+/* ─── INIT ─── */
+applyLang(LANG);
+</script>
+</body>
+</html>
