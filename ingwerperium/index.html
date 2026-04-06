@@ -998,6 +998,22 @@ const i18n = {
 
 let currentLang = 'de';
 
+// ─── INJECT LANG PARAM INTO ALL INTERNAL LINKS ──────────────────
+function updateAllLinks(lang) {
+  document.querySelectorAll('a[href]').forEach(a => {
+    const href = a.getAttribute('href');
+    // Only internal links (not starting with http/https/# or external)
+    if (!href || href.startsWith('http') || href.startsWith('//') || href.startsWith('#') || href.startsWith('mailto')) return;
+    try {
+      // Strip existing lang param and re-add
+      const [path, query] = href.split('?');
+      const params = new URLSearchParams(query || '');
+      params.set('lang', lang);
+      a.setAttribute('href', path + '?' + params.toString());
+    } catch(e) {}
+  });
+}
+
 function applyLang(lang) {
   currentLang = lang;
   document.documentElement.lang = lang;
@@ -1007,9 +1023,11 @@ function applyLang(lang) {
     if (dict[key]) el.textContent = dict[key];
   });
   document.getElementById('lang-toggle-btn').textContent = lang === 'de' ? 'EN' : 'DE';
+  updateAllLinks(lang);
 }
 
-function setLang(lang) {
+function setLang(lang, save = true) {
+  if (save) localStorage.setItem('ingw-lang', lang);
   applyLang(lang);
   const overlay = document.getElementById('lang-overlay');
   overlay.classList.add('exit');
@@ -1017,8 +1035,23 @@ function setLang(lang) {
 }
 
 function toggleLang() {
-  applyLang(currentLang === 'de' ? 'en' : 'de');
+  const next = currentLang === 'de' ? 'en' : 'de';
+  localStorage.setItem('ingw-lang', next);
+  applyLang(next);
 }
+
+// ─── ON PAGE LOAD: check saved lang or URL param ─────────────────
+(function() {
+  const saved = localStorage.getItem('ingw-lang');
+  const urlParam = new URLSearchParams(window.location.search).get('lang');
+  const detected = urlParam || saved;
+
+  if (detected === 'en' || detected === 'de') {
+    // Language already known – skip modal
+    setLang(detected, true);
+  }
+  // else: show modal (default behavior)
+})();
 
 // ─── ACCORDION ──────────────────────────────────────────────────
 function toggleAcc(id) {
