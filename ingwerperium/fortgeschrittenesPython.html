@@ -3,550 +3,569 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Python Fortgeschritten</title>
+<title>Python Fortgeschritten – Ingwerperium Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-body{
-    font-family:Arial, sans-serif;
-    background:linear-gradient(120deg,#ff9a9e,#fad0c4);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-    margin:0;
+:root {
+  --bg: #0a0a0f;
+  --surface: #111118;
+  --surface2: #17171f;
+  --surface3: #1e1e2a;
+  --border: rgba(255,255,255,0.07);
+  --accent: #7c5cfc;
+  --accent2: #00d4ff;
+  --accent3: #ff6b6b;
+  --green: #00c87a;
+  --yellow: #ffd166;
+  --text: #e8e8f0;
+  --text-muted: #888898;
+  --text-dim: #555566;
+  --glow: rgba(124,92,252,0.3);
+  --radius: 16px;
+  --radius-sm: 10px;
 }
-.container{
-    background:#fff;
-    padding:30px;
-    border-radius:25px;
-    width:520px;
-    box-shadow:0 15px 30px rgba(0,0,0,.25);
-    text-align:center;
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
-h1{color:#ff6f61;}
-.score{margin-bottom:10px;font-size:18px;}
-.timer{font-size:16px;margin-bottom:10px;color:#333;}
-.question{text-align:left;font-size:18px;margin-bottom:10px;}
-input{
-    width:90%;
-    padding:10px;
-    font-size:16px;
-    margin-bottom:10px;
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 15% 10%, rgba(124,92,252,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 85% 85%, rgba(0,212,255,0.06) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
 }
-button{
-    padding:12px 25px;
-    border:none;
-    border-radius:12px;
-    background:#6a11cb;
-    color:#fff;
-    font-size:16px;
-    cursor:pointer;
-    margin:5px;
+
+/* ─── HEADER ─── */
+header {
+  position: sticky; top: 0; z-index: 100;
+  padding: 0 32px; height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(10,10,15,0.9);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
-button:hover{background:#2575fc;}
-.feedback{margin-top:10px;font-weight:bold;}
-.correct{color:green;}
-.wrong{color:red;}
+
+.header-logo {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.85rem; font-weight: 700;
+  color: var(--text-muted); letter-spacing: 0.05em;
+  text-decoration: none; display: flex; align-items: center; gap: 8px;
+  transition: color 0.2s;
+}
+.header-logo:hover { color: var(--text); }
+
+.header-logo-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--accent); box-shadow: 0 0 10px var(--accent);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+.header-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.95rem; font-weight: 700; color: var(--text);
+  letter-spacing: 0.03em; padding-left: 20px;
+  border-left: 1px solid var(--border);
+}
+
+.header-nav { display: flex; align-items: center; gap: 8px; }
+
+.nav-btn {
+  padding: 7px 16px; border: 1px solid var(--border); border-radius: 8px;
+  background: transparent; color: var(--text-muted);
+  font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 500;
+  cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-flex; align-items: center;
+}
+.nav-btn:hover { border-color: var(--accent); color: var(--text); background: rgba(124,92,252,0.1); }
+
+.lang-toggle-btn {
+  padding: 6px 12px; border: 1px solid var(--accent); border-radius: 8px;
+  background: rgba(124,92,252,0.12); color: var(--accent);
+  font-family: 'Space Mono', monospace; font-size: 0.75rem; font-weight: 700;
+  cursor: pointer; transition: all 0.2s;
+}
+.lang-toggle-btn:hover { background: rgba(124,92,252,0.25); box-shadow: 0 0 14px var(--glow); }
+
+/* ─── MAIN ─── */
+main {
+  position: relative; z-index: 1;
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  padding: 40px 20px;
+}
+
+.screen {
+  width: 100%; max-width: 580px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 44px 40px;
+  box-shadow: 0 0 60px rgba(0,0,0,0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.screen::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2), transparent);
+}
+
+/* ─── START SCREEN ─── */
+.start-icon { font-size: 3rem; margin-bottom: 20px; display: block; }
+
+.screen h1 {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.6rem; font-weight: 700; color: var(--text);
+  letter-spacing: -0.02em; margin-bottom: 10px;
+}
+
+.screen-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 24px;
+}
+
+.screen-desc {
+  color: var(--text-muted); font-size: 0.9rem; line-height: 1.7;
+  margin-bottom: 32px;
+}
+
+.badge-row {
+  display: flex; gap: 8px; margin-bottom: 32px; flex-wrap: wrap;
+}
+
+.badge {
+  padding: 5px 12px; border-radius: 6px; font-size: 0.78rem; font-weight: 600;
+  font-family: 'Space Mono', monospace;
+}
+.badge-questions { background: rgba(124,92,252,0.15); color: var(--accent); border: 1px solid rgba(124,92,252,0.3); }
+.badge-level     { background: rgba(255,107,107,0.12); color: var(--accent3); border: 1px solid rgba(255,107,107,0.25); }
+.badge-bonus     { background: rgba(255,209,102,0.12); color: var(--yellow);  border: 1px solid rgba(255,209,102,0.25); }
+
+.start-btn {
+  width: 100%; padding: 16px;
+  background: linear-gradient(135deg, var(--accent), #5a3dd8);
+  border: none; border-radius: var(--radius-sm);
+  color: #fff; font-family: 'Space Mono', monospace;
+  font-size: 1rem; font-weight: 700; cursor: pointer;
+  transition: all 0.25s ease; letter-spacing: 0.05em;
+}
+.start-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px var(--glow); }
+
+/* ─── GAME SCREEN ─── */
+.game-meta {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 24px; gap: 12px;
+}
+
+.meta-stat {
+  display: flex; flex-direction: column; gap: 2px;
+}
+.meta-stat-label {
+  font-family: 'Space Mono', monospace; font-size: 0.6rem;
+  letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-dim);
+}
+.meta-stat-value {
+  font-family: 'Space Mono', monospace; font-size: 1.1rem;
+  font-weight: 700; color: var(--text);
+}
+.meta-stat-value.score-val { color: var(--accent); }
+.meta-stat-value.time-val  { color: var(--accent2); }
+
+.progress-wrap {
+  height: 3px; background: var(--surface3); border-radius: 2px;
+  margin-bottom: 28px; overflow: hidden;
+}
+.progress-bar {
+  height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 2px; transition: width 0.4s ease;
+}
+
+.question-text {
+  font-family: 'Space Mono', monospace;
+  font-size: 1rem; font-weight: 700; color: var(--text);
+  line-height: 1.5; margin-bottom: 20px;
+  padding: 18px 20px; background: var(--surface2);
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+}
+
+.answer-input {
+  width: 100%; padding: 13px 16px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text);
+  font-family: 'Space Mono', monospace; font-size: 0.9rem;
+  outline: none; transition: border-color 0.2s;
+  margin-bottom: 12px;
+}
+.answer-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(124,92,252,0.1); }
+.answer-input::placeholder { color: var(--text-dim); }
+
+.btn-row { display: flex; gap: 10px; margin-bottom: 16px; }
+
+.btn-primary {
+  flex: 1; padding: 13px;
+  background: linear-gradient(135deg, var(--accent), #5a3dd8);
+  border: none; border-radius: var(--radius-sm);
+  color: #fff; font-family: 'Space Mono', monospace;
+  font-size: 0.875rem; font-weight: 700; cursor: pointer;
+  transition: all 0.2s; letter-spacing: 0.04em;
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 18px var(--glow); }
+
+.btn-secondary {
+  padding: 13px 20px;
+  background: transparent; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text-muted);
+  font-family: 'Space Mono', monospace; font-size: 0.875rem;
+  cursor: pointer; transition: all 0.2s;
+}
+.btn-secondary:hover { border-color: var(--accent); color: var(--text); }
+
+.feedback-box {
+  padding: 14px 16px; border-radius: var(--radius-sm);
+  font-size: 0.875rem; line-height: 1.5; min-height: 48px;
+  border: 1px solid transparent; transition: all 0.3s;
+}
+.feedback-correct {
+  background: rgba(0,200,122,0.1); border-color: rgba(0,200,122,0.25); color: var(--green);
+}
+.feedback-wrong {
+  background: rgba(255,107,107,0.1); border-color: rgba(255,107,107,0.25); color: var(--accent3);
+}
+
+/* ─── END SCREEN ─── */
+.end-score {
+  font-family: 'Space Mono', monospace;
+  font-size: 3.5rem; font-weight: 700;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; margin: 16px 0 8px;
+}
+
+.end-meta { color: var(--text-muted); font-size: 0.875rem; margin-bottom: 32px; line-height: 1.7; }
+
+.restart-btn {
+  width: 100%; padding: 16px;
+  background: transparent; border: 1px solid var(--accent);
+  border-radius: var(--radius-sm); color: var(--accent);
+  font-family: 'Space Mono', monospace; font-size: 0.95rem;
+  font-weight: 700; cursor: pointer; transition: all 0.25s;
+}
+.restart-btn:hover { background: rgba(124,92,252,0.15); box-shadow: 0 0 20px var(--glow); }
+
+@media (max-width: 600px) {
+  header { padding: 0 16px; }
+  .header-title { display: none; }
+  .screen { padding: 32px 24px; }
+  .end-score { font-size: 2.5rem; }
+}
 </style>
 </head>
 <body>
 
-<div class="container" id="startScreen">
-    <h1>Python Quiz</h1>
-    <p>100 Fragen · Fortgeschritten · Zeitbonus</p>
-    <button onclick="startGame()">Start</button>
-</div>
+<header>
+  <a href="index.html" class="header-logo">
+    <div class="header-logo-dot"></div>
+    <span data-de="← Hub" data-en="← Hub">← Hub</span>
+  </a>
+  <div class="header-title" data-de="Python Fortgeschritten" data-en="Python Advanced">Python Fortgeschritten</div>
+  <nav class="header-nav">
+    <button class="lang-toggle-btn" id="lang-toggle-btn" onclick="switchLang(LANG==='de'?'en':'de')">EN</button>
+  </nav>
+</header>
 
-<div class="container" id="gameScreen" style="display:none;">
-    <h1>Python Simulation</h1>
-    <div class="score">Punkte: <span id="score">0</span> | Frage <span id="count">1</span>/100</div>
-    <div class="timer">Zeit: <span id="time">0.0</span>s</div>
-    <div class="question" id="question"></div>
-    <input id="input" placeholder="Antwort eingeben" autocomplete="off">
-    <br>
-    <button id="submit">Prüfen</button>
-    <button id="skip">Überspringen</button>
-    <div id="feedback" class="feedback"></div>
-</div>
+<main>
+
+  <!-- START -->
+  <div class="screen" id="startScreen">
+    <span class="start-icon">🐍</span>
+    <div class="screen-label" data-de="Quiz · Fortgeschritten" data-en="Quiz · Advanced">Quiz · Fortgeschritten</div>
+    <h1 data-de="Python Quiz" data-en="Python Quiz">Python Quiz</h1>
+    <p class="screen-desc" data-de="Teste dein Python-Wissen mit 100 Fragen auf fortgeschrittenem Niveau. Antworte schnell – du bekommst Zeitbonus-Punkte!" data-en="Test your Python knowledge with 100 questions at an advanced level. Answer fast – you earn time bonus points!">
+      Teste dein Python-Wissen mit 100 Fragen auf fortgeschrittenem Niveau. Antworte schnell – du bekommst Zeitbonus-Punkte!
+    </p>
+    <div class="badge-row">
+      <span class="badge badge-questions" data-de="100 Fragen" data-en="100 Questions">100 Fragen</span>
+      <span class="badge badge-level" data-de="Fortgeschritten" data-en="Advanced">Fortgeschritten</span>
+      <span class="badge badge-bonus" data-de="Zeitbonus" data-en="Time Bonus">Zeitbonus</span>
+    </div>
+    <button class="start-btn" onclick="startGame()" data-de="Quiz starten" data-en="Start Quiz">Quiz starten</button>
+  </div>
+
+  <!-- GAME -->
+  <div class="screen" id="gameScreen" style="display:none;">
+    <div class="game-meta">
+      <div class="meta-stat">
+        <span class="meta-stat-label" data-de="Punkte" data-en="Score">Punkte</span>
+        <span class="meta-stat-value score-val" id="score">0</span>
+      </div>
+      <div class="meta-stat" style="text-align:center;">
+        <span class="meta-stat-label" data-de="Frage" data-en="Question">Frage</span>
+        <span class="meta-stat-value" id="count">1/100</span>
+      </div>
+      <div class="meta-stat" style="text-align:right;">
+        <span class="meta-stat-label" data-de="Zeit" data-en="Time">Zeit</span>
+        <span class="meta-stat-value time-val"><span id="time">0.0</span>s</span>
+      </div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-bar" id="progressBar" style="width:0%"></div>
+    </div>
+
+    <div class="question-text" id="question">–</div>
+
+    <input class="answer-input" id="input"
+           data-placeholder-de="Antwort eingeben …"
+           data-placeholder-en="Enter answer …"
+           placeholder="Antwort eingeben …"
+           autocomplete="off">
+
+    <div class="btn-row">
+      <button class="btn-primary" id="submit"
+              data-de="Prüfen" data-en="Check">Prüfen</button>
+      <button class="btn-secondary" id="skip"
+              data-de="Überspringen" data-en="Skip">Überspringen</button>
+    </div>
+
+    <div class="feedback-box" id="feedback"></div>
+  </div>
+
+</main>
 
 <script>
-/* ================= FRAGENPOOL ================= */
+/* ─── LANG ─── */
+let LANG = 'de';
+(function(){
+  const u = new URLSearchParams(window.location.search).get('lang');
+  const s = localStorage.getItem('ingw-lang');
+  const l = (u==='en'||u==='de') ? u : (s==='en'||s==='de') ? s : 'de';
+  if(u) localStorage.setItem('ingw-lang', u);
+  LANG = l; window.LANG = l;
+  document.documentElement.lang = l;
+})();
+
+function applyLang(lang){
+  LANG = lang; window.LANG = lang;
+  document.documentElement.lang = lang;
+  localStorage.setItem('ingw-lang', lang);
+  document.querySelectorAll('[data-de],[data-en]').forEach(el=>{
+    const t = el.getAttribute('data-'+lang);
+    if(t !== null) el.textContent = t;
+  });
+  document.querySelectorAll('[data-placeholder-'+lang+']').forEach(el=>{
+    el.placeholder = el.getAttribute('data-placeholder-'+lang);
+  });
+  const btn = document.getElementById('lang-toggle-btn');
+  if(btn) btn.textContent = lang==='de' ? 'EN' : 'DE';
+  document.querySelectorAll('a[href]').forEach(a=>{
+    const h = a.getAttribute('href');
+    if(!h||h.startsWith('http')||h.startsWith('//')||h.startsWith('#')) return;
+    const [p,q] = h.split('?');
+    const params = new URLSearchParams(q||'');
+    params.set('lang', lang);
+    a.setAttribute('href', p+'?'+params.toString());
+  });
+}
+window.switchLang = function(l){ applyLang(l); };
+applyLang(LANG);
+
+/* ─── QUESTIONS ─── */
 const baseQuestions = [
- {q:"Datentyp von []?", a:v=>v==="list", e:"[] ist list"},
- {q:"None == False?", a:v=>v==="false", e:"None ist nicht False"},
- {q:"type(5)?", a:v=>v==="int", e:"5 ist int"},
- {q:"bool(0)?", a:v=>v==="false", e:"0 ist False"},
- {q:"Was macht break?", a:v=>v==="break", e:"Beendet Schleife"},
- {q:"len([])?", a:v=>v==="0", e:"Leere Liste → 0"},
- {q:"Datentyp für Schlüssel-Wert?", a:v=>v==="dict", e:"Dictionary = dict"},
- {q:"type(True)?", a:v=>v==="bool", e:"True ist bool"},
- {q:"'a' in 'abc'?", a:v=>v==="true", e:"'a' ist enthalten"},
- {q:"Was macht continue?", a:v=>v==="continue", e:"Springt zum nächsten Durchlauf"},
- {q:"Leere Menge?", a:v=>v==="set", e:"set() erzeugt Menge"},
- {q:"Leerer String?", a:v=>v==="str", e:"'' ist str"},
- {q:"range(5) Typ?", a:v=>v==="range", e:"range(5) ist range"},
+ {q:"Datentyp von []?", a:v=>v==="list", e:"[] ist list / [] is list"},
+ {q:"None == False?", a:v=>v==="false", e:"None ist nicht False / None is not False"},
+ {q:"type(5)?", a:v=>v==="int", e:"5 ist int / 5 is int"},
+ {q:"bool(0)?", a:v=>v==="false", e:"0 ist False / 0 is False"},
+ {q:"len([])?", a:v=>v==="0", e:"Leere Liste → 0 / Empty list → 0"},
+ {q:"Datentyp für Schlüssel-Wert? / Data type for key-value?", a:v=>v==="dict", e:"Dictionary = dict"},
+ {q:"type(True)?", a:v=>v==="bool", e:"True ist bool / True is bool"},
+ {q:"'a' in 'abc'?", a:v=>v==="true", e:"'a' ist enthalten / 'a' is contained"},
+ {q:"Leere Menge? / Empty set?", a:v=>v==="set", e:"set() erzeugt Menge / set() creates a set"},
+ {q:"range(5) Typ? / range(5) type?", a:v=>v==="range", e:"range(5) ist range"},
  {q:"x=[1,2]; x[0]?", a:v=>v==="1", e:"x[0] = 1"},
- {q:"x={'a':1}; x['a']?", a:v=>v==="1", e:"Wert = 1"},
+ {q:"x={'a':1}; x['a']?", a:v=>v==="1", e:"Wert = 1 / Value = 1"},
  {q:"Boolean NOT True?", a:v=>v==="false", e:"not True = False"},
  {q:"Boolean OR True/False?", a:v=>v==="true", e:"True or False = True"},
  {q:"Boolean AND True/False?", a:v=>v==="false", e:"True and False = False"},
  {q:"type({'a':1})?", a:v=>v==="dict", e:"Dictionary"},
  {q:"type((1,2))?", a:v=>v==="tuple", e:"Tuple"},
-{q:"x=None; bool(x)?", a:v=>v==="false", e:"None ist False"},
-{q:"'' == False?", a:v=>v==="false", e:"Leerer String ist nicht False"},
-{q:"type(3.14)?", a:v=>v==="float", e:"3.14 ist float"},
-{q:"type([])?", a:v=>v==="list", e:"Liste = list"},
-{q:"type({})?", a:v=>v==="dict", e:"{} ist dict"},
-{q:"tuple aus [1,2,3]?", a:v=>v==="(1,2,3)", e:"tuple([1,2,3]) = (1,2,3)"},
-{q:"x=('a',); type(x)?", a:v=>v==="tuple", e:"Ein Element → tuple"},
-{q:"type(range(3,7))?", a:v=>v==="range", e:"range = range"},
-{q:"x=[1,2]; x[-1]?", a:v=>v==="2", e:"Letztes Element"},
-{q:"x='abc'; x[1]?", a:v=>v==="b", e:"Index beginnt bei 0"},
-{q:"x='abc'; 'b' in x?", a:v=>v==="true", e:"'b' enthalten"},
-{q:"x=[1,2,3]; 2 in x?", a:v=>v==="true", e:"2 ist in Liste"},
-{q:"type(True)?", a:v=>v==="bool", e:"True ist bool"},
-{q:"x='5'; int(x)?", a:v=>v==="5", e:"Konvertierung zu int"},
-{q:"x=5; str(x)?", a:v=>v==="5", e:"Konvertierung zu str"},
-{q:"type(3+4j)?", a:v=>v==="complex", e:"Komplexe Zahl"},
-{q:"x='abc'; x.upper()?", a:v=>v==="ABC", e:"Alles groß"},
-{q:"x='ABC'; x.lower()?", a:v=>v==="abc", e:"Alles klein"},
-{q:"x=' abc '; x.strip()?", a:v=>v==="abc", e:"Whitespace entfernen"},
-{q:"x='abc'; x.replace('a','z')?", a:v=>v==="zbc", e:"Ersetzt Zeichen"},
-{q:"x='abc'; x.split('b')?", a:v=>v==="['a','c']", e:"Teilen an 'b'"},
-{q:"x=[1,2]; x.append(3); x?", a:v=>v==="[1,2,3]", e:"An Liste anhängen"},
-{q:"x=[1,2,3]; x.pop()?", a:v=>v==="3", e:"Letztes Element entfernen"},
-{q:"x={'a':1}; x.keys()?", a:v=>v==="dict_keys(['a'])", e:"Schlüssel abrufen"},
-{q:"x={'a':1}; x.values()?", a:v=>v==="dict_values([1])", e:"Werte abrufen"},
-{q:"x={'a':1}; 'a' in x?", a:v=>v==="true", e:"Schlüssel prüfen"},
-{q:"x={'a':1}; 'b' in x?", a:v=>v==="false", e:"Schlüssel nicht vorhanden"},
-{q:"set([1,2,2])?", a:v=>v==="set([1,2])", e:"Duplikate werden entfernt"},
-{q:"x={1,2}; x.add(3); x?", a:v=>v==="set([1,2,3])", e:"Menge erweitern"},
-{q:"x={1,2,3}; 2 in x?", a:v=>v==="true", e:"Element prüfen"},
-{q:"x={1,2,3}; 4 in x?", a:v=>v==="false", e:"Nicht enthalten"},
-{q:"x='abc'; len(x)?", a:v=>v==="3", e:"3 Zeichen"},
-{q:"x=[1,2,3]; len(x)?", a:v=>v==="3", e:"3 Elemente"},
-{q:"y=x.copy(); x==y?", a:v=>v==="true", e:"Inhalt gleich"},
-{q:"y=x.copy(); x is y?", a:v=>v==="false", e:"Nicht dasselbe Objekt"},
-{q:"x=[1,2]; y=x; x is y?", a:v=>v==="true", e:"Dasselbe Objekt"},
-{q:"x=[1,2]; y=x; x==y?", a:v=>v==="true", e:"Inhalt gleich"},
-{q:"x=(1,2); x[1]?", a:v=>v==="2", e:"Index 1"},
-{q:"x=(1,2); x[1]=3?", a:v=>v==="error", e:"Tuple unveränderlich"},
-{q:"x='abc'; x[0]='z'?", a:v=>v==="error", e:"String unveränderlich"},
-{q:"x=[1,2]; x[0]=5; x?", a:v=>v==="[5,2]", e:"Element ersetzt"},
-{q:"x='abc'; x*2?", a:v=>v==="abcabc", e:"String wiederholt"},
-{q:"[1,2]*3?", a:v=>v==="[1,2,1,2,1,2]", e:"Liste wiederholt"},
-{q:"x=True; not x?", a:v=>v==="false", e:"Boolean invertieren"},
-{q:"x=False; not x?", a:v=>v==="true", e:"Boolean invertieren"},
-{q:"x=True and False?", a:v=>v==="false", e:"AND Operation"},
-{q:"x=True or False?", a:v=>v==="true", e:"OR Operation"},
-{q:"x=5; x>2?", a:v=>v==="true", e:"Vergleich"},
-{q:"x=5; x<2?", a:v=>v==="false", e:"Vergleich"},
-{q:"x=5; x==5?", a:v=>v==="true", e:"Vergleich"},
-{q:"x=5; x!=5?", a:v=>v==="false", e:"Vergleich"},
-{q:"x=5; x>=5?", a:v=>v==="true", e:"Vergleich"},
-{q:"x=5; x<=4?", a:v=>v==="false", e:"Vergleich"},
-{q:"x=[1,2,3]; 2 not in x?", a:v=>v==="false", e:"Element ist in Liste"},
-{q:"x='abc'; 'd' not in x?", a:v=>v==="true", e:"Nicht enthalten"},
-{q:"x={'a':1}; 'a' in x?", a:v=>v==="true", e:"Schlüssel enthalten"},
-{q:"x={'a':1}; 'b' not in x?", a:v=>v==="true", e:"Nicht enthalten"},
-{q:"x=[1,2]; x.append([3,4]); x?", a:v=>v==="[1,2,[3,4]]", e:"Liste in Liste"},
-{q:"x=[1,2,[3,4]]; x[2][1]?", a:v=>v==="4", e:"Verschachteltes Element"},
-{q:"x={'a':[1,2]}; x['a'][1]?", a:v=>v==="2", e:"Wert aus Liste"},
-{q:"x=(1,[2,3]); x[1][0]?", a:v=>v==="2", e:"Verschachteltes Tuple-Element"},
-{q:"x='Python'; x[::2]?", a:v=>v==="Pto", e:"Jedes zweite Zeichen"},
-{q:"x='Python'; x[::-1]?", a:v=>v==="nohtyP", e:"String umkehren"},
-{q:"x=[1,2,3,4]; x[1:3]?", a:v=>v==="[2,3]", e:"Slicing"},
-{q:"x=[1,2,3,4]; x[:2]?", a:v=>v==="[1,2]", e:"Slicing"},
-{q:"x=[1,2,3,4]; x[2:]?", a:v=>v==="[3,4]", e:"Slicing"},
-{q:"x=(1,2,3,4); x[1:3]?", a:v=>v==="(2,3)", e:"Slicing Tuple"},
-{q:"x='abcd'; x.replace('b','z')?", a:v=>v==="azcd", e:"Zeichen ersetzen"},
-{q:"x='abcd'; x.find('c')?", a:v=>v==="2", e:"Index von 'c'"},
-{q:"x='abcd'; x.index('d')?", a:v=>v==="3", e:"Index von 'd'"},
-{q:"x=[1,2,3]; x.index(2)?", a:v=>v==="1", e:"Index von 2"},
-{q:"x='a,b,c'; x.split(',')?", a:v=>v==="['a','b','c']", e:"String teilen"},
-{q:"','.join(['a','b','c'])?", a:v=>v==="a,b,c", e:"Liste zu String"},
-{q:"x={'a':1,'b':2}; list(x.keys())?", a:v=>v==="['a','b']", e:"Schlüsselliste"},
-{q:"x={'a':1,'b':2}; list(x.values())?", a:v=>v==="[1,2]", e:"Wertliste"},
-{q:"x={'a':1,'b':2}; list(x.items())?", a:v=>v==="[('a',1),('b',2)]", e:"Items"},
-{q:"x={1,2,3}; len(x)?", a:v=>v==="3", e:"Menge hat 3 Elemente"},
-{q:"x={1,2}; x.add(3); len(x)?", a:v=>v==="3", e:"Add Element"},
-{q:"x={1,2}; x.remove(2); x?", a:v=>v==="set([1])", e:"Entfernt Element"},
-{q:"x={'a':1}; x.get('a')?", a:v=>v==="1", e:"Wert abrufen"},
-{q:"x={'a':1}; x.get('b','NA')?", a:v=>v==="NA", e:"Default Wert"},
-{q:"x=range(5); list(x)?", a:v=>v==="[0,1,2,3,4]", e:"Range zu Liste"},
-{q:"x=range(2,5); list(x)?", a:v=>v==="[2,3,4]", e:"Range zu Liste"},
-{q:"x=range(5,10,2); list(x)?", a:v=>v==="[5,7,9]", e:"Range mit Schritt"},
-{q:"x=['a','b','c']; ''.join(x)?", a:v=>v==="abc", e:"Liste zu String"},
-{q:"x=tuple('abc'); x?", a:v=>v==="('a','b','c')", e:"String zu Tuple"},
-{q:"x={'x':1}; x.clear(); x?", a:v=>v==="{}", e:"Leeres dict"},
-{q:"x=[1,2,3]; x.clear(); x?", a:v=>v==="[]", e:"Leere Liste"},
-{q:"x={1,2,3}; x.clear(); x?", a:v=>v==="set()", e:"Leere Menge"},
-{q:"x='abc'; x.isalpha()?", a:v=>v==="true", e:"Nur Buchstaben"},
-{q:"x='123'; x.isdigit()?", a:v=>v==="true", e:"Nur Ziffern"},
-{q:"x='abc123'; x.isalnum()?", a:v=>v==="true", e:"Alphanumerisch"},
-{q:"x='abc'; x.islower()?", a:v=>v==="true", e:"Kleinbuchstaben"},
-{q:"x='ABC'; x.isupper()?", a:v=>v==="true", e:"Großbuchstaben"},
-{q:"x='abc'; x.startswith('a')?", a:v=>v==="true", e:"Start"},
-{q:"x='abc'; x.endswith('c')?", a:v=>v==="true", e:"Ende"},
-{q:"x=['a','b']; ','.join(x)?", a:v=>v==="a,b", e:"Join Liste"},
-{q:"Gib den Datentyp von [] ein", a:v=>v==="list", e:"[] ist list"},
-{q:"Gib True/False: None == False", a:v=>v==="false", e:"None ist nicht False"},
-{q:"Gib den Typ von 3.14 ein", a:v=>v==="float", e:"3.14 ist float"},
-{q:"Gib den Typ von () ein", a:v=>v==="tuple", e:"Leeres Tuple"},
-{q:"Gib True/False: [] ist leer?", a:v=>v==="true", e:"Leere Liste ist wahr in bool()"},
-{q:"Gib True/False: {} ist leer?", a:v=>v==="false", e:"Leeres dict ist False in bool()"},
-{q:"Gib den Wert von x[0] wenn x=[5,6]", a:v=>v==="5", e:"Erstes Element = 5"},
-{q:"Gib den Wert von x[-1] wenn x=[5,6]", a:v=>v==="6", e:"Letztes Element = 6"},
-{q:"Gib True/False: 'a' in 'abc'", a:v=>v==="true", e:"'a' ist enthalten"},
-{q:"Gib den Typ von True ein", a:v=>v==="bool", e:"True ist bool"},
-{q:"Gib True/False: bool(0)", a:v=>v==="false", e:"0 → False"},
-{q:"Gib True/False: bool(1)", a:v=>v==="true", e:"1 → True"},
-{q:"Gib den Wert von x.get('a') wenn x={'a':10}", a:v=>v==="10", e:"Schlüsselwert = 10"},
-{q:"Gib den Wert von x.get('b','NA') wenn x={'a':10}", a:v=>v==="NA", e:"Standardwert NA"},
-{q:"Gib den Typ von range(5) ein", a:v=>v==="range", e:"range(5) ist range"},
-{q:"Gib den Typ von {'x':1} ein", a:v=>v==="dict", e:"Dictionary"},
-{q:"Gib den Typ von [1,2,3] ein", a:v=>v==="list", e:"Liste"},
-{q:"Gib True/False: len([])==0", a:v=>v==="true", e:"Leere Liste hat Länge 0"},
-{q:"Gib True/False: len([1])>0", a:v=>v==="true", e:"Liste hat ein Element"},
-{q:"Gib den Wert von x.pop() wenn x=[1,2,3]", a:v=>v==="3", e:"Entfernt letztes Element"},
-{q:"Gib den Wert von x.append(4); x wenn x=[1,2,3]", a:v=>v==="[1,2,3,4]", e:"4 angehängt"},
-{q:"Gib True/False: not True", a:v=>v==="false", e:"not True = False"},
-{q:"Gib True/False: True and False", a:v=>v==="false", e:"AND Operation"},
-{q:"Gib True/False: True or False", a:v=>v==="true", e:"OR Operation"},
-{q:"Gib den Wert von 'abc'.upper()", a:v=>v==="ABC", e:"Alles groß"},
-{q:"Gib den Wert von 'ABC'.lower()", a:v=>v==="abc", e:"Alles klein"},
-{q:"Gib den Wert von ' abc '.strip()", a:v=>v==="abc", e:"Whitespace entfernt"},
-{q:"Gib True/False: 'abc'.startswith('a')", a:v=>v==="true", e:"Start"},
-{q:"Gib True/False: 'abc'.endswith('c')", a:v=>v==="true", e:"Ende"},
-{q:"Gib den Wert von [1,2]*2", a:v=>v==="[1,2,1,2]", e:"Liste wiederholt"},
-{q:"Gib den Wert von 'abc'*2", a:v=>v==="abcabc", e:"String wiederholt"},
-{q:"Gib den Wert von x[::2] wenn x='abcd'", a:v=>v==="ac", e:"Jedes zweite Zeichen"},
-{q:"Gib den Wert von x[::-1] wenn x='abcd'", a:v=>v==="dcba", e:"String umkehren"},
-{q:"Gib den Typ von {'a':1}.keys()", a:v=>v==="dict_keys", e:"Schlüssel"},
-{q:"Gib den Typ von {'a':1}.values()", a:v=>v==="dict_values", e:"Werte"},
-{q:"Gib den Wert von set([1,2,2])", a:v=>v==="set([1,2])", e:"Duplikate entfernt"},
-{q:"Gib True/False: 2 in {1,2,3}", a:v=>v==="true", e:"2 enthalten"},
-{q:"Gib True/False: 4 not in {1,2,3}", a:v=>v==="true", e:"Nicht enthalten"},
-{q:"Gib den Wert von [1,2,3][1:3]", a:v=>v==="[2,3]", e:"Slicing"},
-{q:"Gib den Wert von (1,2,3)[1:3]", a:v=>v==="(2,3)", e:"Slicing Tuple"},
-{q:"Gib den Wert von 'a,b,c'.split(',')", a:v=>v==="['a','b','c']", e:"String teilen"},
-{q:"Gib den Wert von ','.join(['a','b','c'])", a:v=>v==="a,b,c", e:"Liste zu String"},
-{q:"Gib True/False: 'abc'.isalpha()", a:v=>v==="true", e:"Nur Buchstaben"},
-{q:"Gib True/False: '123'.isdigit()", a:v=>v==="true", e:"Nur Zahlen"},
-{q:"Gib True/False: 'abc123'.isalnum()", a:v=>v==="true", e:"Alphanumerisch"},
-{q:"Gib True/False: 'abc'.islower()", a:v=>v==="true", e:"Kleinbuchstaben"},
-{q:"Gib True/False: 'ABC'.isupper()", a:v=>v==="true", e:"Großbuchstaben"},
-{q:"Gib den Wert von list(range(3))", a:v=>v==="[0,1,2]", e:"Range zu Liste"},
-{q:"Gib den Wert von x.clear() wenn x=[1,2,3]", a:v=>v==="[]", e:"Liste geleert"},
-{q:"Gib den Wert von x.clear() wenn x={'a':1}", a:v=>v==="{}", e:"Dict geleert"},
-{q:"Gib True/False: bool('')", a:v=>v==="false", e:"Leerer String = False"},
-{q:"Typ von zip([1,2],[3,4])?", a:v=>v==="zip", e:"zip-Objekt"},
-{q:"list(zip([1,2],[3,4]))?", a:v=>v==="[[1,3],[2,4]]", e:"Liste aus zip"},
-{q:"list(enumerate(['a','b']))?", a:v=>v==="[[0,'a'],[1,'b']]", e:"Liste aus enumerate"},
-{q:"any([False,True,False])?", a:v=>v==="true", e:"Mindestens ein True"},
-{q:"all([True,True,False])?", a:v=>v==="false", e:"Nicht alle True"},
-{q:"[x*2 for x in [1,2,3]]?", a:v=>v==="[2,4,6]", e:"List-Comprehension"},
-{q:"[x for x in [1,2,3] if x>1]?", a:v=>v==="[2,3]", e:"Gefilterte Liste"},
-{q:"Typ von lambda x:x+1?", a:v=>v==="function", e:"Lambda-Funktion"},
-{q:"list(map(lambda x:x+1,[1,2]))?", a:v=>v==="[2,3]", e:"map mit lambda"},
-{q:"list(filter(lambda x:x>1,[1,2,3]))?", a:v=>v==="[2,3]", e:"filter mit lambda"},
-{q:"callable(lambda x:x)?", a:v=>v==="true", e:"Lambda ist callable"},
-{q:"' '.join(['Python','Quiz'])?", a:v=>v==="Python Quiz", e:"String join"},
-{q:"sorted([3,1,2])?", a:v=>v==="[1,2,3]", e:"sortiert"},
-{q:"sorted([3,1,2],reverse=True)?", a:v=>v==="[3,2,1]", e:"absteigend sortiert"},
-{q:"reversed([1,2,3]) als Liste?", a:v=>v==="[3,2,1]", e:"Liste umkehren"},
-
-{q:"x={1,2,3}; max(x)?", a:v=>v==="3", e:"Max Element"},
-{q:"x={1,2,3}; min(x)?", a:v=>v==="1", e:"Min Element"},
-{q:"x=['a','b']; x*3?", a:v=>v==="['a','b','a','b','a','b']", e:"Liste multiplizieren"},
-{q:"x='abc'; x*3?", a:v=>v==="abcabcabc", e:"String multiplizieren"},
-{q:"abs(-5)?", a:v=>v==="5", e:"Betrag"},
-{q:"round(3.7)?", a:v=>v==="4", e:"Runden"},
-{q:"round(3.2)?", a:v=>v==="3", e:"Runden"},
-{q:"divmod(7,3)?", a:v=>v==="(2,1)", e:"Quotient und Rest"},
-{q:"pow(2,3)?", a:v=>v==="8", e:"Exponentiation"},
-{q:"2**3?", a:v=>v==="8", e:"Exponentiation"},
-{q:"type(range(10))?", a:v=>v==="range", e:"range-Typ"},
-{q:"list(range(3))?", a:v=>v==="[0,1,2]", e:"range → Liste"},
-{q:"list(range(2,5))?", a:v=>v==="[2,3,4]", e:"range mit Start"},
-{q:"list(range(1,10,3))?", a:v=>v==="[1,4,7]", e:"range mit Schritt"},
-{q:"x=[1,2,3]; x[::-1]?", a:v=>v==="[3,2,1]", e:"Liste umkehren"},
-{q:"x='abcde'; x[1:4]?", a:v=>v==="bcd", e:"Slicing"},
-{q:"x='abcde'; x[:3]?", a:v=>v==="abc", e:"Slicing Anfang"},
-{q:"x='abcde'; x[2:]?", a:v=>v==="cde", e:"Slicing Ende"},
-{q:"x=(1,2,3); x[1:3]?", a:v=>v==="(2,3)", e:"Tuple Slicing"},
-{q:"x=(1,2,3); len(x)?", a:v=>v==="3", e:"Länge Tuple"},
-{q:"x=[1,2,3]; len(x)?", a:v=>v==="3", e:"Länge Liste"},
-{q:"x={'a':1,'b':2}; len(x)?", a:v=>v==="2", e:"Länge Dict"},
-{q:"type([])?", a:v=>v==="list", e:"Liste"},
-{q:"type({})?", a:v=>v==="dict", e:"Dictionary"},
-{q:"type(())?", a:v=>v==="tuple", e:"Tuple"},
-{q:"type(set())?", a:v=>v==="set", e:"Set"},
-{q:"x=[1,2]; y=x; x is y?", a:v=>v==="true", e:"Gleiches Objekt"},
-{q:"x=[1,2]; y=x.copy(); x is y?", a:v=>v==="false", e:"Kopie → anderes Objekt"},
-{q:"x=[1,2]; y=x.copy(); x==y?", a:v=>v==="true", e:"Inhalt gleich"},
-{q:"x='abc'; x.find('b')?", a:v=>v==="1", e:"Index"},
-{q:"x='abc'; x.index('c')?", a:v=>v==="2", e:"Index"},
-{q:"x='abc'; 'b' in x?", a:v=>v==="true", e:"Enthalten?"},
-{q:"x='abc'; 'd' not in x?", a:v=>v==="true", e:"Nicht enthalten"},
-{q:"x=[1,2,3]; 2 in x?", a:v=>v==="true", e:"Element enthalten"},
-{q:"x=[1,2,3]; 4 not in x?", a:v=>v==="true", e:"Nicht enthalten"},
-{q:"x={'a':1}; 'a' in x?", a:v=>v==="true", e:"Schlüssel enthalten"},
-{q:"x={'a':1}; 'b' not in x?", a:v=>v==="true", e:"Nicht enthalten"},
-{q:"x='abc'; x.isalpha()?", a:v=>v==="true", e:"Nur Buchstaben"},
-{q:"x='123'; x.isdigit()?", a:v=>v==="true", e:"Nur Zahlen"},
-{q:"x='abc123'; x.isalnum()?", a:v=>v==="true", e:"Alphanumerisch"},
-{q:"x='abc'; x.islower()?", a:v=>v==="true", e:"Kleinbuchstaben"},
-{q:"x='ABC'; x.isupper()?", a:v=>v==="true", e:"Großbuchstaben"},
-{q:"x=[1,2]; x.append(3); x?", a:v=>v==="[1,2,3]", e:"Anhängen"},
-{q:"x=[1,2,3]; x.pop()?", a:v=>v==="3", e:"Letztes entfernen"},
-{q:"x=[1,2,3]; x.remove(2); x?", a:v=>v==="[1,3]", e:"Entfernen"},
-{q:"x={1,2,3}; x.add(4); x?", a:v=>v==="set([1,2,3,4])", e:"Add Element"},
-{q:"x={1,2,3}; x.remove(2); x?", a:v=>v==="set([1,3])", e:"Remove Element"},
-{q:"x={'a':1}; x.get('a')?", a:v=>v==="1", e:"Get Wert"},
-{q:"x={'a':1}; x.get('b','NA')?", a:v=>v==="NA", e:"Default Wert"},
-{q:"x={1,2,3}; max(x)?", a:v=>v==="3", e:"Max"},
-{q:"x={1,2,3}; min(x)?", a:v=>v==="1", e:"Min"},
-{q:"round(3.5)?", a:v=>v==="4", e:"Runden"},
-{q:"round(2.4)?", a:v=>v==="2", e:"Runden"},
-{q:"abs(-10)?", a:v=>v==="10", e:"Betrag"},
-{q:"divmod(7,3)?", a:v=>v==="(2,1)", e:"Quotient, Rest"},
-{q:"pow(2,5)?", a:v=>v==="32", e:"Exponent"},
-{q:"2**5?", a:v=>v==="32", e:"Exponent"},
-{q:"x='abc'; x.replace('a','z')?", a:v=>v==="zbc", e:"Ersetzen"},
-{q:"x='abcd'; x.replace('b','y')?", a:v=>v==="aycd", e:"Ersetzen"},
-{q:"x='abcd'; x.upper()?", a:v=>v==="ABCD", e:"Großbuchstaben"},
-{q:"x='ABCD'; x.lower()?", a:v=>v==="abcd", e:"Kleinbuchstaben"},
-{q:"x='abc'; x[::2]?", a:v=>v==="ac", e:"Jedes zweite"},
-{q:"x='abcd'; x[::-1]?", a:v=>v==="dcba", e:"Umkehren"},
-{q:"x='abcde'; x[1:4:2]?", a:v=>v==="bd", e:"Slicing mit Schritt"},
-{q:"list(range(5,0,-1))?", a:v=>v==="[5,4,3,2,1]", e:"Reverse range"},
-{q:"list(range(0,10,2))?", a:v=>v==="[0,2,4,6,8]", e:"Range mit Schritt"},
-{q:"x=[1,2,3]; [i*2 for i in x]?", a:v=>v==="[2,4,6]", e:"List-Comprehension"},
-{q:"x=[1,2,3]; [i for i in x if i>1]?", a:v=>v==="[2,3]", e:"Gefilterte Liste"},
-{q:"list(map(str,[1,2]))?", a:v=>v==="['1','2']", e:"map zu str"},
-{q:"list(map(int,['1','2']))?", a:v=>v==="[1,2]", e:"map zu int"},
-{q:"x=5; str(x)?", a:v=>v==="5", e:"Int zu String"},
-{q:"x='5'; int(x)?", a:v=>v==="5", e:"String zu Int"},
-{q:"x=True; int(x)?", a:v=>v==="1", e:"Bool zu Int"},
-{q:"x=False; int(x)?", a:v=>v==="0", e:"Bool zu Int"},
-{q:"x=1; bool(x)?", a:v=>v==="true", e:"Int zu Bool"},
-{q:"x=0; bool(x)?", a:v=>v==="false", e:"Int zu Bool"},
-{q:"x=''; bool(x)?", a:v=>v==="false", e:"Empty String → False"},
-{q:"x='abc'; bool(x)?", a:v=>v==="true", e:"Nicht leer → True"},
-{q:"type(lambda x:x)?", a:v=>v==="function", e:"Lambda Typ"},
-{q:"callable(print)?", a:v=>v==="true", e:"print ist callable"},
-{q:"callable(5)?", a:v=>v==="false", e:"5 ist nicht callable"},
-{q:"type(print)?", a:v=>v==="builtin_function_or_method", e:"print Typ"},
-{q:"type(len)?", a:v=>v==="builtin_function_or_method", e:"len Typ"},
-{q:"x=None; bool(x)?", a:v=>v==="false", e:"None → False"},
-{q:"x=5; x+=2; x?", a:v=>v==="7", e:"Inkrement"},
-{q:"x=5; x-=3; x?", a:v=>v==="2", e:"Dekrement"},
-{q:"x=2; x*=4; x?", a:v=>v==="8", e:"Multiplikation"},
-{q:"x=8; x//=3; x?", a:v=>v==="2", e:"Ganzzahl-Division"},
-{q:"x=8; x%=3; x?", a:v=>v==="2", e:"Modulo"},
-{q:"x=2; x**=3; x?", a:v=>v==="8", e:"Potenz"},
-{q:"'a'+'b'?", a:v=>v==="ab", e:"String-Konkatenation"},
-{q:"len('Python')?", a:v=>v==="6", e:"Länge"},
-{q:"max([1,2,3])?", a:v=>v==="3", e:"Maximum"},
-{q:"min([1,2,3])?", a:v=>v==="1", e:"Minimum"},
-{q:"sum([1,2,3])?", a:v=>v==="6", e:"Summe"},
-{q:"list('abc')?", a:v=>v==="['a','b','c']", e:"String zu Liste"},
-{q:"tuple([1,2])?", a:v=>v==="(1,2)", e:"Liste zu Tuple"},
-{q:"set([1,2,2])?", a:v=>v==="set([1,2])", e:"Duplikate entfernen"},
-{q:"x={1,2}; x.pop()?", a:v=>v==="1", e:"Element entfernen"},
-{q:"x={'a':1}; x.pop('a')?", a:v=>v==="1", e:"Wert entfernen"},
-{q:"x='abc'; x.count('a')?", a:v=>v==="1", e:"Anzahl Zeichen"},
-{q:"x='abcabc'; x.count('a')?", a:v=>v==="2", e:"Anzahl Zeichen"},
-{q:"x='abc'; x.startswith('a')?", a:v=>v==="true", e:"Start prüfen"},
-{q:"x='abc'; x.endswith('c')?", a:v=>v==="true", e:"Ende prüfen"},
-{q:"sorted('cba')?", a:v=>v==="['a','b','c']", e:"Sortieren"},
-{q:"reversed('abc')?", a:v=>v==="<reversed>", e:"Reversed Objekt"},
-{q:"list(reversed([1,2]))?", a:v=>v==="[2,1]", e:"Liste umkehren"},
-{q:"divmod(8,3)?", a:v=>v==="(2,2)", e:"Quotient und Rest"},
-{q:"abs(-7)?", a:v=>v==="7", e:"Betrag"},
-{q:"round(4.5)?", a:v=>v==="4", e:"Banker's rounding"},
-{q:"round(5.5)?", a:v=>v==="6", e:"Banker's rounding"},
-{q:"x='1.23'; float(x)?", a:v=>v==="1.23", e:"String zu float"},
-{q:"str(123)?", a:v=>v==="123", e:"Int zu String"},
-{q:"int('42')?", a:v=>v==="42", e:"String zu Int"},
-{q:"float(5)?", a:v=>v==="5.0", e:"Int zu Float"},
-{q:"complex(2,3)?", a:v=>v==="(2+3j)", e:"Komplexe Zahl"},
-{q:"(2+3j).real?", a:v=>v==="2.0", e:"Realteil"},
-{q:"(2+3j).imag?", a:v=>v==="3.0", e:"Imaginärteil"},
-{q:"round(3.14159,2)?", a:v=>v==="3.14", e:"Runden"},
-{q:"abs(-3.5)?", a:v=>v==="3.5", e:"Betrag float"},
-{q:"type(3+4j)?", a:v=>v==="complex", e:"Komplex"},
-{q:"type([1,2])?", a:v=>v==="list", e:"Liste"},
-{q:"type({'a':1})?", a:v=>v==="dict", e:"Dictionary"},
-{q:"type((1,))?", a:v=>v==="tuple", e:"Tuple"},
-{q:"type({1,2})?", a:v=>v==="set", e:"Menge"},
-{q:"True and True?", a:v=>v==="true", e:"AND"},
-{q:"True and False?", a:v=>v==="false", e:"AND"},
-{q:"False or True?", a:v=>v==="true", e:"OR"},
-{q:"False or False?", a:v=>v==="false", e:"OR"},
-{q:"not True?", a:v=>v==="false", e:"NOT"},
-{q:"not False?", a:v=>v==="true", e:"NOT"},
-{q:"bool(0)?", a:v=>v==="false", e:"Int zu Bool"},
-{q:"bool(1)?", a:v=>v==="true", e:"Int zu Bool"},
-{q:"bool('')?", a:v=>v==="false", e:"Empty String"},
-{q:"bool('abc')?", a:v=>v==="true", e:"Nicht leer"},
-{q:"bool([])?", a:v=>v==="false", e:"Leere Liste"},
-{q:"bool([0])?", a:v=>v==="true", e:"Nicht leer"},
-{q:"bool({})?", a:v=>v==="false", e:"Leeres dict"},
-{q:"bool({'x':1})?", a:v=>v==="true", e:"Nicht leer"},
-{q:"x=[1,2,3]; x[0]?", a:v=>v==="1", e:"Index 0"},
-{q:"x=[1,2,3]; x[-1]?", a:v=>v==="3", e:"Letztes Element"},
-{q:"x=[1,2,3]; x[1:3]?", a:v=>v==="[2,3]", e:"Slicing"},
-{q:"x='abcd'; x[::2]?", a:v=>v==="ac", e:"Jedes zweite"},
-{q:"x='abcd'; x[::-1]?", a:v=>v==="dcba", e:"Umkehren"},
-{q:"x=[1,2,3]; x*2?", a:v=>v==="[1,2,3,1,2,3]", e:"Liste multiplizieren"},
-{q:"'ab'*3?", a:v=>v==="ababab", e:"String multiplizieren"},
-{q:"x=[1,2]; y=x.copy(); x==y?", a:v=>v==="true", e:"Inhalt gleich"},
-{q:"x=[1,2]; y=x.copy(); x is y?", a:v=>v==="false", e:"Unterschiedliche Objekte"},
-{q:"x=[1,2]; y=x; x is y?", a:v=>v==="true", e:"Gleiches Objekt"},
-{q:"x={'a':1}; x.get('a')?", a:v=>v==="1", e:"Wert abrufen"},
-{q:"x={'a':1}; x.get('b','NA')?", a:v=>v==="NA", e:"Default Wert"},
-{q:"x={'a':1}; 'a' in x?", a:v=>v==="true", e:"Schlüssel prüfen"},
-{q:"x={'a':1}; 'b' in x?", a:v=>v==="false", e:"Schlüssel prüfen"},
-{q:"x={1,2,3}; 2 in x?", a:v=>v==="true", e:"Menge prüfen"},
-{q:"x={1,2,3}; 4 in x?", a:v=>v==="false", e:"Menge prüfen"},
-{q:"x=[1,2,3]; 2 in x?", a:v=>v==="true", e:"Liste prüfen"},
-{q:"x=[1,2,3]; 4 in x?", a:v=>v==="false", e:"Liste prüfen"},
-{q:"list(range(5))?", a:v=>v==="[0,1,2,3,4]", e:"Range zu Liste"},
-{q:"list(range(2,6))?", a:v=>v==="[2,3,4,5]", e:"Range Start-End"},
-{q:"list(range(1,10,3))?", a:v=>v==="[1,4,7]", e:"Range mit Schritt"},
-{q:"x='abc'; x.replace('a','z')?", a:v=>v==="zbc", e:"Zeichen ersetzen"},
-{q:"x='abc'; x.count('a')?", a:v=>v==="1", e:"Anzahl zählen"},
-{q:"x='abc'; x.find('b')?", a:v=>v==="1", e:"Index finden"},
-{q:"x='abc'; x.index('c')?", a:v=>v==="2", e:"Index finden"},
-{q:"','.join(['a','b','c'])?", a:v=>v==="a,b,c", e:"Liste zu String"},
-{q:"x='a,b,c'; x.split(',')?", a:v=>v==="['a','b','c']", e:"String teilen"},
-{q:"x=[1,2]; x.append(3); x?", a:v=>v==="[1,2,3]", e:"Anhängen"},
-{q:"x=[1,2,3]; x.pop()?", a:v=>v==="3", e:"Letztes entfernen"},
-{q:"x=[1,2,3]; x.remove(2); x?", a:v=>v==="[1,3]", e:"Entfernen"},
-{q:"x={1,2,3}; x.add(4); x?", a:v=>v==="set([1,2,3,4])", e:"Add Element"},
-{q:"x={1,2,3}; x.remove(2); x?", a:v=>v==="set([1,3])", e:"Remove Element"},
-{q:"x={'a':1}; x.clear(); x?", a:v=>v==="{}", e:"Dict leeren"},
-{q:"x=[1,2,3]; x.clear(); x?", a:v=>v==="[]", e:"Liste leeren"},
-{q:"x={1,2,3}; x.clear(); x?", a:v=>v==="set()", e:"Menge leeren"},
-{q:"x='abc'; x.isalpha()?", a:v=>v==="true", e:"Nur Buchstaben"},
-{q:"x='123'; x.isdigit()?", a:v=>v==="true", e:"Nur Ziffern"},
-{q:"x='abc123'; x.isalnum()?", a:v=>v==="true", e:"Alphanumerisch"},
-{q:"x='abc'; x.islower()?", a:v=>v==="true", e:"Kleinbuchstaben"},
-{q:"x='ABC'; x.isupper()?", a:v=>v==="true", e:"Großbuchstaben"},
-{q:"x='abc'; x.strip()?", a:v=>v==="abc", e:"Whitespace entfernen"},
-{q:"x=' abc '; x.strip()?", a:v=>v==="abc", e:"Whitespace entfernen"},
-{q:"type(lambda x:x)?", a:v=>v==="function", e:"Lambda Typ"},
-{q:"callable(lambda x:x)?", a:v=>v==="true", e:"Lambda ist callable"},
-{q:"callable(print)?", a:v=>v==="true", e:"print callable"},
-{q:"callable(5)?", a:v=>v==="false", e:"5 nicht callable"},
-{q:"type(print)?", a:v=>v==="builtin_function_or_method", e:"print Typ"},
-{q:"type(len)?", a:v=>v==="builtin_function_or_method", e:"len Typ"},
-{q:"x=None; bool(x)?", a:v=>v==="false", e:"None → False"}
-
-
+ {q:"type(3.14)?", a:v=>v==="float", e:"3.14 ist float / 3.14 is float"},
+ {q:"x=[1,2]; x[-1]?", a:v=>v==="2", e:"Letztes Element / Last element"},
+ {q:"x='abc'; x[1]?", a:v=>v==="b", e:"Index beginnt bei 0 / Index starts at 0"},
+ {q:"x='5'; int(x)?", a:v=>v==="5", e:"Konvertierung zu int / Conversion to int"},
+ {q:"x='abc'; x.upper()?", a:v=>v==="ABC", e:"Alles groß / All uppercase"},
+ {q:"x='ABC'; x.lower()?", a:v=>v==="abc", e:"Alles klein / All lowercase"},
+ {q:"x=' abc '; x.strip()?", a:v=>v==="abc", e:"Whitespace entfernen / Remove whitespace"},
+ {q:"x='abc'; x.replace('a','z')?", a:v=>v==="zbc", e:"Ersetzt Zeichen / Replaces character"},
+ {q:"x=[1,2]; x.append(3); x?", a:v=>v==="[1,2,3]", e:"An Liste anhängen / Append to list"},
+ {q:"x=[1,2,3]; x.pop()?", a:v=>v==="3", e:"Letztes entfernen / Remove last"},
+ {q:"x='abc'; len(x)?", a:v=>v==="3", e:"3 Zeichen / 3 characters"},
+ {q:"x='abc'; x[::2]?", a:v=>v==="ac", e:"Jedes zweite / Every second"},
+ {q:"x='Python'; x[::-1]?", a:v=>v==="nohtyP", e:"String umkehren / Reverse string"},
+ {q:"x=[1,2,3,4]; x[1:3]?", a:v=>v==="[2,3]", e:"Slicing"},
+ {q:"abs(-5)?", a:v=>v==="5", e:"Betrag / Absolute value"},
+ {q:"round(3.7)?", a:v=>v==="4", e:"Runden / Rounding"},
+ {q:"divmod(7,3)?", a:v=>v==="(2,1)", e:"Quotient und Rest / Quotient and remainder"},
+ {q:"pow(2,3)?", a:v=>v==="8", e:"Exponentiation"},
+ {q:"2**3?", a:v=>v==="8", e:"Exponentiation"},
+ {q:"sorted([3,1,2])?", a:v=>v==="[1,2,3]", e:"Sortiert / Sorted"},
+ {q:"list(range(3))?", a:v=>v==="[0,1,2]", e:"Range zu Liste / Range to list"},
+ {q:"any([False,True,False])?", a:v=>v==="true", e:"Mindestens ein True / At least one True"},
+ {q:"all([True,True,False])?", a:v=>v==="false", e:"Nicht alle True / Not all True"},
+ {q:"[x*2 for x in [1,2,3]]?", a:v=>v==="[2,4,6]", e:"List-Comprehension"},
+ {q:"type(lambda x:x+1)?", a:v=>v==="function", e:"Lambda-Funktion / Lambda function"},
+ {q:"list(map(lambda x:x+1,[1,2]))?", a:v=>v==="[2,3]", e:"map mit lambda / map with lambda"},
+ {q:"max([1,2,3])?", a:v=>v==="3", e:"Maximum"},
+ {q:"min([1,2,3])?", a:v=>v==="1", e:"Minimum"},
+ {q:"sum([1,2,3])?", a:v=>v==="6", e:"Summe / Sum"},
+ {q:"','.join(['a','b','c'])?", a:v=>v==="a,b,c", e:"Liste zu String / List to string"},
+ {q:"'a,b,c'.split(',')?", a:v=>v==="['a','b','c']", e:"String teilen / Split string"},
+ {q:"x='abc'; x.isalpha()?", a:v=>v==="true", e:"Nur Buchstaben / Only letters"},
+ {q:"x='123'; x.isdigit()?", a:v=>v==="true", e:"Nur Ziffern / Only digits"},
+ {q:"x=True; int(x)?", a:v=>v==="1", e:"Bool zu Int / Bool to int"},
+ {q:"x=False; int(x)?", a:v=>v==="0", e:"Bool zu Int / Bool to int"},
+ {q:"x=1; bool(x)?", a:v=>v==="true", e:"Int zu Bool / Int to bool"},
+ {q:"x=0; bool(x)?", a:v=>v==="false", e:"Int zu Bool / Int to bool"},
+ {q:"x=''; bool(x)?", a:v=>v==="false", e:"Leerer String = False / Empty string = False"},
+ {q:"callable(print)?", a:v=>v==="true", e:"print ist callable / print is callable"},
+ {q:"callable(5)?", a:v=>v==="false", e:"5 ist nicht callable / 5 is not callable"},
+ {q:"x=5; x+=2; x?", a:v=>v==="7", e:"Inkrement / Increment"},
+ {q:"x=5; x-=3; x?", a:v=>v==="2", e:"Dekrement / Decrement"},
+ {q:"x=2; x*=4; x?", a:v=>v==="8", e:"Multiplikation / Multiplication"},
+ {q:"x=8; x//=3; x?", a:v=>v==="2", e:"Ganzzahl-Division / Integer division"},
+ {q:"'a'+'b'?", a:v=>v==="ab", e:"String-Konkatenation / String concatenation"},
+ {q:"len('Python')?", a:v=>v==="6", e:"Länge / Length"},
+ {q:"list('abc')?", a:v=>v==="['a','b','c']", e:"String zu Liste / String to list"},
+ {q:"tuple([1,2])?", a:v=>v==="(1,2)", e:"Liste zu Tuple / List to tuple"},
+ {q:"x='abc'; x.count('a')?", a:v=>v==="1", e:"Anzahl Zeichen / Character count"},
+ {q:"sorted([3,1,2],reverse=True)?", a:v=>v==="[3,2,1]", e:"Absteigend / Descending"},
+ {q:"float(5)?", a:v=>v==="5.0", e:"Int zu Float / Int to float"},
+ {q:"int('42')?", a:v=>v==="42", e:"String zu Int / String to int"},
+ {q:"str(123)?", a:v=>v==="123", e:"Int zu String / Int to string"},
+ {q:"round(3.14159,2)?", a:v=>v==="3.14", e:"Runden / Rounding"},
+ {q:"type({1,2})?", a:v=>v==="set", e:"Menge / Set"},
+ {q:"True and True?", a:v=>v==="true", e:"AND"},
+ {q:"False or True?", a:v=>v==="true", e:"OR"},
+ {q:"not False?", a:v=>v==="true", e:"NOT"},
+ {q:"bool([])?", a:v=>v==="false", e:"Leere Liste / Empty list"},
+ {q:"bool([0])?", a:v=>v==="true", e:"Nicht leer / Not empty"},
+ {q:"bool({})?", a:v=>v==="false", e:"Leeres dict / Empty dict"},
+ {q:"x=[1,2,3]; x[::-1]?", a:v=>v==="[3,2,1]", e:"Liste umkehren / Reverse list"},
+ {q:"x=[1,2,3]; 2 in x?", a:v=>v==="true", e:"Element enthalten / Element contained"},
+ {q:"x={'a':1}; 'a' in x?", a:v=>v==="true", e:"Schlüssel enthalten / Key contained"},
+ {q:"x={'a':1}; x.get('b','NA')?", a:v=>v==="NA", e:"Default Wert / Default value"},
+ {q:"list(range(2,6))?", a:v=>v==="[2,3,4,5]", e:"Range Start-End"},
+ {q:"list(range(1,10,3))?", a:v=>v==="[1,4,7]", e:"Range mit Schritt / Range with step"},
+ {q:"x='abcde'; x[1:4]?", a:v=>v==="bcd", e:"Slicing"},
+ {q:"x=(1,2,3); x[1:3]?", a:v=>v==="(2,3)", e:"Tuple Slicing"},
+ {q:"list(reversed([1,2]))?", a:v=>v==="[2,1]", e:"Liste umkehren / Reverse list"},
+ {q:"abs(-7)?", a:v=>v==="7", e:"Betrag / Absolute value"},
+ {q:"2**5?", a:v=>v==="32", e:"Exponent"},
+ {q:"pow(2,5)?", a:v=>v==="32", e:"Exponent"},
+ {q:"x='abcde'; x[2:]?", a:v=>v==="cde", e:"Slicing Ende / Slicing from index"},
+ {q:"x='abcde'; x[:3]?", a:v=>v==="abc", e:"Slicing Anfang / Slicing to index"},
+ {q:"list(map(str,[1,2]))?", a:v=>v==="['1','2']", e:"map zu str / map to str"},
+ {q:"list(map(int,['1','2']))?", a:v=>v==="[1,2]", e:"map zu int / map to int"},
+ {q:"x=[1,2,3]; x.index(2)?", a:v=>v==="1", e:"Index von 2 / Index of 2"},
+ {q:"x='abc'; x.find('b')?", a:v=>v==="1", e:"Index finden / Find index"},
 ];
 
-/* 100 Fragen generieren */
-let questions=[];
-while(questions.length<100){
-    questions.push(...baseQuestions.map(q=>({
-        question:q.q,
-        check:input=>q.a(input.replace(/\s/g,"").toLowerCase()),
-        explanation:q.e
-    })));
+let questions = [];
+while(questions.length < 100){
+  questions.push(...baseQuestions.map(q=>({
+    question: q.q,
+    check: input => q.a(input.replace(/\s/g,'').toLowerCase()),
+    explanation: q.e
+  })));
 }
-questions = questions.slice(0,100);
+questions = questions.slice(0,100).sort(()=>Math.random()-0.5);
 
-/* ================= SPIELSTATUS ================= */
-let index=0;
-let score=0;
-let startTime=0;
-let timerInterval=null;
-let waiting=false;
+/* ─── GAME STATE ─── */
+let index=0, score=0, startTime=0, timerInterval=null, waiting=false;
 
-/* ================= START ================= */
 function startGame(){
-    // Zufällige Reihenfolge bei jedem Start
-    questions = questions.sort(()=>Math.random()-0.5);
-    document.getElementById("startScreen").style.display="none";
-    document.getElementById("gameScreen").style.display="block";
-    showQuestion();
+  questions = questions.sort(()=>Math.random()-0.5);
+  document.getElementById('startScreen').style.display='none';
+  document.getElementById('gameScreen').style.display='block';
+  showQuestion();
 }
 
-/* ================= TIMER ================= */
 function startTimer(){
-    startTime=Date.now();
-    timerInterval=setInterval(()=>{
-        document.getElementById("time").innerText=((Date.now()-startTime)/1000).toFixed(1);
-    },100);
+  startTime=Date.now();
+  timerInterval=setInterval(()=>{
+    document.getElementById('time').textContent=((Date.now()-startTime)/1000).toFixed(1);
+  },100);
 }
-function stopTimer(){
-    clearInterval(timerInterval);
-}
+function stopTimer(){ clearInterval(timerInterval); }
 
-/* ================= FRAGE ================= */
 function showQuestion(){
-    if(index>=100){
-        endGame();
-        return;
-    }
-    waiting=false;
-    document.getElementById("feedback").innerText="";
-    document.getElementById("input").value="";
-    document.getElementById("question").innerText=questions[index].question;
-    document.getElementById("count").innerText=index+1;
-    startTimer();
+  if(index>=100){ endGame(); return; }
+  waiting=false;
+  document.getElementById('feedback').innerHTML='';
+  document.getElementById('feedback').className='feedback-box';
+  document.getElementById('input').value='';
+  document.getElementById('question').textContent=questions[index].question;
+  document.getElementById('count').textContent=(index+1)+'/100';
+  document.getElementById('progressBar').style.width=((index/100)*100)+'%';
+  startTimer();
 }
 
-/* ================= PRÜFEN ================= */
-document.getElementById("submit").onclick=()=>{
-    if(waiting) return;
-    stopTimer();
-    const t=(Date.now()-startTime)/1000;
-    const input=document.getElementById("input").value;
-    const q=questions[index];
-    const fb=document.getElementById("feedback");
+document.getElementById('submit').onclick=()=>{
+  if(waiting) return;
+  stopTimer();
+  const t=(Date.now()-startTime)/1000;
+  const input=document.getElementById('input').value;
+  const q=questions[index];
+  const fb=document.getElementById('feedback');
 
-    if(q.check(input)){
-        let bonus=Math.max(0,Math.floor(10-t)); // Zeitbonus
-        score+=5+bonus;
-        fb.innerHTML=`Richtig ✅ (+${5+bonus})<br>${q.explanation}`;
-        fb.className="feedback correct";
-    }else{
-        fb.innerHTML=`Falsch ❌<br>Richtig: ${q.explanation}`;
-        fb.className="feedback wrong";
-    }
-    document.getElementById("score").innerText=score;
-    waiting=true;
+  if(q.check(input)){
+    const bonus=Math.max(0,Math.floor(10-t));
+    score+=5+bonus;
+    fb.innerHTML=(LANG==='de'?`✅ Richtig! (+${5+bonus} Punkte)`:`✅ Correct! (+${5+bonus} points)`)+'<br><small>'+q.explanation+'</small>';
+    fb.className='feedback-box feedback-correct';
+  } else {
+    fb.innerHTML=(LANG==='de'?'❌ Falsch!':'❌ Wrong!')+'<br><small>'+(LANG==='de'?'Richtig: ':'Correct: ')+q.explanation+'</small>';
+    fb.className='feedback-box feedback-wrong';
+  }
+  document.getElementById('score').textContent=score;
+  waiting=true;
 };
 
-/* ================= SKIP ================= */
-document.getElementById("skip").onclick=()=>{
-    stopTimer();
-    index++;
-    showQuestion();
+document.getElementById('skip').onclick=()=>{
+  stopTimer(); index++; showQuestion();
 };
 
-/* ================= ENTER STEUERUNG ================= */
-document.addEventListener("keydown",e=>{
-    if(e.key!=="Enter") return;
-    if(!waiting){
-        document.getElementById("submit").click();
-    }else{
-        index++;
-        showQuestion();
-    }
+document.addEventListener('keydown', e=>{
+  if(e.key!=='Enter') return;
+  if(!waiting){ document.getElementById('submit').click(); }
+  else { index++; showQuestion(); }
 });
 
-/* ================= ENDE ================= */
 function endGame(){
-    document.getElementById("gameScreen").innerHTML=
-    `<h1>Fertig 🎉</h1>
-     <p>Endpunktzahl: <b>${score}</b></p>
-     <p>100 Fragen · Python-spezifisch · Normal–Schwer</p>
-     <button onclick="location.reload()">Neu starten</button>`;
+  const sc=score;
+  document.getElementById('gameScreen').innerHTML=`
+    <div class="screen-label" data-de="Quiz abgeschlossen" data-en="Quiz completed">${LANG==='de'?'Quiz abgeschlossen':'Quiz completed'}</div>
+    <h1 data-de="Ergebnis" data-en="Result">${LANG==='de'?'Ergebnis':'Result'}</h1>
+    <div class="end-score">${sc}</div>
+    <p class="end-meta">100 ${LANG==='de'?'Fragen · Python Fortgeschritten · Normal–Schwer':'questions · Python Advanced · Medium–Hard'}</p>
+    <button class="restart-btn" onclick="location.reload()">${LANG==='de'?'↺ Neu starten':'↺ Restart'}</button>
+  `;
 }
 </script>
+
 </body>
 </html>
