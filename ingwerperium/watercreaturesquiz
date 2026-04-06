@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Watercreaturesquiz</title>
+  <style>
+    :root {
+      --bg: #081a2e;
+      --panel: #0e2744;
+      --btn: #1f4d7f;
+      --btn-hover: #2b68a9;
+      --ok: #2fb36e;
+      --bad: #c84c4c;
+      --text: #eff7ff;
+      --muted: #b9d1eb;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(circle at 20% 0%, #1a4778 0%, #081a2e 60%);
+      color: var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif;
+      padding: 16px;
+    }
+
+    .card {
+      width: min(1100px, 96vw);
+      height: min(94vh, 980px);
+      background: rgba(14, 39, 68, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      overflow: auto;
+    }
+
+    h1 {
+      margin: 0 0 14px;
+      font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+    }
+
+    img {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: #091423;
+      max-height: 52vh;
+    }
+
+    .question {
+      margin: 14px 0 10px;
+      font-size: 1.1rem;
+      color: #ffe8a5;
+    }
+
+    .fish-counter {
+      margin: 10px 0 6px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .answers {
+      display: grid;
+      gap: 9px;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    button {
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      padding: 12px;
+      text-align: left;
+      background: var(--btn);
+      color: var(--text);
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    button:hover:enabled { background: var(--btn-hover); }
+    button:disabled { opacity: 0.9; cursor: default; }
+
+    .correct { background: var(--ok) !important; }
+    .wrong { background: var(--bad) !important; }
+
+    .feedback {
+      margin-top: 12px;
+      min-height: 24px;
+      font-weight: 700;
+    }
+
+    .credit {
+      margin-top: 8px;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .option-focus {
+      outline: 3px solid #ffe8a5;
+      outline-offset: 2px;
+    }
+
+    .lang-overlay {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      background: rgba(2, 10, 18, 0.82);
+      backdrop-filter: blur(2px);
+      z-index: 20;
+    }
+
+    .lang-box {
+      width: min(420px, calc(100% - 32px));
+      background: #0e2744;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .lang-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 900px) {
+      .card { height: auto; max-height: none; }
+      .answers { grid-template-columns: 1fr; }
+      img { max-height: 40vh; }
+    }
+  </style>
+</head>
+<body>
+  <div id="langOverlay" class="lang-overlay" aria-modal="true" role="dialog">
+    <div class="lang-box">
+      <h2 style="margin: 0 0 8px;">Choose language / Sprache wählen</h2>
+      <p style="margin: 0; color: var(--muted);"></p>
+      <div class="lang-buttons">
+        <button id="chooseDe" type="button">Deutsch</button>
+        <button id="chooseEn" type="button">English</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="card">
+    <h1 id="title">Wasserquiz</h1>
+    <div id="fishCounter" class="fish-counter">Fische: 0</div>
+    <img id="quizImage" alt="Wasserlebewesen" loading="eager" />
+    <div class="credit" id="credit"></div>
+    <p id="questionText" class="question">Welches Wasserlebewesen ist auf dem Bild?</p>
+    <div id="answers" class="answers"></div>
+    <div id="feedback" class="feedback" aria-live="polite"></div>
+  </main>
+
+  <script>
+    "use strict";
+
+    const TARGET_CREATURE_COUNT = 100;
+    const CANDIDATE_TITLES = [
+      "Großer_Tümmler", "Schwertwal", "Narwal", "Beluga", "Blauwal", "Buckelwal", "Pottwal", "Finnwal",
+      "Zwergwal", "Grauwal", "Nördlicher_Entenwal", "Südlicher_Entenwal", "Amazonas-Flussdelfin", "Commerson-Delfin",
+      "Rissodelphin", "Spinnerdelfin", "Gemeiner_Delfin", "Hafen-Schweinswal", "Dugong", "Karibik-Manati",
+      "Afrikanischer_Manati", "Seeotter", "Seehund", "Kegelrobbe", "Walross", "Leopardenrobbe", "Weddellrobbe",
+      "Mönchsrobbe", "Meeresschildkröten", "Grüne_Seeschildkröte", "Echte_Karettschildkröte", "Suppenschildkröte",
+      "Lederschildkröte", "Bastardschildkröte", "Unechte_Karettschildkröte", "Dornhai", "Heringshai", "Walhai",
+      "Riesenhai", "Tigerhai", "Bullenhai", "Weißer_Hai", "Hammerhaie", "Makohaie", "Schwarzspitzen-Riffhai",
+      "Grauer_Riffhai", "Sandtigerhai", "Fuchshaie", "Gitarrenrochen", "Manta", "Riesenmanta", "Teufelsrochen",
+      "Stechrochen", "Leopardenrochen", "Adlerrochen", "Sägefische", "Mondfisch", "Kugelfische", "Igelfische",
+      "Anemonenfische", "Clownfisch", "Doktorfische", "Blauflossen-Thunfisch", "Gelbflossen-Thunfisch",
+      "Atlantischer_Kabeljau", "Sardine", "Europäischer_Hering", "Makrele", "Seeteufel_(Fisch)", "Barrakuda",
+      "Europäischer_Wolfsbarsch", "Dorade", "Lippfische", "Kaiserfische", "Falterfische", "Papageifische",
+      "Muränen", "Zackenbarsche", "Rotfeuerfisch", "Seepferdchen", "Fetzenfisch", "Seenadeln", "Fliegende_Fische",
+      "Laternenfische", "Riemenfisch", "Ruderfische", "Stachelmakrelen", "Steinfische", "Seeskorpione",
+      "Tiefsee-Anglerfische", "Viperfisch", "Riesenkalmar", "Kolosskalmar", "Gemeiner_Kalmar", "Pfeilkalmare",
+      "Sepien", "Gewöhnlicher_Krake", "Mimic_Octopus", "Blaugeringelter_Krake", "Nautilus", "Portugiesische_Galeere",
+      "Ohrenqualle", "Würfelqualle", "Mähnenqualle", "Rippenquallen", "Korallen", "Steinkorallen", "Gorgonien",
+      "Seeanemonen", "Hydra_(Gattung)", "Schwämme", "Glasschwämme", "Röhrenschwämme", "Seesterne", "Schlangensterne",
+      "Seeigel", "Herzseeigel", "Seegurken", "Crinoidea", "Riesenmuschel", "Auster", "Miesmuschel", "Jakobsmuschel",
+      "Abalone", "Kaurischnecken", "Kegelschnecken", "Nacktschnecken", "Pfeilschwanzkrebse", "Krill", "Hummer",
+      "Languste", "Nordseegarnele", "Tiefseegarnele", "Königskrabbe", "Einsiedlerkrebse", "Ruderfußkrebse",
+      "Flohkrebse", "Bartenwale", "Zahnwale", "Pinguine", "Kaiserpinguin", "Königspinguin", "Adeliepinguin",
+      "Brillenpinguin", "Albatrosse", "Sturmtaucher", "Tölpel", "Kormorane", "Möwen", "Seeschwalben",
+      "Fregattvögel", "Pelikane", "Basstölpel", "Braunalge", "Rotalgen", "Grünalgen", "Kelp", "Seegras", "Mangroven",
+      "Wasserhyazinthe", "Posidonia_oceanica", "Sargassum"
+    ];
+
+    const imageEl = document.getElementById("quizImage");
+    const answersEl = document.getElementById("answers");
+    const feedbackEl = document.getElementById("feedback");
+    const creditEl = document.getElementById("credit");
+    const titleEl = document.getElementById("title");
+    const questionTextEl = document.getElementById("questionText");
+    const fishCounterEl = document.getElementById("fishCounter");
+    const langOverlayEl = document.getElementById("langOverlay");
+    const chooseDeEl = document.getElementById("chooseDe");
+    const chooseEnEl = document.getElementById("chooseEn");
+
+    const TEXTS = {
+      de: {
+        title: "Wasserlebewesenquiz - Ingwerperium",
+        question: "Welches Wasserlebewesen ist auf dem Bild?",
+        correct: "Richtig!",
+        wrongPrefix: "Falsch. Lösung: ",
+        fishLabel: " 🐬",
+        nextHint: "Klick irgendwo oder druecke Enter/Pfeil fuer nächste Frage.",
+      },
+      en: {
+        title: "Sea creatures Quiz - Ingwerperium",
+        question: "Which sea creature is shown in the image?",
+        correct: "Correct!",
+        wrongPrefix: "Wrong. Solution: ",
+        fishLabel: " 🐬",
+        nextHint: "Click anywhere or press Enter/Arrow for next question.",
+      },
+    };
+
+    let current = null;
+    let currentLang = "de";
+    let fishCount = Number(localStorage.getItem("wasserquiz_fish_count") || "0");
+    let creatures = [];
+    let loadPromise = null;
+    let answered = false;
+    let selectedIndex = 0;
+    let answeredAt = 0;
+    let keyboardMode = false;
+
+    function shuffle(arr) {
+      const copy = arr.slice();
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function pickQuestion() {
+      if (creatures.length < 4) return null;
+      const correct = creatures[Math.floor(Math.random() * creatures.length)];
+      const wrong = shuffle(creatures.filter((c) => c.name !== correct.name)).slice(0, 3);
+      const options = shuffle([correct, ...wrong]);
+      return { correct, options };
+    }
+
+    function lockAnswers() {
+      const buttons = answersEl.querySelectorAll("button");
+      buttons.forEach((btn) => { btn.disabled = true; });
+    }
+
+    function updateFishCounter() {
+      fishCounterEl.textContent = `${TEXTS[currentLang].fishLabel}   ${fishCount}`;
+    }
+
+    function highlightCurrentOption() {
+      const buttons = answersEl.querySelectorAll("button");
+      buttons.forEach((btn, idx) => {
+        btn.classList.toggle("option-focus", keyboardMode && idx === selectedIndex);
+      });
+    }
+
+    function setImageWithFallback(urls, idx = 0) {
+      if (idx >= urls.length) {
+        const msg = encodeURIComponent("Bild nicht verfuegbar");
+        imageEl.src = `data:image/svg+xml;utf8,` +
+          `<svg xmlns='http://www.w3.org/2000/svg' width='1600' height='1000'>` +
+          `<rect width='100%' height='100%' fill='%23091423'/>` +
+          `<text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23b9d1eb' font-size='56' font-family='Arial'>${msg}</text>` +
+          `</svg>`;
+        creditEl.textContent = "Kein passendes Bild geladen.";
+        return;
+      }
+      imageEl.onerror = () => setImageWithFallback(urls, idx + 1);
+      imageEl.src = urls[idx];
+    }
+
+    async function fetchCreatureFromWikipedia(title) {
+      const endpoint = `https://de.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
+      try {
+        const res = await fetch(endpoint);
+        if (!res.ok) return null;
+        const data = await res.json();
+        if (!data || !data.thumbnail || !data.thumbnail.source) return null;
+        return {
+          name: title.replaceAll("_", " "),
+          images: [data.thumbnail.source],
+          credit: "Bild: Wikipedia"
+        };
+      } catch {
+        return null;
+      }
+    }
+
+    async function loadCreaturesWithImages(targetCount) {
+      const pool = shuffle(CANDIDATE_TITLES);
+      const loaded = [];
+      const seen = new Set();
+
+      for (let i = 0; i < pool.length && loaded.length < targetCount; i += 10) {
+        const batch = pool.slice(i, i + 10);
+        const results = await Promise.all(batch.map(fetchCreatureFromWikipedia));
+        for (const creature of results) {
+          if (!creature) continue;
+          if (seen.has(creature.name)) continue;
+          seen.add(creature.name);
+          loaded.push(creature);
+          if (loaded.length >= targetCount) break;
+        }
+      }
+      return loaded;
+    }
+
+    async function ensureCreaturePool() {
+      if (creatures.length >= TARGET_CREATURE_COUNT) return;
+      if (!loadPromise) {
+        loadPromise = (async () => {
+          creatures = await loadCreaturesWithImages(TARGET_CREATURE_COUNT);
+        })();
+      }
+      await loadPromise;
+    }
+
+    async function renderQuestion() {
+      await ensureCreaturePool();
+      current = pickQuestion();
+      if (!current) {
+        feedbackEl.textContent = "Zu wenige Arten mit Bild gefunden.";
+        answersEl.innerHTML = "";
+        return;
+      }
+      answered = false;
+      selectedIndex = 0;
+      setImageWithFallback(current.correct.images);
+      imageEl.alt = current.correct.name;
+      creditEl.textContent = `${current.correct.credit} - Arten im Pool: ${creatures.length}`;
+      feedbackEl.textContent = "";
+      answersEl.innerHTML = "";
+
+      current.options.forEach((option, index) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = option.name;
+        btn.addEventListener("click", (event) => {
+          event.stopPropagation();
+          if (answered) return;
+          keyboardMode = false;
+          selectedIndex = index;
+          highlightCurrentOption();
+          lockAnswers();
+          answered = true;
+          answeredAt = Date.now();
+          const isCorrect = option.name === current.correct.name;
+          btn.classList.add(isCorrect ? "correct" : "wrong");
+          if (isCorrect) {
+            fishCount += 1;
+            localStorage.setItem("wasserquiz_fish_count", String(fishCount));
+            updateFishCounter();
+          }
+
+          const allButtons = answersEl.querySelectorAll("button");
+          allButtons.forEach((b) => {
+            if (b.textContent === current.correct.name) {
+              b.classList.add("correct");
+            }
+          });
+
+          feedbackEl.textContent = isCorrect
+            ? TEXTS[currentLang].correct
+            : TEXTS[currentLang].wrongPrefix + current.correct.name;
+          feedbackEl.textContent += " " + TEXTS[currentLang].nextHint;
+        });
+        answersEl.appendChild(btn);
+      });
+      highlightCurrentOption();
+    }
+
+    function applyLanguage(lang) {
+      currentLang = lang;
+      titleEl.textContent = TEXTS[lang].title;
+      questionTextEl.textContent = TEXTS[lang].question;
+      updateFishCounter();
+    }
+
+    async function startWithLanguage(lang) {
+      localStorage.setItem("wasserquiz_lang", lang);
+      applyLanguage(lang);
+      langOverlayEl.style.display = "none";
+      feedbackEl.textContent = lang === "de" ? "Lade Wasserlebewesen..." : "Loading sea creatures...";
+      await renderQuestion();
+    }
+
+    chooseDeEl.addEventListener("click", () => { startWithLanguage("de"); });
+    chooseEnEl.addEventListener("click", () => { startWithLanguage("en"); });
+
+    document.addEventListener("click", () => {
+      if (!answered) return;
+      if (Date.now() - answeredAt < 150) return;
+      renderQuestion();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (langOverlayEl.style.display !== "none") return;
+      const buttons = answersEl.querySelectorAll("button");
+      if (!buttons.length) return;
+      const key = event.key;
+      const columns = window.matchMedia("(max-width: 900px)").matches ? 1 : 2;
+
+      if (answered) {
+        if (
+          key === "Enter" ||
+          key === "ArrowRight" ||
+          key === "ArrowLeft" ||
+          key === "ArrowUp" ||
+          key === "ArrowDown" ||
+          key === "Up" ||
+          key === "Down"
+        ) {
+          event.preventDefault();
+          renderQuestion();
+        }
+        return;
+      }
+
+      if (key === "ArrowRight") {
+        event.preventDefault();
+        keyboardMode = true;
+        selectedIndex = (selectedIndex + 1) % buttons.length;
+        highlightCurrentOption();
+      } else if (key === "ArrowLeft") {
+        event.preventDefault();
+        keyboardMode = true;
+        selectedIndex = (selectedIndex - 1 + buttons.length) % buttons.length;
+        highlightCurrentOption();
+      } else if (key === "ArrowDown" || key === "Down") {
+        event.preventDefault();
+        keyboardMode = true;
+        selectedIndex = (selectedIndex + columns) % buttons.length;
+        highlightCurrentOption();
+      } else if (key === "ArrowUp" || key === "Up") {
+        event.preventDefault();
+        keyboardMode = true;
+        selectedIndex = (selectedIndex - columns + buttons.length) % buttons.length;
+        highlightCurrentOption();
+      } else if (key === "Enter") {
+        event.preventDefault();
+        keyboardMode = true;
+        buttons[selectedIndex].click();
+      }
+    });
+
+    document.addEventListener("mousemove", () => {
+      if (!keyboardMode) return;
+      keyboardMode = false;
+      highlightCurrentOption();
+    });
+
+    const savedLang = localStorage.getItem("wasserquiz_lang");
+    if (savedLang === "de" || savedLang === "en") {
+      applyLanguage(savedLang);
+      langOverlayEl.style.display = "none";
+      feedbackEl.textContent = savedLang === "de" ? "Lade Wasserlebewesen..." : "Loading sea creatures...";
+      renderQuestion();
+    }
+  </script>
+</body>
+</html>
