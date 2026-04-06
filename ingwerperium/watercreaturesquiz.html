@@ -154,6 +154,17 @@
   </div>
 
   <main class="card">
+    <div id="langSwitcher" style="
+        position: absolute;
+        top: 12px;
+        right: 16px;
+        display: flex;
+        gap: 6px;
+        z-index: 30;
+    ">
+      <button id="switchDe" type="button" style="padding:4px 8px; font-size:0.8rem;">DE</button>
+      <button id="switchEn" type="button" style="padding:4px 8px; font-size:0.8rem;">EN</button>
+    </div>
     <h1 id="title">Wasserquiz</h1>
     <div id="fishCounter" class="fish-counter">Fische: 0</div>
     <img id="quizImage" alt="Wasserlebewesen" loading="eager" />
@@ -224,6 +235,170 @@
         nextHint: "Click anywhere or press Enter/Arrow for next question.",
       },
     };
+    const CREATURE_NAMES = {
+      "Großer_Tümmler": { de:"Großer Tümmler", en:"Bottlenose Dolphin" },
+      "Schwertwal": { de:"Schwertwal", en:"Orca" },
+      "Narwal": { de:"Narwal", en:"Narwhal" },
+      "Beluga": { de:"Beluga", en:"Beluga Whale" },
+      "Blauwal": { de:"Blauwal", en:"Blue Whale" },
+      "Buckelwal": { de:"Buckelwal", en:"Humpback Whale" },
+      "Pottwal": { de:"Pottwal", en:"Sperm Whale" },
+      "Finnwal": { de:"Finnwal", en:"Fin Whale" },
+      "Zwergwal": { de:"Zwergwal", en:"Minke Whale" },
+      "Grauwal": { de:"Grauwal", en:"Gray Whale" },
+      "Nördlicher_Entenwal": { de:"Nördlicher Entenwal", en:"Northern Bottlenose Whale" },
+      "Südlicher_Entenwal": { de:"Südlicher Entenwal", en:"Southern Bottlenose Whale" },
+      "Amazonas-Flussdelfin": { de:"Amazonas‑Flussdelfin", en:"Amazon River Dolphin" },
+      "Commerson-Delfin": { de:"Commerson‑Delfin", en:"Commerson's Dolphin" },
+      "Rissodelphin": { de:"Rissodelphin", en:"Risso’s Dolphin" },
+      "Spinnerdelfin": { de:"Spinnerdelfin", en:"Spinner Dolphin" },
+      "Gemeiner_Delfin": { de:"Gemeiner Delfin", en:"Common Dolphin" },
+      "Hafen-Schweinswal": { de:"Hafen‑Schweinswal", en:"Harbor Porpoise" },
+      "Dugong": { de:"Dugong", en:"Dugong" },
+      "Karibik-Manati": { de:"Karibik‑Manati", en:"Caribbean Manatee" },
+      "Afrikanischer_Manati": { de:"Afrikanischer Manati", en:"African Manatee" },
+      "Seeotter": { de:"Seeotter", en:"Sea Otter" },
+      "Seehund": { de:"Seehund", en:"Harbor Seal" },
+      "Kegelrobbe": { de:"Kegelrobbe", en:"Grey Seal" },
+      "Walross": { de:"Walross", en:"Walrus" },
+      "Leopardenrobbe": { de:"Leopardenrobbe", en:"Leopard Seal" },
+      "Weddellrobbe": { de:"Weddellrobbe", en:"Weddell Seal" },
+      "Mönchsrobbe": { de:"Mönchsrobbe", en:"Monk Seal" },
+      "Meeresschildkröten": { de:"Meeresschildkröten", en:"Sea Turtles" },
+      "Grüne_Seeschildkröte": { de:"Grüne Seeschildkröte", en:"Green Sea Turtle" },
+      "Echte_Karettschildkröte": { de:"Echte Karettschildkröte", en:"Loggerhead Turtle" },
+      "Suppenschildkröte": { de:"Suppenschildkröte", en:"Kemp’s Ridley Turtle" },
+      "Lederschildkröte": { de:"Lederschildkröte", en:"Leatherback Turtle" },
+      "Bastardschildkröte": { de:"Bastardschildkröte", en:"Hawksbill Turtle" },
+      "Unechte_Karettschildkröte": { de:"Unechte Karettschildkröte", en:"Olive Ridley Turtle" },
+      "Dornhai": { de:"Dornhai", en:"Spiny Dogfish" },
+      "Heringshai": { de:"Heringshai", en:"Atlantic Herring Shark" },
+      "Walhai": { de:"Walhai", en:"Whale Shark" },
+      "Riesenhai": { de:"Riesenhai", en:"Great White Shark" },
+      "Tigerhai": { de:"Tigerhai", en:"Tiger Shark" },
+      "Bullenhai": { de:"Bullenhai", en:"Bull Shark" },
+      "Weißer_Hai": { de:"Weißer Hai", en:"Great White Shark" },
+      "Hammerhaie": { de:"Hammerhaie", en:"Hammerhead Sharks" },
+      "Makohaie": { de:"Makohaie", en:"Mako Sharks" },
+      "Schwarzspitzen-Riffhai": { de:"Schwarzspitzen‑Riffhai", en:"Blacktip Reef Shark" },
+      "Grauer_Riffhai": { de:"Grauer Riffhai", en:"Grey Reef Shark" },
+      "Sandtigerhai": { de:"Sandtigerhai", en:"Sand Tiger Shark" },
+      "Fuchshaie": { de:"Fuchshaie", en:"Fox Sharks" },
+      "Gitarrenrochen": { de:"Gitarrenrochen", en:"Guitar Rays" },
+      "Manta": { de:"Manta", en:"Manta Ray" },
+      "Riesenmanta": { de:"Riesenmanta", en:"Giant Manta" },
+      "Teufelsrochen": { de:"Teufelsrochen", en:"Devil Ray" },
+      "Stechrochen": { de:"Stechrochen", en:"Stingray" },
+      "Leopardenrochen": { de:"Leopardenrochen", en:"Leopard Ray" },
+      "Adlerrochen": { de:"Adlerrochen", en:"Eagle Ray" },
+      "Sägefische": { de:"Sägefische", en:"Sawfishes" },
+      "Mondfisch": { de:"Mondfisch", en:"Ocean Sunfish" },
+      "Kugelfische": { de:"Kugelfische", en:"Pufferfish" },
+      "Igelfische": { de:"Igelfische", en:"Porcupinefish" },
+      "Anemonenfische": { de:"Anemonenfische", en:"Anemonefish" },
+      "Clownfisch": { de:"Clownfisch", en:"Clownfish" },
+      "Doktorfische": { de:"Doktorfische", en:"Surgeonfish" },
+      "Blauflossen-Thunfisch": { de:"Blauflossen‑Thunfisch", en:"Bluefin Tuna" },
+      "Gelbflossen-Thunfisch": { de:"Gelbflossen‑Thunfisch", en:"Yellowfin Tuna" },
+      "Atlantischer_Kabeljau": { de:"Atlantischer Kabeljau", en:"Atlantic Cod" },
+      "Sardine": { de:"Sardine", en:"Sardine" },
+      "Europäischer_Hering": { de:"Europäischer Hering", en:"European Herring" },
+      "Makrele": { de:"Makrele", en:"Mackerel" },
+      "Seeteufel_(Fisch)": { de:"Seeteufel", en:"Monkfish" },
+      "Barrakuda": { de:"Barrakuda", en:"Barracuda" },
+      "Europäischer_Wolfsbarsch": { de:"Europäischer Wolfsbarsch", en:"European Bass" },
+      "Dorade": { de:"Dorade", en:"Gilthead Sea Bream" },
+      "Lippfische": { de:"Lippfische", en:"Wrasses" },
+      "Kaiserfische": { de:"Kaiserfische", en:"Angelfish" },
+      "Falterfische": { de:"Falterfische", en:"Butterflyfish" },
+      "Papageifische": { de:"Papageifische", en:"Parrotfish" },
+      "Muränen": { de:"Muränen", en:"Moray Eels" },
+      "Zackenbarsche": { de:"Zackenbarsche", en:"Groupers" },
+      "Rotfeuerfisch": { de:"Rotfeuerfisch", en:"Lionfish" },
+      "Seepferdchen": { de:"Seepferdchen", en:"Seahorse" },
+      "Fetzenfisch": { de:"Fetzenfisch", en:"Sailfin Roughshark" },
+      "Seenadeln": { de:"Seenadeln", en:"Pipefish" },
+      "Fliegende_Fische": { de:"Fliegende Fische", en:"Flying Fish" },
+      "Laternenfische": { de:"Laternenfische", en:"Lanternfish" },
+      "Riemenfisch": { de:"Riemenfisch", en:"Oarfish" },
+      "Ruderfische": { de:"Ruderfische", en:"Rowfish" },
+      "Stachelmakrelen": { de:"Stachelmakrelen", en:"Bristlemouths" },
+      "Steinfische": { de:"Steinfische", en:"Stonefish" },
+      "Seeskorpione": { de:"Seeskorpione", en:"Sea Scorpions" },
+      "Tiefsee-Anglerfische": { de:"Tiefsee‑Anglerfische", en:"Deep Sea Anglerfish" },
+      "Viperfisch": { de:"Viperfisch", en:"Viperfish" },
+      "Riesenkalmar": { de:"Riesenkalmar", en:"Giant Squid" },
+      "Kolosskalmar": { de:"Kolosskalmar", en:"Colossal Squid" },
+      "Gemeiner_Kalmar": { de:"Gemeiner Kalmar", en:"Common Squid" },
+      "Pfeilkalmare": { de:"Pfeilkalmare", en:"Arrow Squid" },
+      "Sepien": { de:"Sepien", en:"Cuttlefish" },
+      "Gewöhnlicher_Krake": { de:"Gewöhnlicher Krake", en:"Common Octopus" },
+      "Mimic_Octopus": { de:"Mimic Octopus", en:"Mimic Octopus" },
+      "Blaugeringelter_Krake": { de:"Blaugeringelter Krake", en:"Blue‑ringed Octopus" },
+      "Nautilus": { de:"Nautilus", en:"Nautilus" },
+      "Portugiesische_Galeere": { de:"Portugiesische Galeere", en:"Portuguese Man O’ War" },
+      "Ohrenqualle": { de:"Ohrenqualle", en:"Bell Jellyfish" },
+      "Würfelqualle": { de:"Würfelqualle", en:"Box Jellyfish" },
+      "Mähnenqualle": { de:"Mähnenqualle", en:"Lion’s Mane Jellyfish" },
+      "Rippenquallen": { de:"Rippenquallen", en:"Ctenophores" },
+      "Korallen": { de:"Korallen", en:"Corals" },
+      "Steinkorallen": { de:"Steinkorallen", en:"Hard Corals" },
+      "Gorgonien": { de:"Gorgonien", en:"Gorgonians" },
+      "Seeanemonen": { de:"Seeanemonen", en:"Sea Anemones" },
+      "Hydra_(Gattung)": { de:"Hydra", en:"Hydra" },
+      "Schwämme": { de:"Schwämme", en:"Sponges" },
+      "Glasschwämme": { de:"Glasschwämme", en:"Glass Sponges" },
+      "Röhrenschwämme": { de:"Röhrenschwämme", en:"Tube Sponges" },
+      "Seesterne": { de:"Seesterne", en:"Starfish / Sea Stars" },
+      "Schlangensterne": { de:"Schlangensterne", en:"Brittle Stars" },
+      "Seeigel": { de:"Seeigel", en:"Sea Urchins" },
+      "Herzseeigel": { de:"Herzseeigel", en:"Heart Urchins" },
+      "Seegurken": { de:"Seegurken", en:"Sea Cucumbers" },
+      "Crinoidea": { de:"Crinoidea", en:"Crinoids" },
+      "Riesenmuschel": { de:"Riesenmuschel", en:"Giant Clam" },
+      "Auster": { de:"Auster", en:"Oyster" },
+      "Miesmuschel": { de:"Miesmuschel", en:"Mussel" },
+      "Jakobsmuschel": { de:"Jakobsmuschel", en:"Scallop" },
+      "Abalone": { de:"Abalone", en:"Abalone" },
+      "Kaurischnecken": { de:"Kaurischnecken", en:"Cowries" },
+      "Kegelschnecken": { de:"Kegelschnecken", en:"Cone Snails" },
+      "Nacktschnecken": { de:"Nacktschnecken", en:"Nudibranchs" },
+      "Pfeilschwanzkrebse": { de:"Pfeilschwanzkrebse", en:"Horseshoe Crabs" },
+      "Krill": { de:"Krill", en:"Krill" },
+      "Hummer": { de:"Hummer", en:"Lobster" },
+      "Languste": { de:"Languste", en:"Spiny Lobster" },
+      "Nordseegarnele": { de:"Nordseegarnele", en:"North Sea Shrimp" },
+      "Tiefseegarnele": { de:"Tiefseegarnele", en:"Deep Sea Shrimp" },
+      "Königskrabbe": { de:"Königskrabbe", en:"King Crab" },
+      "Einsiedlerkrebse": { de:"Einsiedlerkrebse", en:"Hermit Crabs" },
+      "Ruderfußkrebse": { de:"Ruderfußkrebse", en:"Copepods" },
+      "Flohkrebse": { de:"Flohkrebse", en:"Amphipods" },
+      "Bartenwale": { de:"Bartenwale", en:"Baleen Whales" },
+      "Zahnwale": { de:"Zahnwale", en:"Toothed Whales" },
+      "Pinguine": { de:"Pinguine", en:"Penguins" },
+      "Kaiserpinguin": { de:"Kaiserpinguin", en:"Emperor Penguin" },
+      "Königspinguin": { de:"Königspinguin", en:"King Penguin" },
+      "Adeliepinguin": { de:"Adeliepinguin", en:"Adelie Penguin" },
+      "Brillenpinguin": { de:"Brillenpinguin", en:"African Penguin" },
+      "Albatrosse": { de:"Albatrosse", en:"Albatrosses" },
+      "Sturmtaucher": { de:"Sturmtaucher", en:"Storm Petrels" },
+      "Tölpel": { de:"Tölpel", en:"Boobies" },
+      "Kormorane": { de:"Kormorane", en:"Cormorants" },
+      "Möwen": { de:"Möwen", en:"Gulls" },
+      "Seeschwalben": { de:"Seeschwalben", en:"Terns" },
+      "Fregattvögel": { de:"Fregattvögel", en:"Frigatebirds" },
+      "Pelikane": { de:"Pelikane", en:"Pelicans" },
+      "Basstölpel": { de:"Basstölpel", en:"Northern Gannet" },
+      "Braunalge": { de:"Braunalge", en:"Brown Algae" },
+      "Rotalgen": { de:"Rotalgen", en:"Red Algae" },
+      "Grünalgen": { de:"Grünalgen", en:"Green Algae" },
+      "Kelp": { de:"Kelp", en:"Kelp" },
+      "Seegras": { de:"Seegras", en:"Seagrass" },
+      "Mangroven": { de:"Mangroven", en:"Mangroves" },
+      "Wasserhyazinthe": { de:"Wasserhyazinthe", en:"Water Hyacinth" },
+      "Posidonia_oceanica": { de:"Posidonia oceanica", en:"Posidonia Oceanica" },
+      "Sargassum": { de:"Sargassum", en:"Sargassum" },
+    };
 
     let current = null;
     let currentLang = "de";
@@ -293,7 +468,7 @@
         return {
           name: title.replaceAll("_", " "),
           images: [data.thumbnail.source],
-          credit: "Bild: Wikipedia"
+          credit: "Wikipedia"
         };
       } catch {
         return null;
@@ -341,14 +516,14 @@
       selectedIndex = 0;
       setImageWithFallback(current.correct.images);
       imageEl.alt = current.correct.name;
-      creditEl.textContent = `${current.correct.credit} - Arten im Pool: ${creatures.length}`;
+      creditEl.textContent = `> ${current.correct.credit} | ${creatures.length} species <`;
       feedbackEl.textContent = "";
       answersEl.innerHTML = "";
 
       current.options.forEach((option, index) => {
         const btn = document.createElement("button");
         btn.type = "button";
-        btn.textContent = option.name;
+        btn.textContent = CREATURE_NAMES[option.name]?.[currentLang] || option.name;
         btn.addEventListener("click", (event) => {
           event.stopPropagation();
           if (answered) return;
@@ -374,8 +549,8 @@
           });
 
           feedbackEl.textContent = isCorrect
-            ? TEXTS[currentLang].correct
-            : TEXTS[currentLang].wrongPrefix + current.correct.name;
+              ? TEXTS[currentLang].correct
+              : TEXTS[currentLang].wrongPrefix + (CREATURE_NAMES[current.correct.name]?.[currentLang] || current.correct.name);
           feedbackEl.textContent += " " + TEXTS[currentLang].nextHint;
         });
         answersEl.appendChild(btn);
@@ -400,6 +575,17 @@
 
     chooseDeEl.addEventListener("click", () => { startWithLanguage("de"); });
     chooseEnEl.addEventListener("click", () => { startWithLanguage("en"); });
+
+    const switchDeEl = document.getElementById("switchDe");
+    const switchEnEl = document.getElementById("switchEn");
+
+    switchDeEl.addEventListener("click", () => {
+      startWithLanguage("de");
+    });
+
+    switchEnEl.addEventListener("click", () => {
+      startWithLanguage("en");
+    });
 
     document.addEventListener("click", () => {
       if (!answered) return;
