@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -30,7 +29,7 @@ header {
     font-family:'Fira Code', monospace;
 }
 .header-left { font-size:1.5em; font-weight:600; }
-.header-right { display:flex; gap:10px; }
+.header-right { display:flex; gap:10px; align-items:center; }
 .header-right button {
     padding:6px 12px;
     border:none;
@@ -183,6 +182,15 @@ button {
     box-shadow:0 0 40px rgba(255,0,0,0.9);
 }
 
+/* Google Translate Styling: sauber */
+.goog-logo-link,
+.goog-te-gadget span {
+    display:none !important;
+}
+.goog-te-gadget {
+    color:transparent !important;
+}
+
 </style>
 </head>
 
@@ -193,26 +201,15 @@ button {
     <div class="header-right">
         <button id="info-btn">Info</button>
         <button onclick="location.href='datenschutz.html'">Datenschutz</button>
+        <!-- Google Translate Element -->
+        <div id="google_translate_element"></div>
     </div>
 </header>
-
-
-
 
 <div class="main-container">
 
 <!-- LEFT COLUMN – VOLLSTÄNDIG -->
-<div class="left-column">
-<div class="info-box storygames-highlight">
-    <div class="info-box-header">
-        <span>CACTI 🌵🌵🌵 </span><span> </span>
-    </div>
-    <div class="info-box-content">
-        <p>The best and funniest cacti game! 🌵🌵🌵</p>
-        <button onclick="window.location.href='CACTI.html'">🌵 CACTI 🌵</button>
 
-    </div>
-</div>
     <!-- Lernspiele -->
     <div class="accordion-item">
         <div class="accordion-header">Lernspiele <span> </span></div>
@@ -281,7 +278,17 @@ button {
 
 <!-- RIGHT COLUMN -->
 <div class="right-column">
-
+    
+<div class="left-column">
+<div class="info-box storygames-highlight">
+    <div class="info-box-header">
+        <span>CACTI 🌵🌵🌵 </span><span> </span>
+    </div>
+    <div class="info-box-content">
+        <p>The best and funniest cacti game! 🌵🌵🌵</p>
+        <button onclick="window.location.href='CACTI.html'">🌵 CACTI 🌵</button>
+    </div>
+</div>
     <!-- 🔥 Highlight -->
     <div class="info-box smartzone-highlight">
         <div class="info-box-header">
@@ -293,7 +300,6 @@ button {
         </div>
     </div>
 
-
 <div class="info-box storygames-highlight">
     <div class="info-box-header">
         <span>Filme</span><span> </span>
@@ -301,20 +307,10 @@ button {
     <div class="info-box-content">
         <p>Das Universum, unsere Geschichte und unsere Zukunft.</p>
         <button onclick="window.location.href='universum.html'">Universum</button>
-
     </div>
 </div>
 
-
-
-
-
-
-    
-
-
-    
-    <div class="info-box"> 
+<div class="info-box"> 
     <div class="info-box-header">
         <span>Alte Versionen</span><span> </span>
     </div>
@@ -362,12 +358,19 @@ const infoBtn = document.getElementById('info-btn');
 infoBtn.onclick = () => {
     location.href = 'info1.html';
 };
-
-
 </script>
+
+<!-- Google Translate Script -->
+<script>
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({
+    pageLanguage: 'de',
+    includedLanguages: 'en,de',
+    layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+  }, 'google_translate_element');
+}
+</script>
+<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
 </body>
 </html>
-
-
-
