@@ -1,83 +1,1033 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ingwerperium Forum</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #fafafa; }
-        h1, h2 { color: #333; }
-        #postInput { width: 80%; height: 100px; margin-bottom: 10px; padding: 10px; border-radius: 5px; border: 1px solid #ccc; }
-        button { padding: 10px 15px; cursor: pointer; background-color: #ff7f50; color: white; border: none; border-radius: 5px; }
-        button:hover { background-color: #ff6333; }
-        #posts { margin-top: 20px; border-top: 1px solid #eee; padding-top: 10px; }
-        #posts p { background-color: #ffffff; padding: 10px; border-radius: 5px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forum – Ingwerperium Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #111118;
+  --surface2: #17171f;
+  --surface3: #1e1e2a;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --accent: #7c5cfc;
+  --accent2: #00d4ff;
+  --green: #00c87a;
+  --red: #ff6b6b;
+  --yellow: #ffd166;
+  --text: #e8e8f0;
+  --text-muted: #888898;
+  --text-dim: #555566;
+  --glow: rgba(124,92,252,0.25);
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'DM Sans',sans-serif;
+  min-height:100vh;display:flex;flex-direction:column;
+}
+body::before{
+  content:'';position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 70% 40% at 20% 0%,rgba(124,92,252,0.07) 0%,transparent 55%),
+    radial-gradient(ellipse 50% 40% at 80% 90%,rgba(0,212,255,0.05) 0%,transparent 55%);
+  pointer-events:none;z-index:0;
+}
+
+/* ─── HEADER ─── */
+header{
+  position:sticky;top:0;z-index:200;
+  padding:0 32px;height:64px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(10,10,15,0.92);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.header-logo{
+  font-family:'Space Mono',monospace;font-size:0.85rem;font-weight:700;
+  color:var(--text-muted);text-decoration:none;
+  display:flex;align-items:center;gap:8px;transition:color 0.2s;
+}
+.header-logo:hover{color:var(--text);}
+.logo-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--accent);box-shadow:0 0 10px var(--accent);animation:pulse 2s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.header-title{
+  font-family:'Space Mono',monospace;font-size:0.95rem;font-weight:700;
+  color:var(--text);padding-left:20px;border-left:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;
+}
+.forum-live-dot{
+  width:6px;height:6px;border-radius:50%;background:var(--green);
+  box-shadow:0 0 8px var(--green);animation:pulse 1.5s infinite;
+}
+.header-nav{display:flex;align-items:center;gap:8px;}
+.user-chip{
+  padding:6px 14px;border:1px solid var(--border2);border-radius:8px;
+  background:var(--surface2);color:var(--text-muted);
+  font-family:'Space Mono',monospace;font-size:0.75rem;
+  cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:6px;
+}
+.user-chip:hover{border-color:var(--accent);color:var(--text);}
+.user-avatar-sm{
+  width:20px;height:20px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.6rem;font-weight:700;flex-shrink:0;
+}
+.lang-btn{
+  padding:6px 12px;border:1px solid var(--accent);border-radius:8px;
+  background:rgba(124,92,252,0.12);color:var(--accent);
+  font-family:'Space Mono',monospace;font-size:0.75rem;font-weight:700;
+  cursor:pointer;transition:all 0.2s;
+}
+.lang-btn:hover{background:rgba(124,92,252,0.25);}
+
+/* ─── LAYOUT ─── */
+.page-wrap{
+  position:relative;z-index:1;
+  max-width:1100px;margin:0 auto;width:100%;
+  padding:48px 32px 80px;
+  display:grid;grid-template-columns:1fr 300px;gap:28px;
+  align-items:start;
+}
+
+/* ─── LEFT COLUMN ─── */
+.left-col{}
+
+/* PAGE HERO */
+.forum-hero{margin-bottom:32px;}
+.forum-label{
+  font-family:'Space Mono',monospace;font-size:0.65rem;
+  letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);
+  margin-bottom:10px;display:flex;align-items:center;gap:10px;
+}
+.forum-label::before{content:'';width:16px;height:1px;background:var(--accent);}
+.forum-hero h1{
+  font-family:'Space Mono',monospace;font-size:2rem;font-weight:700;
+  color:var(--text);letter-spacing:-0.02em;margin-bottom:6px;
+}
+.forum-hero p{color:var(--text-muted);font-size:0.9rem;line-height:1.6;}
+
+/* FILTERS */
+.filters-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;}
+.cat-btn{
+  padding:7px 16px;border:1px solid var(--border);border-radius:20px;
+  background:transparent;color:var(--text-muted);
+  font-size:0.82rem;font-weight:500;cursor:pointer;transition:all 0.2s;
+}
+.cat-btn:hover{border-color:var(--accent);color:var(--text);}
+.cat-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(124,92,252,0.1);}
+
+/* NEW POST */
+.new-post-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:24px;margin-bottom:24px;
+  position:relative;overflow:hidden;
+}
+.new-post-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--accent),var(--accent2),transparent);
+}
+.new-post-top{display:flex;gap:12px;align-items:flex-start;margin-bottom:14px;}
+.user-avatar{
+  width:36px;height:36px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Space Mono',monospace;font-size:0.75rem;font-weight:700;
+}
+.post-inputs{flex:1;display:flex;flex-direction:column;gap:10px;}
+.post-title-input,.post-textarea,.post-input{
+  width:100%;padding:10px 14px;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius-sm);color:var(--text);
+  font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;
+  transition:border-color 0.2s;
+}
+.post-title-input{font-weight:600;}
+.post-textarea{resize:vertical;min-height:90px;line-height:1.6;}
+.post-input:focus,.post-title-input:focus,.post-textarea:focus{
+  border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,92,252,0.1);
+}
+.post-input::placeholder,.post-title-input::placeholder,.post-textarea::placeholder{color:var(--text-dim);}
+.post-controls{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.cat-select{
+  padding:8px 12px;background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius-sm);color:var(--text-muted);
+  font-family:'DM Sans',sans-serif;font-size:0.82rem;outline:none;cursor:pointer;
+  transition:border-color 0.2s;
+}
+.cat-select:focus{border-color:var(--accent);}
+.submit-btn{
+  padding:10px 24px;
+  background:linear-gradient(135deg,var(--accent),#5a3dd8);
+  border:none;border-radius:var(--radius-sm);color:#fff;
+  font-family:'Space Mono',monospace;font-size:0.82rem;font-weight:700;
+  cursor:pointer;transition:all 0.25s;letter-spacing:0.04em;
+}
+.submit-btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px var(--glow);}
+.submit-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;box-shadow:none;}
+
+/* POSTS */
+.posts-header{
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;
+}
+.posts-title{
+  font-family:'Space Mono',monospace;font-size:0.7rem;
+  letter-spacing:0.15em;text-transform:uppercase;color:var(--text-dim);
+  display:flex;align-items:center;gap:10px;
+}
+.posts-title::after{content:'';flex:1;height:1px;background:var(--border);}
+.post-count{color:var(--accent);font-weight:700;}
+
+.sort-select{
+  padding:6px 10px;background:var(--surface2);border:1px solid var(--border);
+  border-radius:8px;color:var(--text-muted);
+  font-family:'Space Mono',monospace;font-size:0.7rem;outline:none;cursor:pointer;
+}
+
+/* POST CARD */
+.post-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:20px 24px;margin-bottom:14px;
+  transition:border-color 0.2s,box-shadow 0.2s;
+  animation:fadeSlide 0.35s ease;
+}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.post-card:hover{border-color:rgba(124,92,252,0.25);box-shadow:0 4px 24px rgba(124,92,252,0.06);}
+.post-card.pinned{border-color:rgba(255,209,102,0.3);background:rgba(255,209,102,0.03);}
+
+.post-header{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.post-meta{flex:1;min-width:0;}
+.post-author-row{display:flex;align-items:center;gap:8px;margin-bottom:3px;flex-wrap:wrap;}
+.post-author{
+  font-family:'Space Mono',monospace;font-size:0.8rem;font-weight:700;color:var(--text);
+}
+.post-time{font-size:0.75rem;color:var(--text-dim);}
+.cat-badge{
+  padding:3px 9px;border-radius:5px;
+  font-family:'Space Mono',monospace;font-size:0.62rem;font-weight:700;
+  letter-spacing:0.05em;text-transform:uppercase;
+}
+.pin-badge{
+  padding:3px 8px;border-radius:5px;
+  background:rgba(255,209,102,0.12);border:1px solid rgba(255,209,102,0.25);
+  color:var(--yellow);font-family:'Space Mono',monospace;font-size:0.6rem;font-weight:700;
+}
+.post-title{
+  font-weight:600;font-size:1rem;color:var(--text);margin-bottom:8px;line-height:1.4;
+}
+.post-body{
+  color:var(--text-muted);font-size:0.875rem;line-height:1.7;margin-bottom:14px;
+  white-space:pre-wrap;word-break:break-word;
+}
+.post-body.collapsed{
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+}
+.read-more{
+  font-size:0.78rem;color:var(--accent);cursor:pointer;
+  background:none;border:none;padding:0;font-family:'DM Sans',sans-serif;
+  transition:opacity 0.2s;
+}
+.read-more:hover{opacity:0.7;}
+
+.post-footer{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.action-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:6px 12px;border:1px solid var(--border);border-radius:7px;
+  background:transparent;color:var(--text-muted);
+  font-family:'Space Mono',monospace;font-size:0.72rem;
+  cursor:pointer;transition:all 0.2s;
+}
+.action-btn:hover{border-color:var(--accent);color:var(--accent);}
+.action-btn.liked{
+  border-color:rgba(255,107,107,0.4);
+  color:var(--red);background:rgba(255,107,107,0.08);
+}
+.action-btn.replied{border-color:rgba(0,212,255,0.3);color:var(--accent2);}
+
+/* REPLIES */
+.replies-wrap{
+  margin-top:14px;padding-top:14px;border-top:1px solid var(--border);
+  display:none;
+}
+.replies-wrap.open{display:block;}
+.reply-card{
+  display:flex;gap:10px;margin-bottom:10px;
+  padding:12px 14px;background:var(--surface2);border-radius:var(--radius-sm);
+  border-left:2px solid var(--accent);
+  animation:fadeSlide 0.25s ease;
+}
+.reply-body{flex:1;}
+.reply-author-row{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+.reply-author{font-family:'Space Mono',monospace;font-size:0.75rem;font-weight:700;color:var(--text);}
+.reply-time{font-size:0.7rem;color:var(--text-dim);}
+.reply-text{font-size:0.85rem;color:var(--text-muted);line-height:1.6;white-space:pre-wrap;word-break:break-word;}
+
+.reply-input-wrap{display:flex;gap:8px;margin-top:10px;}
+.reply-input{
+  flex:1;padding:9px 12px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-sm);color:var(--text);
+  font-family:'DM Sans',sans-serif;font-size:0.85rem;outline:none;
+  transition:border-color 0.2s;
+}
+.reply-input:focus{border-color:var(--accent);}
+.reply-input::placeholder{color:var(--text-dim);}
+.reply-submit{
+  padding:9px 16px;
+  background:rgba(124,92,252,0.15);border:1px solid rgba(124,92,252,0.3);
+  border-radius:var(--radius-sm);color:var(--accent);
+  font-family:'Space Mono',monospace;font-size:0.75rem;font-weight:700;
+  cursor:pointer;transition:all 0.2s;
+}
+.reply-submit:hover{background:rgba(124,92,252,0.25);}
+
+/* LOADING */
+.loading-ring{
+  width:36px;height:36px;border:2px solid var(--border2);
+  border-top-color:var(--accent);border-radius:50%;
+  animation:spin 0.8s linear infinite;margin:40px auto;display:block;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* EMPTY */
+.empty-state{text-align:center;padding:60px 20px;color:var(--text-dim);}
+.empty-icon{font-size:2.5rem;margin-bottom:12px;display:block;opacity:0.35;}
+
+/* ─── RIGHT SIDEBAR ─── */
+.sidebar{display:flex;flex-direction:column;gap:16px;}
+.sidebar-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:20px;
+}
+.sidebar-title{
+  font-family:'Space Mono',monospace;font-size:0.65rem;
+  letter-spacing:0.15em;text-transform:uppercase;
+  color:var(--text-dim);margin-bottom:14px;
+  display:flex;align-items:center;gap:8px;
+}
+.sidebar-title::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* PROFILE CARD */
+.profile-display{text-align:center;}
+.profile-avatar-big{
+  width:60px;height:60px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Space Mono',monospace;font-size:1.2rem;font-weight:700;
+  margin:0 auto 10px;
+}
+.profile-name{
+  font-family:'Space Mono',monospace;font-size:0.9rem;font-weight:700;
+  color:var(--text);margin-bottom:4px;
+}
+.profile-id{font-size:0.72rem;color:var(--text-dim);margin-bottom:14px;}
+.name-edit-form{display:flex;flex-direction:column;gap:8px;}
+.name-input{
+  width:100%;padding:9px 12px;background:var(--surface2);
+  border:1px solid var(--border);border-radius:var(--radius-sm);
+  color:var(--text);font-family:'Space Mono',monospace;font-size:0.8rem;outline:none;
+  transition:border-color 0.2s;
+}
+.name-input:focus{border-color:var(--accent);}
+.name-input::placeholder{color:var(--text-dim);}
+.save-name-btn{
+  padding:9px;background:linear-gradient(135deg,var(--accent),#5a3dd8);
+  border:none;border-radius:var(--radius-sm);color:#fff;
+  font-family:'Space Mono',monospace;font-size:0.78rem;font-weight:700;
+  cursor:pointer;transition:all 0.2s;
+}
+.save-name-btn:hover{transform:translateY(-1px);}
+
+/* STATS */
+.stat-row{display:flex;justify-content:space-between;margin-bottom:8px;}
+.stat-item{text-align:center;}
+.stat-num{
+  font-family:'Space Mono',monospace;font-size:1.1rem;font-weight:700;
+  color:var(--accent);display:block;
+}
+.stat-lbl{font-size:0.72rem;color:var(--text-dim);}
+
+/* ONLINE */
+.online-list{display:flex;flex-direction:column;gap:6px;}
+.online-item{
+  display:flex;align-items:center;gap:8px;
+  padding:6px 8px;border-radius:7px;background:var(--surface2);
+}
+.online-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;}
+.online-name{font-size:0.82rem;color:var(--text-muted);}
+
+/* SEARCH */
+.search-input{
+  width:100%;padding:10px 12px;background:var(--surface2);
+  border:1px solid var(--border);border-radius:var(--radius-sm);
+  color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.875rem;
+  outline:none;transition:border-color 0.2s;margin-bottom:12px;
+}
+.search-input:focus{border-color:var(--accent);}
+.search-input::placeholder{color:var(--text-dim);}
+
+/* TOAST */
+.toast{
+  position:fixed;top:76px;left:50%;transform:translateX(-50%);
+  padding:11px 22px;border-radius:10px;font-weight:600;font-size:0.875rem;
+  z-index:9999;pointer-events:none;
+  animation:toastIn 0.3s ease,toastOut 0.3s ease 1.4s forwards;
+  font-family:'DM Sans',sans-serif;
+}
+.toast.ok{background:rgba(0,200,122,0.92);color:#000;}
+.toast.err{background:rgba(255,107,107,0.92);color:#fff;}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,-8px)}to{opacity:1;transform:translateX(-50%)}}
+@keyframes toastOut{to{opacity:0;transform:translate(-50%,-8px)}}
+
+/* NAME MODAL */
+.name-modal-bg{
+  position:fixed;inset:0;z-index:500;
+  background:rgba(8,8,14,0.8);backdrop-filter:blur(12px);
+  display:flex;align-items:center;justify-content:center;
+}
+.name-modal{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:36px 40px;
+  max-width:420px;width:90%;text-align:center;
+  animation:modalIn 0.35s cubic-bezier(0.34,1.4,0.64,1);
+  position:relative;overflow:hidden;
+}
+.name-modal::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--accent),var(--accent2),transparent);
+}
+@keyframes modalIn{from{transform:scale(0.9);opacity:0}to{transform:scale(1);opacity:1}}
+.name-modal h2{font-family:'Space Mono',monospace;font-size:1.2rem;margin-bottom:8px;}
+.name-modal p{color:var(--text-muted);font-size:0.875rem;margin-bottom:20px;line-height:1.6;}
+.modal-name-input{
+  width:100%;padding:12px 14px;margin-bottom:12px;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius-sm);color:var(--text);
+  font-family:'Space Mono',monospace;font-size:0.9rem;font-weight:700;
+  outline:none;transition:border-color 0.2s;text-align:center;
+}
+.modal-name-input:focus{border-color:var(--accent);}
+.modal-name-input::placeholder{color:var(--text-dim);}
+.modal-submit{
+  width:100%;padding:13px;
+  background:linear-gradient(135deg,var(--accent),#5a3dd8);
+  border:none;border-radius:var(--radius-sm);color:#fff;
+  font-family:'Space Mono',monospace;font-size:0.95rem;font-weight:700;
+  cursor:pointer;transition:all 0.2s;
+}
+.modal-submit:hover{transform:translateY(-2px);box-shadow:0 8px 24px var(--glow);}
+
+@media(max-width:900px){
+  .page-wrap{grid-template-columns:1fr;padding:24px 16px 60px;}
+  .sidebar{order:-1;}
+  header{padding:0 16px;}
+  .header-title{display:none;}
+}
+</style>
 </head>
 <body>
-    <h1>Ingwerperium Forum</h1>
-    <p>Share your thoughts about Ingwerperium below. No login needed!</p>
 
-    <div>
-        <textarea id="postInput" placeholder="Write your post here..."></textarea><br>
-        <button onclick="sendPost()">Post</button>
+
+
+<!-- ══ HEADER ══ -->
+<header>
+  <a href="index.html" class="header-logo">
+    <div class="logo-dot"></div>
+    <span data-de="← Hub" data-en="← Hub">← Hub</span>
+  </a>
+  <div class="header-title">
+    <div class="forum-live-dot"></div>
+    <span data-de="Community Forum" data-en="Community Forum">Community Forum</span>
+  </div>
+  <nav class="header-nav">
+    <div class="user-chip" id="userChip" onclick="openNameEdit()">
+      <div class="user-avatar-sm" id="headerAvatar" style="background:rgba(124,92,252,0.2);color:var(--accent);">?</div>
+      <span id="headerName">…</span>
+    </div>
+    <button class="lang-btn" id="lang-toggle-btn" onclick="switchLang(LANG==='de'?'en':'de')">EN</button>
+  </nav>
+</header>
+
+<!-- ══ PAGE ══ -->
+<div class="page-wrap">
+
+  <!-- LEFT: MAIN FEED -->
+  <div class="left-col">
+    <div class="forum-hero">
+      <div class="forum-label" data-de="Ingwerperium Community" data-en="Ingwerperium Community">Ingwerperium Community</div>
+      <h1 data-de="Forum" data-en="Forum">Forum</h1>
+      <p data-de="Teile Gedanken, stelle Fragen und diskutiere mit der Community." data-en="Share thoughts, ask questions and discuss with the community.">
+        Teile Gedanken, stelle Fragen und diskutiere mit der Community.
+      </p>
     </div>
 
-    <h2>Latest Posts:</h2>
-    <div id="posts">
-        <!-- Posts will appear here -->
+    <!-- Category Filter -->
+    <div class="filters-row" id="catFilters">
+      <!-- rendered by JS -->
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
-        import { getFirestore, addDoc, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+    <!-- New Post Card -->
+    <div class="new-post-card" id="newPostCard">
+      <div class="new-post-top">
+        <div class="user-avatar" id="newPostAvatar" style="background:rgba(124,92,252,0.2);color:var(--accent);">?</div>
+        <div class="post-inputs">
+          <input class="post-title-input" id="postTitle" maxlength="80"
+                 data-placeholder-de="Titel deines Beitrags …"
+                 data-placeholder-en="Post title …"
+                 placeholder="Titel deines Beitrags …">
+          <textarea class="post-textarea" id="postText" maxlength="1200"
+                    data-placeholder-de="Was möchtest du sagen? (max. 1200 Zeichen)"
+                    data-placeholder-en="What do you want to say? (max 1200 chars)"
+                    placeholder="Was möchtest du sagen?"></textarea>
+        </div>
+      </div>
+      <div class="post-controls">
+        <select class="cat-select" id="catSelect">
+          <!-- rendered by JS -->
+        </select>
+        <button class="submit-btn" id="postBtn" onclick="submitPost()"
+                data-de="Posten →" data-en="Post →">Posten →</button>
+      </div>
+    </div>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyBqkzJEJa94RQd9KYzpwR6rmIcvEouAJ-s",
-            authDomain: "ingwerperium.firebaseapp.com",
-            projectId: "ingwerperium",
-            storageBucket: "ingwerperium.firebasestorage.app",
-            messagingSenderId: "43358415912",
-            appId: "1:43358415912:web:a1d9053d2b22db7bde591d",
-            measurementId: "G-QSX1N83V89"
-        };
+    <!-- Posts Feed -->
+    <div class="posts-header">
+      <div class="posts-title" style="flex:1;">
+        <span data-de="Beiträge" data-en="Posts">Beiträge</span>
+        <span class="post-count" id="postCountBadge">0</span>
+        <span style="flex:1;height:1px;background:var(--border);display:block;"></span>
+      </div>
+      <select class="sort-select" id="sortSelect" onchange="renderPosts()">
+        <option value="new" data-de="Neueste" data-en="Newest">Neueste</option>
+        <option value="likes" data-de="Beliebteste" data-en="Most Liked">Beliebteste</option>
+      </select>
+    </div>
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+    <div id="postsContainer">
+      <div class="loading-ring"></div>
+    </div>
+  </div>
 
-        // Anonymous Login
-        signInAnonymously(auth);
-        onAuthStateChanged(auth, user => {
-            if (user) console.log("User ID:", user.uid);
-        });
+  <!-- RIGHT: SIDEBAR -->
+  <div class="sidebar">
 
-        // Send post
-        window.sendPost = async function () {
-            const text = document.getElementById("postInput").value;
-            if (text.trim() === "") return;
+    <!-- Search -->
+    <div class="sidebar-card">
+      <div class="sidebar-title" data-de="Suche" data-en="Search">Suche</div>
+      <input class="search-input" id="searchInput"
+             data-placeholder-de="Beiträge suchen …"
+             data-placeholder-en="Search posts …"
+             placeholder="Beiträge suchen …"
+             oninput="renderPosts()">
+    </div>
 
-            await addDoc(collection(db, "posts"), {
-                text: text,
-                user: auth.currentUser.uid,
-                created: Date.now()
-            });
-            document.getElementById("postInput").value = "";
-        };
+    <!-- Profile -->
+    <div class="sidebar-card">
+      <div class="sidebar-title" data-de="Dein Profil" data-en="Your Profile">Dein Profil</div>
+      <div class="profile-display" id="profileDisplay">
+        <div class="profile-avatar-big" id="sidebarAvatar" style="background:rgba(124,92,252,0.2);color:var(--accent);">?</div>
+        <div class="profile-name" id="sidebarName">–</div>
+        <div class="profile-id" id="sidebarId">–</div>
+        <div class="name-edit-form">
+          <input class="name-input" id="sidebarNameInput" maxlength="20"
+                 data-placeholder-de="Name ändern …"
+                 data-placeholder-en="Change name …"
+                 placeholder="Name ändern …">
+          <button class="save-name-btn" onclick="saveName()"
+                  data-de="✓ Speichern" data-en="✓ Save">✓ Speichern</button>
+        </div>
+      </div>
+    </div>
 
-        // Load posts live
-        const q = query(collection(db, "posts"), orderBy("created", "desc"));
-        onSnapshot(q, snapshot => {
-            const postsDiv = document.getElementById("posts");
-            postsDiv.innerHTML = "";
-            snapshot.forEach(doc => {
-                const p = document.createElement("p");
-                p.textContent = doc.data().text;
-                postsDiv.appendChild(p);
-            });
-        });
-    </script>
+    <!-- Forum Stats -->
+    <div class="sidebar-card">
+      <div class="sidebar-title" data-de="Forum Stats" data-en="Forum Stats">Forum Stats</div>
+      <div class="stat-row">
+        <div class="stat-item">
+          <span class="stat-num" id="statPosts">–</span>
+          <span class="stat-lbl" data-de="Beiträge" data-en="Posts">Beiträge</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num" id="statLikes">–</span>
+          <span class="stat-lbl" data-de="Likes" data-en="Likes">Likes</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num" id="statReplies">–</span>
+          <span class="stat-lbl" data-de="Antworten" data-en="Replies">Antworten</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rules -->
+    <div class="sidebar-card">
+      <div class="sidebar-title" data-de="Regeln" data-en="Rules">Regeln</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;gap:8px;align-items:flex-start;">
+          <span style="color:var(--green);font-family:'Space Mono',monospace;font-size:0.7rem;flex-shrink:0;margin-top:2px;">01</span>
+          <span style="font-size:0.82rem;color:var(--text-muted);" data-de="Sei freundlich und respektvoll." data-en="Be kind and respectful.">Sei freundlich und respektvoll.</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:flex-start;">
+          <span style="color:var(--green);font-family:'Space Mono',monospace;font-size:0.7rem;flex-shrink:0;margin-top:2px;">02</span>
+          <span style="font-size:0.82rem;color:var(--text-muted);" data-de="Kein Spam oder Eigenwerbung." data-en="No spam or self-promotion.">Kein Spam oder Eigenwerbung.</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:flex-start;">
+          <span style="color:var(--green);font-family:'Space Mono',monospace;font-size:0.7rem;flex-shrink:0;margin-top:2px;">03</span>
+          <span style="font-size:0.82rem;color:var(--text-muted);" data-de="Bleib beim Thema." data-en="Stay on topic.">Bleib beim Thema.</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:flex-start;">
+          <span style="color:var(--green);font-family:'Space Mono',monospace;font-size:0.7rem;flex-shrink:0;margin-top:2px;">04</span>
+          <span style="font-size:0.82rem;color:var(--text-muted);" data-de="Spaß haben!" data-en="Have fun!">Spaß haben!</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import {
+  getFirestore, addDoc, collection, onSnapshot,
+  query, orderBy, doc, updateDoc, arrayUnion, arrayRemove,
+  getDoc, getDocs, serverTimestamp, increment
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBqkzJEJa94RQd9KYzpwR6rmIcvEouAJ-s",
+  authDomain: "ingwerperium.firebaseapp.com",
+  projectId: "ingwerperium",
+  storageBucket: "ingwerperium.firebasestorage.app",
+  messagingSenderId: "43358415912",
+  appId: "1:43358415912:web:a1d9053d2b22db7bde591d"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+/* ── LANG ── */
+let LANG = 'de';
+window.LANG = LANG;
+(function(){
+  const u = new URLSearchParams(window.location.search).get('lang');
+  const s = localStorage.getItem('ingw-lang');
+  const l = (u==='en'||u==='de') ? u : (s==='en'||s==='de') ? s : 'de';
+  if(u) localStorage.setItem('ingw-lang', u);
+  LANG = l; window.LANG = l; document.documentElement.lang = l;
+})();
+
+function applyLang(lang){
+  LANG = lang; window.LANG = lang;
+  document.documentElement.lang = lang;
+  localStorage.setItem('ingw-lang', lang);
+  document.querySelectorAll('[data-de],[data-en]').forEach(el=>{
+    const t = el.getAttribute('data-'+lang);
+    if(t !== null) el.textContent = t;
+  });
+  document.querySelectorAll('[data-placeholder-de],[data-placeholder-en]').forEach(el=>{
+    const p = el.getAttribute('data-placeholder-'+lang);
+    if(p !== null) el.placeholder = p;
+  });
+  const btn = document.getElementById('lang-toggle-btn');
+  if(btn) btn.textContent = lang==='de' ? 'EN' : 'DE';
+  renderFilters();
+  renderCatSelect();
+  renderPosts();
+}
+window.switchLang = function(l){ applyLang(l); };
+applyLang(LANG);
+
+/* ── CATEGORIES ── */
+const CATS = {
+  all:       {de:'Alle',           en:'All',          color:'#7c5cfc'},
+  general:   {de:'Allgemein',      en:'General',      color:'#888898'},
+  python:    {de:'Python',         en:'Python',       color:'#00d4ff'},
+  spiele:    {de:'Spiele',         en:'Games',        color:'#00c87a'},
+  feedback:  {de:'Feedback',       en:'Feedback',     color:'#ffd166'},
+  fragen:    {de:'Fragen',         en:'Questions',    color:'#ff9f43'},
+  ideen:     {de:'Ideen',          en:'Ideas',        color:'#ff6b6b'},
+};
+
+function renderFilters(){
+  const row = document.getElementById('catFilters');
+  row.innerHTML = '';
+  Object.entries(CATS).forEach(([key,cat])=>{
+    const btn = document.createElement('button');
+    btn.className = 'cat-btn' + (activeFilter===key ? ' active' : '');
+    btn.textContent = cat[LANG] || cat.de;
+    btn.onclick = () => { activeFilter = key; renderFilters(); renderPosts(); };
+    row.appendChild(btn);
+  });
+}
+
+function renderCatSelect(){
+  const sel = document.getElementById('catSelect');
+  const cur = sel.value;
+  sel.innerHTML = '';
+  Object.entries(CATS).filter(([k])=>k!=='all').forEach(([key,cat])=>{
+    const opt = document.createElement('option');
+    opt.value = key;
+    opt.textContent = cat[LANG] || cat.de;
+    if(key === cur) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+/* ── USER STATE ── */
+let currentUser = null;
+let userName = localStorage.getItem('ingw-forum-name') || '';
+let allPosts = [];
+let activeFilter = 'all';
+
+function getAvatarColor(uid){
+  const colors = ['#7c5cfc','#00d4ff','#00c87a','#ffd166','#ff6b6b','#ff9f43','#f48fb1'];
+  let h = 0;
+  for(let i=0;i<uid.length;i++) h = (h*31+uid.charCodeAt(i))%colors.length;
+  return colors[h];
+}
+
+function getInitials(name){
+  if(!name) return '?';
+  return name.trim().split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+}
+
+function updateAvatars(){
+  const col = getAvatarColor(currentUser?.uid||'x');
+  const ini = getInitials(userName);
+  ['newPostAvatar','headerAvatar','sidebarAvatar'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.style.background = col+'33';
+    el.style.color = col;
+    el.textContent = ini;
+  });
+  document.getElementById('headerName').textContent = userName || (LANG==='de'?'Anonym':'Anonymous');
+  document.getElementById('sidebarName').textContent = userName || '–';
+  document.getElementById('sidebarId').textContent = currentUser ? 'ID: '+currentUser.uid.slice(0,8)+'…' : '';
+}
+
+/* ── NAME MODAL ── */
+function openNameModal(){
+  document.getElementById('nameModal').style.display = 'flex';
+  setTimeout(()=>document.getElementById('modalNameInput').focus(), 300);
+}
+function closeNameModal(){
+  document.getElementById('nameModal').style.display = 'none';
+}
+window.openNameEdit = function(){
+  const inp = document.getElementById('sidebarNameInput');
+  inp.focus();
+  inp.select();
+};
+window.saveName = function(){
+  const v = document.getElementById('sidebarNameInput').value.trim();
+  if(!v){ toast(LANG==='de'?'Bitte einen Namen eingeben.':'Please enter a name.','err'); return; }
+  userName = v;
+  localStorage.setItem('ingw-forum-name', v);
+  updateAvatars();
+  toast(LANG==='de'?'Name gespeichert!':'Name saved!','ok');
+  document.getElementById('sidebarNameInput').value = '';
+};
+
+document.getElementById('modalSubmitBtn').onclick = function(){
+  const v = document.getElementById('modalNameInput').value.trim();
+  if(!v){ toast(LANG==='de'?'Bitte einen Namen eingeben!':'Please enter a name!','err'); return; }
+  userName = v;
+  localStorage.setItem('ingw-forum-name', v);
+  closeNameModal();
+  updateAvatars();
+  toast(LANG==='de'?'Willkommen, '+v+'!':'Welcome, '+v+'!','ok');
+};
+document.getElementById('modalNameInput').addEventListener('keydown', e=>{
+  if(e.key==='Enter') document.getElementById('modalSubmitBtn').click();
+});
+
+/* ── AUTH ── */
+signInAnonymously(auth);
+onAuthStateChanged(auth, user=>{
+  if(!user) return;
+  currentUser = user;
+  updateAvatars();
+  if(!userName) openNameModal();
+  loadPosts();
+});
+
+/* ── POSTS ── */
+function loadPosts(){
+  const q = query(collection(db,'posts'), orderBy('created','desc'));
+  onSnapshot(q, snap=>{
+    allPosts = snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderPosts();
+    updateStats();
+  });
+}
+
+function renderPosts(){
+  if(!currentUser) return;
+  const container = document.getElementById('postsContainer');
+  const sort = document.getElementById('sortSelect').value;
+  const search = document.getElementById('searchInput').value.toLowerCase().trim();
+
+  let posts = [...allPosts];
+
+  // filter category
+  if(activeFilter !== 'all'){
+    posts = posts.filter(p=> p.category === activeFilter);
+  }
+
+  // search
+  if(search){
+    posts = posts.filter(p=>
+      (p.title||'').toLowerCase().includes(search) ||
+      (p.text||'').toLowerCase().includes(search) ||
+      (p.userName||'').toLowerCase().includes(search)
+    );
+  }
+
+  // sort
+  if(sort === 'likes'){
+    posts.sort((a,b)=>(b.likes?.length||0)-(a.likes?.length||0));
+  } else {
+    posts.sort((a,b)=>(b.created?.seconds||0)-(a.created?.seconds||0));
+  }
+
+  // pinned first
+  const pinned = posts.filter(p=>p.pinned);
+  const normal = posts.filter(p=>!p.pinned);
+  posts = [...pinned,...normal];
+
+  document.getElementById('postCountBadge').textContent = posts.length;
+
+  if(posts.length === 0){
+    container.innerHTML = `<div class="empty-state">
+      <span class="empty-icon">💬</span>
+      <p>${LANG==='de'?'Noch keine Beiträge. Sei der Erste!':'No posts yet. Be the first!'}</p>
+    </div>`;
+    return;
+  }
+
+  container.innerHTML = '';
+  posts.forEach(post=>{
+    container.appendChild(buildPostCard(post));
+  });
+}
+
+function buildPostCard(post){
+  const uid = currentUser.uid;
+  const likes = post.likes || [];
+  const isLiked = likes.includes(uid);
+  const catInfo = CATS[post.category] || CATS.general;
+  const catName = catInfo[LANG] || catInfo.de;
+  const catColor = catInfo.color || '#888';
+  const ava = getAvatarColor(post.uid||'x');
+  const ini = getInitials(post.userName||'?');
+  const isOwn = post.uid === uid;
+  const date = post.created?.seconds ? timeAgo(post.created.seconds*1000, LANG) : '–';
+  const body = post.text || '';
+  const isLong = body.length > 220;
+
+  const card = document.createElement('div');
+  card.className = 'post-card' + (post.pinned?' pinned':'');
+  card.id = 'post-'+post.id;
+
+  card.innerHTML = `
+    <div class="post-header">
+      <div class="user-avatar" style="width:38px;height:38px;border-radius:50%;flex-shrink:0;
+           display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;
+           font-size:0.78rem;font-weight:700;background:${ava}33;color:${ava};">${ini}</div>
+      <div class="post-meta">
+        <div class="post-author-row">
+          <span class="post-author">${escHtml(post.userName||'Anonym')}</span>
+          ${isOwn?`<span style="font-size:0.62rem;padding:2px 7px;border-radius:4px;background:rgba(124,92,252,0.12);color:var(--accent);font-family:'Space Mono',monospace;">${LANG==='de'?'Du':'You'}</span>`:''}
+          <span class="cat-badge" style="background:${catColor}22;color:${catColor};border:1px solid ${catColor}44;">${catName}</span>
+          ${post.pinned?`<span class="pin-badge">${LANG==='de'?'📌 Angepinnt':'📌 Pinned'}</span>`:''}
+        </div>
+        <span class="post-time">${date}</span>
+      </div>
+    </div>
+    ${post.title?`<div class="post-title">${escHtml(post.title)}</div>`:''}
+    <div class="post-body${isLong?' collapsed':''}" id="body-${post.id}">${escHtml(body)}</div>
+    ${isLong?`<button class="read-more" id="rm-${post.id}" onclick="toggleBody('${post.id}')">${LANG==='de'?'Mehr lesen ↓':'Read more ↓'}</button>`:''}
+    <div class="post-footer">
+      <button class="action-btn${isLiked?' liked':''}" id="like-${post.id}" onclick="toggleLike('${post.id}',${isLiked})">
+        ♥ <span id="like-count-${post.id}">${likes.length}</span>
+      </button>
+      <button class="action-btn" onclick="toggleReplies('${post.id}')">
+        💬 <span id="reply-count-${post.id}">${post.replyCount||0}</span>
+      </button>
+      ${isOwn?`<button class="action-btn" style="color:var(--red);border-color:rgba(255,107,107,0.25);"
+        onclick="deletePost('${post.id}')">${LANG==='de'?'Löschen':'Delete'}</button>`:''}
+    </div>
+    <div class="replies-wrap" id="replies-${post.id}">
+      <div id="replies-list-${post.id}" style="margin-bottom:10px;"></div>
+      <div class="reply-input-wrap">
+        <input class="reply-input" id="reply-input-${post.id}"
+               placeholder="${LANG==='de'?'Antwort schreiben …':'Write a reply …'}"
+               maxlength="400">
+        <button class="reply-submit" onclick="submitReply('${post.id}')">${LANG==='de'?'→':'→'}</button>
+      </div>
+    </div>
+  `;
+  return card;
+}
+
+window.toggleBody = function(id){
+  const body = document.getElementById('body-'+id);
+  const btn = document.getElementById('rm-'+id);
+  if(body.classList.contains('collapsed')){
+    body.classList.remove('collapsed');
+    btn.textContent = LANG==='de'?'Weniger ↑':'Less ↑';
+  } else {
+    body.classList.add('collapsed');
+    btn.textContent = LANG==='de'?'Mehr lesen ↓':'Read more ↓';
+  }
+};
+
+window.toggleLike = async function(postId, isLiked){
+  const uid = currentUser.uid;
+  const ref = doc(db,'posts',postId);
+  if(isLiked){
+    await updateDoc(ref,{likes:arrayRemove(uid)});
+  } else {
+    await updateDoc(ref,{likes:arrayUnion(uid)});
+  }
+};
+
+window.toggleReplies = async function(postId){
+  const wrap = document.getElementById('replies-'+postId);
+  if(wrap.classList.contains('open')){
+    wrap.classList.remove('open'); return;
+  }
+  wrap.classList.add('open');
+  loadReplies(postId);
+};
+
+async function loadReplies(postId){
+  const list = document.getElementById('replies-list-'+postId);
+  list.innerHTML = `<div class="loading-ring" style="width:20px;height:20px;border-width:1.5px;margin:8px auto;"></div>`;
+  const q = query(collection(db,'posts',postId,'replies'), orderBy('created','asc'));
+  onSnapshot(q, snap=>{
+    list.innerHTML = '';
+    snap.forEach(d=>{
+      const r = d.data();
+      const ava = getAvatarColor(r.uid||'x');
+      const ini = getInitials(r.userName||'?');
+      const div = document.createElement('div');
+      div.className='reply-card';
+      div.innerHTML=`
+        <div class="user-avatar" style="width:28px;height:28px;border-radius:50%;flex-shrink:0;
+             display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;
+             font-size:0.6rem;font-weight:700;background:${ava}33;color:${ava};">${ini}</div>
+        <div class="reply-body">
+          <div class="reply-author-row">
+            <span class="reply-author">${escHtml(r.userName||'Anonym')}</span>
+            ${r.uid===currentUser.uid?`<span style="font-size:0.6rem;padding:1px 6px;border-radius:4px;background:rgba(124,92,252,0.12);color:var(--accent);font-family:'Space Mono',monospace;">${LANG==='de'?'Du':'You'}</span>`:''}
+            <span class="reply-time">${r.created?.seconds?timeAgo(r.created.seconds*1000,LANG):'–'}</span>
+          </div>
+          <div class="reply-text">${escHtml(r.text||'')}</div>
+        </div>
+      `;
+      list.appendChild(div);
+    });
+    // update count
+    const cnt = document.getElementById('reply-count-'+postId);
+    if(cnt) cnt.textContent = snap.size;
+  });
+}
+
+window.submitReply = async function(postId){
+  const inp = document.getElementById('reply-input-'+postId);
+  const text = inp.value.trim();
+  if(!text) return;
+  if(!userName){ toast(LANG==='de'?'Bitte zuerst einen Namen wählen!':'Please choose a name first!','err'); return; }
+  inp.value = '';
+  await addDoc(collection(db,'posts',postId,'replies'),{
+    text, uid:currentUser.uid, userName,
+    created:serverTimestamp()
+  });
+  await updateDoc(doc(db,'posts',postId),{replyCount:increment(1)});
+};
+
+window.deletePost = async function(postId){
+  const msg = LANG==='de'?'Beitrag wirklich löschen?':'Really delete this post?';
+  if(!confirm(msg)) return;
+  const { deleteDoc } = await import("https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js");
+  await deleteDoc(doc(db,'posts',postId));
+  toast(LANG==='de'?'Beitrag gelöscht.':'Post deleted.','ok');
+};
+
+/* ── SUBMIT POST ── */
+window.submitPost = async function(){
+  const title = document.getElementById('postTitle').value.trim();
+  const text = document.getElementById('postText').value.trim();
+  const cat = document.getElementById('catSelect').value;
+  if(!text){ toast(LANG==='de'?'Bitte etwas schreiben!':'Please write something!','err'); return; }
+  if(!userName){ toast(LANG==='de'?'Bitte zuerst einen Namen wählen!':'Please choose a name first!','err'); openNameModal(); return; }
+  const btn = document.getElementById('postBtn');
+  btn.disabled = true;
+  await addDoc(collection(db,'posts'),{
+    title, text, category:cat,
+    uid:currentUser.uid, userName,
+    likes:[], replyCount:0,
+    created:serverTimestamp()
+  });
+  document.getElementById('postTitle').value = '';
+  document.getElementById('postText').value = '';
+  btn.disabled = false;
+  toast(LANG==='de'?'Beitrag gepostet! ✓':'Post published! ✓','ok');
+};
+
+/* ── STATS ── */
+function updateStats(){
+  let totalLikes=0, totalReplies=0;
+  allPosts.forEach(p=>{
+    totalLikes += (p.likes||[]).length;
+    totalReplies += p.replyCount||0;
+  });
+  document.getElementById('statPosts').textContent = allPosts.length;
+  document.getElementById('statLikes').textContent = totalLikes;
+  document.getElementById('statReplies').textContent = totalReplies;
+}
+
+/* ── UTILS ── */
+function timeAgo(ts, lang){
+  const diff = Date.now()-ts;
+  const s=Math.floor(diff/1000), m=Math.floor(s/60), h=Math.floor(m/60), d=Math.floor(h/24);
+  if(lang==='de'){
+    if(s<60) return 'gerade eben';
+    if(m<60) return `vor ${m} Min.`;
+    if(h<24) return `vor ${h} Std.`;
+    return `vor ${d} Tag${d>1?'en':''}`;
+  } else {
+    if(s<60) return 'just now';
+    if(m<60) return `${m}m ago`;
+    if(h<24) return `${h}h ago`;
+    return `${d}d ago`;
+  }
+}
+function escHtml(str){
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function toast(msg,type='ok'){
+  const t=document.createElement('div');
+  t.className='toast '+type; t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),1800);
+}
+window.toast = toast;
+
+/* init */
+renderFilters();
+renderCatSelect();
+</script>
+
 </body>
 </html>
