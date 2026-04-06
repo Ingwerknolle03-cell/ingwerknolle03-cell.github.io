@@ -12,22 +12,18 @@ const firebaseConfig = {
   projectId: "ingwerperium",
   storageBucket: "ingwerperium.firebasestorage.app",
   messagingSenderId: "43358415912",
-  appId: "1:43358415912:web:a1d9053d2b22db7bde591d"
+  appId: "1:43358415912:web:abda437dc5f0905ede591d"
 };
 
-try {
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-  // Rest deines Codes hier einfügen (CATS, functions, etc.)
-  signInAnonymously(auth).catch(e => console.error("Auth Fehler:", e));
-  onAuthStateChanged(auth, user => {
-    if (user) console.log("✅ User eingeloggt:", user.uid);
-    else console.log("❌ Kein User");
-  });
-
-} catch (e) {
-  console.error("🚨 Firebase Initialisierung fehlgeschlagen:", e);
-}
+// Dein Rest-Code (CATS, functions, etc.) hier einfügen...
+// + diese Zeilen am Ende:
+signInAnonymously(auth).catch(e => console.error("Auth Fehler:", e));
+onAuthStateChanged(auth, user => {
+  console.log(user ? "✅ LOGIN OK" : "❌ Kein User");
+  if (user) loadPosts();
+});
 </script>
