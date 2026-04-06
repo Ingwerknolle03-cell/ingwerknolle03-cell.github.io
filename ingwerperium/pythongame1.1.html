@@ -245,15 +245,34 @@ function applyLang(lang){
 window.switchLang = function(l){ applyLang(l); };
 applyLang(LANG);
 
-/* ─── CANVAS SETUP ─── */
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
+
 let cw, ch;
+
 function resize(){
   const wrapper = document.getElementById('gameWrapper');
-  cw = canvas.width  = wrapper.clientWidth;
-  ch = canvas.height = wrapper.clientHeight;
+  const dpr = window.devicePixelRatio || 1;
+
+  const width = wrapper.clientWidth;
+  const height = wrapper.clientHeight;
+
+  // echte Pixel (hochaufgelöst)
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+
+  // visuelle Größe (bleibt gleich)
+  canvas.style.width = width + "px";
+  canvas.style.height = height + "px";
+
+  // wichtig: alles skalieren
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  // für dein Game wichtig
+  cw = width;
+  ch = height;
 }
+
 window.addEventListener('resize', resize);
 resize();
 
@@ -539,4 +558,3 @@ function loadScore(){
 </script>
 </body>
 </html>
-
