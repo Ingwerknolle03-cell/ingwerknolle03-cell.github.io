@@ -1056,18 +1056,23 @@ function toggleLang() {
 
 // ─── ACCORDION ──────────────────────────────────────────────────
 function toggleAcc(id) {
-  const card = document.getElementById(id);
-  const body = card.querySelector('.accordion-body');
-  const isOpen = card.classList.contains('open');
+  const clickedCard = document.getElementById(id);
+  const allCards = clickedCard.parentElement.querySelectorAll('.accordion-card');
 
-  document.querySelectorAll('.accordion-card').forEach(c => {
-    c.classList.remove('open');
-    c.querySelector('.accordion-body').style.maxHeight = null;
+  allCards.forEach(card => {
+    if (card !== clickedCard) {
+      card.classList.remove('open');
+      card.querySelector('.accordion-body').style.maxHeight = null;
+    }
   });
 
-  if (!isOpen) {
-    card.classList.add('open');
-    body.style.maxHeight = body.scrollHeight + 'px';
+  // Toggle die angeklickte Karte
+  clickedCard.classList.toggle('open');
+  const body = clickedCard.querySelector('.accordion-body');
+  if (clickedCard.classList.contains('open')) {
+    body.style.maxHeight = body.scrollHeight + "px";
+  } else {
+    body.style.maxHeight = null;
   }
 }
 </script>
