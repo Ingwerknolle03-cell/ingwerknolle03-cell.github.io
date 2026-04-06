@@ -22,9 +22,7 @@ button { padding:6px 12px; }
 
 <div id="top">
 <button id="editBtn" data-de="TXT" data-en="TXT">TXT</button>
-
 <button id="speedBtn" data-de="Start" data-en="Start">Start</button>
-
 <input id="answerInput"
        data-de-placeholder="Antwort eingeben…"
        data-en-placeholder="Enter answer…"
@@ -34,8 +32,7 @@ button { padding:6px 12px; }
 <div id="editorBox">
 <textarea id="editor"
 data-de-placeholder="Gib erst die Frage ein in eine Zeile, trenne dann mit = Frage und Antwort"
-data-en-placeholder="Write the question, then use = to separate question and answer"
-></textarea>
+data-en-placeholder="Write the question, then use = to separate question and answer"></textarea>
 <br>
 <button id="closeEditor"
 data-de="Speichern & Schließen"
@@ -47,14 +44,40 @@ data-en="Save & Close">Speichern & Schließen</button>
 <div id="answerDisplay"></div>
 
 <script>
-// 🌍 Placeholder Übersetzung fix
+// 🌍 LANGUAGE SYSTEM
+// Prüfen, ob Sprache aus localStorage übernommen werden kann
+window.LANG = localStorage.getItem('lang') || 'de';
+
+// Funktion, die alle Texte und Placeholder übersetzt
 function applyPlaceholders(){
-  document.querySelectorAll("[data-de-placeholder]").forEach(el=>{
-    const lang = window.LANG || "de";
-    el.placeholder = el.getAttribute("data-" + lang + "-placeholder");
+  const lang = window.LANG || 'de';
+
+  // Placeholders
+  document.querySelectorAll('[data-de-placeholder]').forEach(el=>{
+    el.placeholder = el.getAttribute(`data-${lang}-placeholder`);
   });
+
+  // Buttons und sonstige Texte
+  document.querySelectorAll('[data-de]').forEach(el=>{
+    el.innerText = el.getAttribute(`data-${lang}`);
+  });
+
+  // Title
+  const titleEl = document.querySelector('title');
+  if(titleEl && titleEl.getAttribute(`data-${lang}`)){
+    titleEl.innerText = titleEl.getAttribute(`data-${lang}`);
+  }
 }
-document.addEventListener("DOMContentLoaded", applyPlaceholders);
+
+// Sprache wechseln (optional Funktion)
+function setLanguage(lang){
+  window.LANG = lang;
+  localStorage.setItem('lang', lang);
+  applyPlaceholders();
+}
+
+// Initial anwenden
+document.addEventListener('DOMContentLoaded', applyPlaceholders);
 setTimeout(applyPlaceholders, 50);
 
 // --- GAME LOGIC ---
@@ -91,15 +114,14 @@ document.getElementById("closeEditor").onclick = ()=>{
 };
 
 // --- Speed Button ---
-document.getElementById("speedBtn").onclick = ()=>{
+document.getElementById("speedBtn").onclick = function(){
   speed++;
   if(speed>10) speed=0;
-
-  const lang = window.LANG || "de";
+  const lang = window.LANG || 'de';
   if(speed === 0){
     this.innerText = lang === "en" ? "Start" : "Start";
   } else {
-    this.innerText = "Speed: " + speed;
+    this.innerText = (lang === "en" ? "Speed: " : "Geschwindigkeit: ") + speed;
   }
 };
 
@@ -107,21 +129,17 @@ document.getElementById("speedBtn").onclick = ()=>{
 document.getElementById("answerInput").addEventListener("keydown", function(e){
   if(e.key === "Enter"){
     let val = this.value.trim().toLowerCase();
-
     let targetIndex = -1;
     let maxY = -1;
-
     for (let i = 0; i < active.length; i++) {
       if (active[i].a.toLowerCase() === val && active[i].y > maxY) {
         maxY = active[i].y;
         targetIndex = i;
       }
     }
-
     if (targetIndex !== -1) {
       active.splice(targetIndex, 1);
     }
-
     this.value = "";
   }
 });
@@ -131,11 +149,9 @@ function wrapText(text, x, y, maxWidth, lineHeight) {
   let words = text.split(" ");
   let line = "";
   let lines = [];
-
   for (let w of words) {
     let testLine = line + w + " ";
     let testWidth = ctx.measureText(testLine).width;
-
     if (testWidth > maxWidth && line !== "") {
       lines.push(line);
       line = w + " ";
@@ -144,11 +160,9 @@ function wrapText(text, x, y, maxWidth, lineHeight) {
     }
   }
   lines.push(line);
-
   for (let i = 0; i < lines.length; i++) {
     ctx.fillText(lines[i], x, y + i * lineHeight);
   }
-
   return lines.length;
 }
 
@@ -166,10 +180,8 @@ function spawn(){
   if(speed===0) return;
   if(active.length >= speed) return;
   if(vocab.length===0) return;
-
   let v = vocab[Math.floor(Math.random()*vocab.length)];
   let maxWidth = 180;
-
   for(let tries=0; tries<20; tries++){
     let x = Math.random() * (W - maxWidth - 20) + 10;
     if(!isOverlapping(x, maxWidth)){
@@ -188,29 +200,22 @@ function spawn(){
 // --- LOOP ---
 function loop(){
   ctx.clearRect(0,0,W,H);
-
   if(active.length < speed && speed>0){
     spawn();
   }
-
   ctx.fillStyle = "white";
   ctx.font="20px sans-serif";
-
   for(let i=active.length-1;i>=0;i--){
     let a = active[i];
-
     let lineHeight = 22;
     let lineCount = wrapText(a.q, a.x, a.y, a.maxWidth, lineHeight);
-
     a.y += a.speed * (H/2) * lineCount;
-
     if(a.y > H){
       flash();
       showAnswer(a.a);
       active.splice(i,1);
     }
   }
-
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
@@ -228,10 +233,8 @@ function showAnswer(txt){
   ad.innerText = txt;
   setTimeout(()=>{ if(ad.innerText===txt) ad.innerText=""; },10000);
 }
-</script>
 
-<!-- 🌍 LANGUAGE SYSTEM -->
-<script src="lang-init.js"></script>
+</script>
 
 </body>
 </html>
