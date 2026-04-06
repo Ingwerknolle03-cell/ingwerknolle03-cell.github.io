@@ -200,15 +200,132 @@ button {
     <div class="header-right">
         <button id="info-btn">Info</button>
         <button onclick="location.href='datenschutz.html'">Datenschutz</button>
-        <!-- Google Translate Inline -->
         <div id="google_translate_element"></div>
     </div>
 </header>
 
 <div class="main-container">
-<!-- hier kommt der gesamte Content deiner vorherigen Seite rein -->
-<!-- Lernspiele, Python, Naturspiele, Allgemeinwissen, Info-Boxen, YouTube-Section... -->
-<!-- (In der finalen Datei einfach alles zwischen <div class="main-container"> ... </div> einfügen, wie du es schon hattest) -->
+
+<!-- LEFT COLUMN – VOLLSTÄNDIG -->
+
+<!-- Lernspiele -->
+<div class="accordion-item">
+    <div class="accordion-header">Lernspiele <span> </span></div>
+    <div class="accordion-content">
+        <div class="button-container">
+            <a href="vokabeltrainer.html"><button>Spaßiger Vokabeltrainer</button></a>
+            <p>Trainiere neue und alte Vokabeln.</p>
+        </div>
+        <div class="button-container">
+            <a href="Vokabelabfrage.html"><button>Pure Vokabelabfrage</button></a>
+            <p>Einfaches Lernspiel mit Import/Export.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Python -->
+<div class="accordion-item">
+    <div class="accordion-header">Python <span> </span></div>
+    <div class="accordion-content">
+        <div class="button-container">
+            <a href="grundlagenpython.html"><button>Python Grundlagen</button></a>
+            <p>Handbuch & Quizzes.</p>
+        </div>
+        <div class="button-container">
+            <a href="fortgeschrittenesPython.html"><button>Fortgeschrittenes Python</button></a>
+            <p>Für Nutzer mit abgeschlossenen Grundlagen. (Über 1000 mögliche Fragen!)</p>
+        </div>
+        <div class="button-container">
+            <a href="pythongame1.1.html"><button>GAME V.1.1 VOLLVERSION</button></a>
+            <p>Für Nutzer mit abgeschlossenen Grundlagen.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Naturspiele --> 
+<div class="accordion-item">
+    <div class="accordion-header">Naturspiele <span> </span></div>
+    <div class="accordion-content">
+        <div class="button-container">
+            <a href="Chronos-Eiszeit-Update-3.0.html"><button>Chronos-3.0</button></a>
+            <p>Baue ein Biotop. Es läuft: Eiszeit Update</p>
+        </div>
+        <div class="button-container">
+            <a href="biensche1.html"><button>Blümchen 1.1</button></a>
+            <p>Sei ein Gärtner. </p>
+        </div>
+    </div>
+</div>
+
+<!-- Allgemeinwissen -->
+<div class="accordion-item">
+    <div class="accordion-header">Allgemeinwissen <span> </span></div>
+    <div class="accordion-content">
+        <div class="button-container">
+            <a href="dasgroßeQuiz.html"><button>Das große Quiz</button></a>
+            <p>DEMO Version</p>
+        </div>
+        <div class="button-container">
+            <a href="mehrspielerQuiz.html"><button>Mehrspieler Quiz</button></a>
+            <p>VOLLVERSION FREE</p>
+        </div>
+    </div>
+</div>
+
+<!-- RIGHT COLUMN -->
+<div class="right-column">
+<div class="left-column">
+<div class="info-box storygames-highlight">
+    <div class="info-box-header">
+        <span>CACTI 🌵🌵🌵 </span><span> </span>
+    </div>
+    <div class="info-box-content">
+        <p>The best and funniest cacti game! 🌵🌵🌵</p>
+        <button onclick="window.location.href='CACTI.html'">🌵 CACTI 🌵</button>
+    </div>
+</div>
+
+<div class="info-box smartzone-highlight">
+    <div class="info-box-header">
+        <span>InfoSphäre</span><span> </span>
+    </div>
+    <div class="info-box-content">
+        <p><strong>Ein neues Internet.</strong><br>Sehr spannende Inhalte. Ähnlich wie Wikipedia oder Google, nur interessanter und besser erklärt, ohne Ablenkungen.</p>
+        <button onclick="location.href='infosphäre.html'">Jetzt eintauchen</button>
+    </div>
+</div>
+
+<div class="info-box storygames-highlight">
+    <div class="info-box-header">
+        <span>Filme</span><span> </span>
+    </div>
+    <div class="info-box-content">
+        <p>Das Universum, unsere Geschichte und unsere Zukunft.</p>
+        <button onclick="window.location.href='universum.html'">Universum</button>
+    </div>
+</div>
+
+<div class="info-box"> 
+    <div class="info-box-header">
+        <span>Alte Versionen</span><span> </span>
+    </div>
+    <div class="info-box-content">
+        <p>Generalüberholtes Python Spiel, spiele lieber das neuere unter "Python" -> PythonGAME neueste Version</p>
+        <button onclick="location.href='pythongame10.html'">Python Game V.1.0</button>
+        <p>Generalüberholtes Chronos Spiel, spiele lieber das neuere.</p>
+        <button onclick="location.href='Chronos1.2FungusUpdate.html'">Chronos FungusV.1.2</button>
+        <p>Generalüberholtes Blümsche Spiel, spiele lieber das neuere.</p>
+        <button onclick="location.href='biensche.html'">Blümsche 1.0</button>
+    </div>
+</div>
+
+<div class="yt-section">
+    <a href="https://www.youtube.com/@Ingwerknolle_03/videos" target="_blank" class="yt-button">
+        ▶ Mein YouTube Kanal
+    </a>
+</div>
+
+</div>
 </div>
 
 <p class="footer-text"></p>
@@ -238,7 +355,6 @@ infoBtn.onclick = () => {
 };
 </script>
 
-<!-- Google Translate Script -->
 <script>
 function googleTranslateElementInit() {
   new google.translate.TranslateElement({
