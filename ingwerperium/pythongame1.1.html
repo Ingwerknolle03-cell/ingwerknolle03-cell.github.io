@@ -2,368 +2,540 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>pythongamelukasohlemutz</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Game – Ingwerperium Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-body,html {margin:0;padding:0;overflow:hidden;background:#111;color:white;font-family:Arial;}
-#gameCanvas{display:block;background:#222;}
-#overlay{
-  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  background:#333;border:3px solid #ff0;padding:20px;border-radius:15px;
-  text-align:center; display:none;width:600px;color:white;font-size:26px;z-index:10;
+:root {
+  --bg: #0a0a0f;
+  --surface: #111118;
+  --surface2: #17171f;
+  --border: rgba(255,255,255,0.07);
+  --accent: #7c5cfc;
+  --accent2: #00d4ff;
+  --text: #e8e8f0;
+  --text-muted: #888898;
+  --text-dim: #555566;
+  --glow: rgba(124,92,252,0.3);
+  --radius: 16px;
+  --radius-sm: 10px;
 }
-#overlay button{margin:10px;padding:15px 20px;font-size:22px;border:none;border-radius:10px;cursor:pointer;}
-#scoreboard{position:absolute;top:10px;left:10px;font-size:26px;}
-#menu{position:absolute;top:10px;right:10px;background:#333;padding:15px;border-radius:15px;text-align:center;color:white;font-size:18px;z-index:10;}
-#menu button{margin:5px;padding:8px 12px;font-size:16px;cursor:pointer;}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  height: 100vh; overflow: hidden;
+  display: flex; flex-direction: column;
+}
+
+/* ─── HEADER ─── */
+header {
+  position: relative; z-index: 200;
+  padding: 0 20px; height: 52px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(10,10,15,0.95); border-bottom: 1px solid var(--border);
+}
+.header-logo {
+  font-family: 'Space Mono', monospace; font-size: 0.8rem; font-weight: 700;
+  color: var(--text-muted); text-decoration: none;
+  display: flex; align-items: center; gap: 7px; transition: color 0.2s;
+}
+.header-logo:hover { color: var(--text); }
+.header-logo-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.header-right { display: flex; align-items: center; gap: 8px; }
+.hud-stat {
+  font-family: 'Space Mono', monospace; font-size: 0.75rem;
+  color: var(--text-muted); padding: 5px 12px;
+  border: 1px solid var(--border); border-radius: 6px; background: var(--surface2);
+}
+.hud-stat span { color: var(--accent); font-weight: 700; }
+.icon-btn {
+  padding: 5px 12px; border: 1px solid var(--border); border-radius: 6px;
+  background: var(--surface2); color: var(--text-muted);
+  font-family: 'Space Mono', monospace; font-size: 0.72rem; cursor: pointer;
+  transition: all 0.2s;
+}
+.icon-btn:hover { border-color: var(--accent); color: var(--text); }
+.lang-toggle-btn {
+  padding: 5px 10px; border: 1px solid var(--accent); border-radius: 6px;
+  background: rgba(124,92,252,0.12); color: var(--accent);
+  font-family: 'Space Mono', monospace; font-size: 0.72rem; font-weight: 700;
+  cursor: pointer; transition: all 0.2s;
+}
+.lang-toggle-btn:hover { background: rgba(124,92,252,0.25); }
+
+/* ─── GAME AREA ─── */
+#gameWrapper {
+  flex: 1; position: relative; overflow: hidden;
+}
+canvas {
+  display: block; width: 100%; height: 100%;
+}
+
+/* ─── OVERLAY ─── */
+#overlay {
+  position: absolute; inset: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(8,8,14,0.7); backdrop-filter: blur(8px);
+  pointer-events: none;
+}
+#overlay.active { pointer-events: all; }
+
+.overlay-card {
+  background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 36px 40px; max-width: 520px; width: 90%;
+  box-shadow: 0 0 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(124,92,252,0.1);
+  position: relative; overflow: hidden;
+  animation: slideUp 0.35s cubic-bezier(0.34,1.4,0.64,1);
+}
+.overlay-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2), transparent);
+}
+@keyframes slideUp {
+  from { transform: translateY(30px) scale(0.96); opacity: 0; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.overlay-label {
+  font-family: 'Space Mono', monospace; font-size: 0.6rem;
+  letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent);
+  margin-bottom: 10px;
+}
+.overlay-title {
+  font-family: 'Space Mono', monospace; font-size: 1.2rem; font-weight: 700;
+  color: var(--text); margin-bottom: 24px; line-height: 1.4;
+}
+
+.answer-options { display: flex; flex-direction: column; gap: 10px; }
+.answer-opt {
+  width: 100%; padding: 13px 18px; text-align: left;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text-muted);
+  font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500;
+  cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 10px;
+}
+.answer-opt::before {
+  content: '○'; font-family: 'Space Mono', monospace;
+  font-size: 0.75rem; color: var(--text-dim); flex-shrink: 0;
+}
+.answer-opt:hover { border-color: var(--accent); color: var(--text); background: rgba(124,92,252,0.08); }
+
+/* ─── START/END OVERLAYS ─── */
+.start-overlay-content { text-align: center; }
+.start-icon { font-size: 2.5rem; margin-bottom: 16px; display: block; }
+.start-overlay-content h1 {
+  font-family: 'Space Mono', monospace; font-size: 1.5rem; font-weight: 700;
+  color: var(--text); margin-bottom: 10px;
+}
+.start-overlay-content p { color: var(--text-muted); font-size: 0.875rem; margin-bottom: 24px; line-height: 1.6; }
+
+.controls-hint {
+  display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.key-badge {
+  padding: 5px 12px; border: 1px solid var(--border); border-radius: 6px;
+  background: var(--surface2); font-family: 'Space Mono', monospace;
+  font-size: 0.75rem; color: var(--text-muted);
+}
+
+.start-btn-big {
+  width: 100%; padding: 16px;
+  background: linear-gradient(135deg, var(--accent), #5a3dd8);
+  border: none; border-radius: var(--radius-sm); color: #fff;
+  font-family: 'Space Mono', monospace; font-size: 1rem; font-weight: 700;
+  cursor: pointer; transition: all 0.25s; letter-spacing: 0.05em;
+}
+.start-btn-big:hover { transform: translateY(-2px); box-shadow: 0 8px 24px var(--glow); }
+
+.end-score-big {
+  font-family: 'Space Mono', monospace; font-size: 3rem; font-weight: 700;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; margin: 12px 0 20px;
+}
+
+.save-row { display: flex; gap: 10px; margin-top: 16px; }
+.save-btn {
+  flex: 1; padding: 11px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--surface2); color: var(--text-muted);
+  font-family: 'Space Mono', monospace; font-size: 0.78rem; cursor: pointer; transition: all 0.2s;
+}
+.save-btn:hover { border-color: var(--accent); color: var(--text); }
 </style>
 </head>
 <body>
-<canvas id="gameCanvas"></canvas>
-<div id="overlay"></div>
-<div id="menu">
-  <button onclick="saveScore()">Score im Ordner speichern</button>
-  <button onclick="loadScore()">Score aus dem Ordner von letztem mal hier herrein laden</button>
+
+<!-- ══ HEADER ══ -->
+<header>
+  <a href="index.html" class="header-logo">
+    <div class="header-logo-dot"></div>
+    <span data-de="← Hub" data-en="← Hub">← Hub</span>
+  </a>
+  <div class="header-right">
+    <div class="hud-stat" id="scoreHud">Score: <span id="scoreVal">0</span></div>
+    <button class="icon-btn" onclick="saveScore()" data-de="💾 Speichern" data-en="💾 Save">💾 Speichern</button>
+    <button class="icon-btn" onclick="loadScore()" data-de="📂 Laden" data-en="📂 Load">📂 Laden</button>
+    <button class="lang-toggle-btn" id="lang-toggle-btn" onclick="switchLang(LANG==='de'?'en':'de')">EN</button>
+  </div>
+</header>
+
+<!-- ══ GAME ══ -->
+<div id="gameWrapper">
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- OVERLAY -->
+  <div id="overlay" class="active">
+    <div class="overlay-card" id="overlayCard">
+      <div class="start-overlay-content">
+        <span class="start-icon">🤖</span>
+        <div class="overlay-label" data-de="Python Spiel" data-en="Python Game">Python Spiel</div>
+        <h1 data-de="AI Cluster Challenge" data-en="AI Cluster Challenge">AI Cluster Challenge</h1>
+        <p data-de="Bewege dich durch die Map und sammle AI-Cluster ein. Beantworte Python-Fragen richtig, um sie zu absorbieren!" data-en="Move through the map and collect AI clusters. Answer Python questions correctly to absorb them!">
+          Bewege dich durch die Map und sammle AI-Cluster ein. Beantworte Python-Fragen richtig, um sie zu absorbieren!
+        </p>
+        <div class="controls-hint">
+          <span class="key-badge">W A S D</span>
+          <span class="key-badge" data-de="oder" data-en="or">oder</span>
+          <span class="key-badge">↑ ← ↓ →</span>
+        </div>
+        <button class="start-btn-big" onclick="startGame()"
+                data-de="🚀 Spiel starten" data-en="🚀 Start Game">🚀 Spiel starten</button>
+      </div>
+    </div>
+  </div>
 </div>
-<div id="scoreboard"></div>
 
 <script>
-const canvas=document.getElementById("gameCanvas");
-const ctx=canvas.getContext("2d");
-let cw,ch;
-function resize(){ cw=window.innerWidth; ch=window.innerHeight; canvas.width=cw; canvas.height=ch; }
-window.addEventListener("resize",resize); resize();
+/* ─── LANG ─── */
+let LANG = 'de';
+(function(){
+  const u = new URLSearchParams(window.location.search).get('lang');
+  const s = localStorage.getItem('ingw-lang');
+  const l = (u==='en'||u==='de') ? u : (s==='en'||s==='de') ? s : 'de';
+  if(u) localStorage.setItem('ingw-lang', u);
+  LANG = l; window.LANG = l; document.documentElement.lang = l;
+})();
+function applyLang(lang){
+  LANG = lang; window.LANG = lang;
+  document.documentElement.lang = lang;
+  localStorage.setItem('ingw-lang', lang);
+  document.querySelectorAll('[data-de],[data-en]').forEach(el=>{
+    const t = el.getAttribute('data-'+lang);
+    if(t !== null) el.textContent = t;
+  });
+  const btn = document.getElementById('lang-toggle-btn');
+  if(btn) btn.textContent = lang==='de' ? 'EN' : 'DE';
+  document.querySelectorAll('a[href]').forEach(a=>{
+    const h = a.getAttribute('href');
+    if(!h||h.startsWith('http')||h.startsWith('//')||h.startsWith('#')) return;
+    const [p,q] = h.split('?');
+    const params = new URLSearchParams(q||'');
+    params.set('lang', lang);
+    a.setAttribute('href', p+'?'+params.toString());
+  });
+}
+window.switchLang = function(l){ applyLang(l); };
+applyLang(LANG);
 
-// --- GAME VARIABLES ---
-let player={x:0,y:0,trail:[],size:25,length:5,segments:[]};
-let speed=5; // Standardwert
-let score=0;
-let difficulty="leicht"; // Standardwert
-let mapOffset={x:0,y:0};
-let keys={};
-let overlay=document.getElementById("overlay");
-let menu=document.getElementById("menu");
-let scoreboard=document.getElementById("scoreboard");
+/* ─── CANVAS SETUP ─── */
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+let cw, ch;
+function resize(){
+  const wrapper = document.getElementById('gameWrapper');
+  cw = canvas.width  = wrapper.clientWidth;
+  ch = canvas.height = wrapper.clientHeight;
+}
+window.addEventListener('resize', resize);
+resize();
 
-// AI CLUSTERS
+/* ─── AI TYPES ─── */
 const AI_TYPES = [
-  // 🟢 Leicht (Anfänger)
-  {name:"LLaMA", color:"lime", strength:1},
-  {name:"Gemma", color:"lightgreen", strength:1},
-  {name:"Phi", color:"lightblue", strength:1},
-  {name:"TinyGPT", color:"#66ffcc", strength:1},
-
-  // 🟡 Mittel
-  {name:"Perplexity", color:"magenta", strength:2},
-  {name:"Bard", color:"orange", strength:2},
-  {name:"Mistral", color:"#00b3b3", strength:2},
-  {name:"Falcon", color:"#cccc00", strength:2},
-  {name:"Cohere", color:"#ff9933", strength:2},
-  {name:"Command-R", color:"#9999ff", strength:2},
-
-  // 🔴 Schwer
-  {name:"ChatGPT", color:"cyan", strength:3},
-  {name:"Claude", color:"pink", strength:3},
-  {name:"DeepSeek", color:"red", strength:3},
-  {name:"Qwen", color:"#ff6666", strength:3},
-  {name:"Grok", color:"#ff00ff", strength:3},
-
-  // 🟣 Sehr schwer / Boss
-  {name:"GPT-4", color:"#00ffff", strength:4},
-  {name:"Claude-Opus", color:"#ff66cc", strength:4},
-  {name:"DeepMind", color:"#6633ff", strength:4},
-  {name:"ASI-Core", color:"#ffffff", strength:5}
+  {name:"LLaMA",      color:"#00e676", strength:1},
+  {name:"Gemma",      color:"#69f0ae", strength:1},
+  {name:"Phi",        color:"#40c4ff", strength:1},
+  {name:"TinyGPT",    color:"#64ffda", strength:1},
+  {name:"Perplexity", color:"#e040fb", strength:2},
+  {name:"Bard",       color:"#ff9800", strength:2},
+  {name:"Mistral",    color:"#00bcd4", strength:2},
+  {name:"Falcon",     color:"#cddc39", strength:2},
+  {name:"Cohere",     color:"#ff7043", strength:2},
+  {name:"ChatGPT",    color:"#00e5ff", strength:3},
+  {name:"Claude",     color:"#f48fb1", strength:3},
+  {name:"DeepSeek",   color:"#ff5252", strength:3},
+  {name:"Grok",       color:"#ea80fc", strength:3},
+  {name:"GPT-4",      color:"#80d8ff", strength:4},
+  {name:"Claude-Opus",color:"#ff80ab", strength:4},
+  {name:"DeepMind",   color:"#b388ff", strength:4},
+  {name:"ASI-Core",   color:"#ffffff", strength:5},
 ];
 
-let aiClusters=[];
-let activeCluster=null;
-
-// TASKS
-const tasks=[
-  {q:"3+2=?",a:["4","5","6"],c:1},
-  {q:"print('Hi') ergibt?",a:["Hi","hi","Error"],c:0},
-  {q:"len('Python')=?",a:["5","6","7"],c:1},
-  {q:"2**3=?",a:["6","8","9"],c:1},
-  {q:"'a'+'b'=?",a:["ab","a+b","ba"],c:0},
-  {q:"10//3=?",a:["3","3.33","4"],c:0},
-  {q:"if True and False:",a:["True","False","Error"],c:1},
-  {q:"x=5; x>3?",a:["True","False","Error"],c:0},
-  {q:"for i in range(3): print(i)",a:["0 1 2","1 2 3","0 1 2 3"],c:0},
-  {q:"type(3.14)?",a:["int","float","str"],c:1},
-  {q:"3+2=?",a:["4","5","6"],c:1},
-  {q:"10-7=?",a:["2","3","4"],c:1},
-  {q:"2*3=?",a:["5","6","7"],c:1},
-  {q:"8/2=?",a:["4","5","6"],c:0},
-  {q:"5%2=?",a:["2","1","0"],c:1},
-  {q:"2**3=?",a:["6","7","8"],c:2},
-  {q:"len('Python')=?",a:["5","6","7"],c:1},
-  {q:"'a'+'b'=?",a:["ab","ba","a+b"],c:0},
-  {q:"'Hi'*3=?",a:["HiHiHi","HiHi","HiHiHiHi"],c:0},
-  {q:"bool(0)?",a:["True","False","Error"],c:1},
-  {q:"bool(1)?",a:["True","False","Error"],c:0},
-  {q:"not True?",a:["False","True","Error"],c:0},
-  {q:"not False?",a:["True","False","Error"],c:0},
-  {q:"5>3?",a:["True","False","Error"],c:0},
-  {q:"2<1?",a:["True","False","Error"],c:1},
-  {q:"5>=5?",a:["True","False","Error"],c:0},
-  {q:"3<=2?",a:["True","False","Error"],c:1},
-  {q:"3==3?",a:["True","False","Error"],c:0},
-  {q:"4!=5?",a:["True","False","Error"],c:0},
-  {q:"x=5; x+2?",a:["5","7","2"],c:1},
-  {q:"x=3; x+=2; x?",a:["3","2","5"],c:2},
-  {q:"x=10; x-=4; x?",a:["6","4","10"],c:0},
-  {q:"x=2; x*=3; x?",a:["5","6","2"],c:1},
-  {q:"x=8; x//=3; x?",a:["2","3","3.0"],c:0},
-  {q:"x=5; x%=2; x?",a:["1","2","0"],c:0},
-  {q:"for i in range(3): print(i)",a:["0 1 2","1 2 3","0 1 2 3"],c:0},
-  {q:"list(range(4))?",a:["[0,1,2,3]","[1,2,3,4]","[0,1,2,3,4]"],c:0},
-  {q:"x=[1,2,3]; len(x)?",a:["3","2","1"],c:0},
-  {q:"x=[1,2,3]; x[0]?",a:["1","2","3"],c:0},
-  {q:"x=[1,2,3]; x[-1]?",a:["1","2","3"],c:2},
-  {q:"x=[1,2,3]; x.append(4); x?",a:["[1,2,3,4]","[4,1,2,3]","[1,2,3]"],c:0},
-  {q:"x=[1,2,3]; x.pop(); x?",a:["[1,2]","[2,3]","[1,2,3]"],c:0},
-  {q:"if True: x=1 else: x=2; x?",a:["1","2","Error"],c:0},
-  {q:"if False: x=1 else: x=2; x?",a:["1","2","Error"],c:1},
-  {q:"x=5; if x>3: y=10 else: y=20; y?",a:["10","20","5"],c:0},
-  {q:"while 0<3: x=2; break; x?",a:["2","3","0"],c:0},
-  {q:"s='Hello'; s[1]?",a:["e","H","l"],c:0},
-  {q:"s='Hello'; s[-1]?",a:["o","H","l"],c:0},
-  {q:"s='Hello'; s[0:2]?",a:["He","el","Ho"],c:0},
-  {q:"s='Python'; len(s)?",a:["6","5","7"],c:0},
-  {q:"s='Python'; s.upper()?",a:["PYTHON","python","Python"],c:0},
-  {q:"s='Python'; s.lower()?",a:["python","PYTHON","Python"],c:0},
-  {q:"x=3; y=5; x<y?",a:["True","False","Error"],c:0},
-  {q:"x=5; y=3; x>y?",a:["True","False","Error"],c:0},
-  {q:"x=True; y=False; x and y?",a:["False","True","Error"],c:0},
-  {q:"x=True; y=False; x or y?",a:["True","False","Error"],c:0},
-  {q:"x=False; y=False; not x?",a:["True","False","Error"],c:0},
-  {q:"def f(x): return x+1; f(3)?",a:["4","3","5"],c:0},
-  {q:"def f(x): return x*2; f(4)?",a:["8","6","4"],c:0},
-  {q:"x=[1,2,3]; 2 in x?",a:["True","False","Error"],c:0},
-  {q:"x=[1,2,3]; 5 in x?",a:["True","False","Error"],c:1},
-  {q:"x='abc'; 'a' in x?",a:["True","False","Error"],c:0},
-  {q:"x='abc'; 'd' in x?",a:["True","False","Error"],c:1},
-  {q:"x=5; x==5?",a:["True","False","Error"],c:0},
-  {q:"x=5; x!=5?",a:["True","False","Error"],c:1},
-  {q:"x=5; y=5; x==y?",a:["True","False","Error"],c:0},
-  {q:"x=5; y=3; x==y?",a:["True","False","Error"],c:1},
-  {q:"x=5; y=3; x!=y?",a:["True","False","Error"],c:0},
-  {q:"x=5; y=5; x!=y?",a:["True","False","Error"],c:1},
-  {q:"[i for i in range(3)]?",a:["[0,1,2]","[1,2,3]","[0,1,2,3]"],c:0},
-  {q:"[i*2 for i in range(3)]?",a:["[0,2,4]","[2,4,6]","[0,1,2]"],c:0},
-  {q:"x='Python'; x[1:4]?",a:["yth","yht","Pyt"],c:0},
-  {q:"x='Python'; x[:2]?",a:["Py","yt","Pyt"],c:0},
-  {q:"x='Python'; x[2:]?",a:["thon","th","ty"],c:0},
-  {q:"x='Python'; x[-2:]?",a:["on","th","ho"],c:0},
-  {q:"list(range(5,8))?",a:["[5,6,7]","[5,6,7,8]","[6,7,8]"],c:0},
-  {q:"x=[1,2,3]; x*2?",a:["[1,2,3,1,2,3]","[2,4,6]","[1,2,3]"],c:0},
-  {q:"x=[1,2]; y=[3,4]; x+y?",a:["[1,2,3,4]","[1,2]","[3,4]"],c:0},
-  {q:"x=(1,2,3); x[1]?",a:["2","1","3"],c:0},
-  {q:"x={1,2,3}; 2 in x?",a:["True","False","Error"],c:0},
-  {q:"x={'a':1,'b':2}; x['a']?",a:["1","2","Error"],c:0},
-  {q:"x={'a':1,'b':2}; 'b' in x?",a:["True","False","Error"],c:0},
-  {q:"x={'a':1,'b':2}; 'c' in x?",a:["True","False","Error"],c:1},
-  {q:"x=0; while x<3: x+=1; x?",a:["3","2","1"],c:0},
-  {q:"x=0; while x<5: x+=2; x?",a:["6","5","4"],c:0},
-  {q:"x=0; while x<4: x+=1; break; x?",a:["1","0","4"],c:0},
-  {q:"for i in range(3): y=i; y?",a:["2","1","0"],c:0},
-  {q:"for i in range(5): pass; i?",a:["4","5","0"],c:0},
-  {q:"x=[1,2,3]; for i in x: pass; i?",a:["3","2","1"],c:0},
-  {q:"x='abc'; for c in x: pass; c?",a:["c","a","b"],c:0},
-  {q:"def f(x): return x+2; f(3)?",a:["5","6","4"],c:0},
-  {q:"def f(x,y): return x*y; f(2,3)?",a:["6","5","4"],c:0},
-  {q:"x=[1,2,3]; x.reverse(); x?",a:["[3,2,1]","[1,2,3]","[2,1,3]"],c:0},
-  {q:"x=[1,2,3]; x.sort(reverse=True); x?",a:["[3,2,1]","[1,2,3]","[2,3,1]"],c:0},
-  {q:"x='Hello'; x.replace('H','J')?",a:["Jello","Hello","JH"],c:0},
-  {q:"x='Hello'; x.find('e')?",a:["1","0","2"],c:0},
-  {q:"x='Hello'; x.count('l')?",a:["2","3","1"],c:1},
-  {q:"x='abc'; x*3?",a:["'abcabcabc'","'aaabbbccc'","'abc'"],c:0},
-  {q:"x=5; y=10; max(x,y)?",a:["10","5","0"],c:0},
-  {q:"x=5; y=10; min(x,y)?",a:["5","10","0"],c:0},
-  {q:"x=5; y=5; max(x,y)?",a:["5","0","10"],c:0},
-  {q:"x=5; y=5; min(x,y)?",a:["5","0","10"],c:0},
-  {q:"x=[1,2,3]; sum(x)?",a:["6","5","7"],c:0},
-  {q:"x=[1,2,3]; min(x)?",a:["1","2","3"],c:0},
-  {q:"x=[1,2,3]; max(x)?",a:["3","2","1"],c:0},
-  {q:"x=10; abs(x)?",a:["10","-10","0"],c:0},
-  {q:"x=-5; abs(x)?",a:["5","-5","0"],c:0},
-  {q:"x='Python'; x.startswith('Py')?",a:["True","False","Error"],c:0},
-  {q:"x='Python'; x.endswith('on')?",a:["True","False","Error"],c:0},
-  {q:"x='Python'; x.isupper()?",a:["False","True","Error"],c:0},
-  {q:"x='PYTHON'; x.isupper()?",a:["True","False","Error"],c:0}
-
-
-
-
-  
+/* ─── TASKS ─── */
+const tasks = [
+  {q_de:"3+2=?",       q_en:"3+2=?",        a:["4","5","6"], c:1},
+  {q_de:"print('Hi') ergibt?", q_en:"print('Hi') outputs?", a:["Hi","hi","Error"], c:0},
+  {q_de:"len('Python')=?", q_en:"len('Python')=?", a:["5","6","7"], c:1},
+  {q_de:"2**3=?",      q_en:"2**3=?",        a:["6","8","9"], c:1},
+  {q_de:"'a'+'b'=?",   q_en:"'a'+'b'=?",    a:["ab","a+b","ba"], c:0},
+  {q_de:"10//3=?",     q_en:"10//3=?",       a:["3","3.33","4"], c:0},
+  {q_de:"if True and False:", q_en:"if True and False:", a:["True","False","Error"], c:1},
+  {q_de:"x=5; x>3?",  q_en:"x=5; x>3?",    a:["True","False","Error"], c:0},
+  {q_de:"type(3.14)?", q_en:"type(3.14)?",  a:["int","float","str"], c:1},
+  {q_de:"10-7=?",      q_en:"10-7=?",       a:["2","3","4"], c:1},
+  {q_de:"2*3=?",       q_en:"2*3=?",        a:["5","6","7"], c:1},
+  {q_de:"5%2=?",       q_en:"5%2=?",        a:["2","1","0"], c:1},
+  {q_de:"bool(0)?",    q_en:"bool(0)?",     a:["True","False","Error"], c:1},
+  {q_de:"bool(1)?",    q_en:"bool(1)?",     a:["True","False","Error"], c:0},
+  {q_de:"not True?",   q_en:"not True?",    a:["False","True","Error"], c:0},
+  {q_de:"5>3?",        q_en:"5>3?",         a:["True","False","Error"], c:0},
+  {q_de:"3==3?",       q_en:"3==3?",        a:["True","False","Error"], c:0},
+  {q_de:"x=5; x+=2; x?", q_en:"x=5; x+=2; x?", a:["5","7","2"], c:1},
+  {q_de:"x=[1,2,3]; x[0]?", q_en:"x=[1,2,3]; x[0]?", a:["1","2","3"], c:0},
+  {q_de:"x=[1,2,3]; x[-1]?", q_en:"x=[1,2,3]; x[-1]?", a:["1","2","3"], c:2},
+  {q_de:"list(range(4))?", q_en:"list(range(4))?", a:["[0,1,2,3]","[1,2,3,4]","[0,1,2,3,4]"], c:0},
+  {q_de:"len('Hello')=?", q_en:"len('Hello')=?", a:["4","5","6"], c:1},
+  {q_de:"'Python'.upper()?", q_en:"'Python'.upper()?", a:["PYTHON","python","Python"], c:0},
+  {q_de:"type(True)?", q_en:"type(True)?",  a:["int","bool","str"], c:1},
+  {q_de:"abs(-5)?",    q_en:"abs(-5)?",     a:["5","-5","0"], c:0},
+  {q_de:"max([1,2,3])?", q_en:"max([1,2,3])?", a:["1","3","2"], c:1},
+  {q_de:"sum([1,2,3])?", q_en:"sum([1,2,3])?", a:["5","6","7"], c:1},
+  {q_de:"sorted([3,1,2])?", q_en:"sorted([3,1,2])?", a:["[1,2,3]","[3,2,1]","[3,1,2]"], c:0},
+  {q_de:"2**5=?",      q_en:"2**5=?",       a:["16","32","64"], c:1},
+  {q_de:"round(3.7)?", q_en:"round(3.7)?",  a:["3","4","3.7"], c:1},
 ];
 
-// --- INIT ---
-function startGame(){
-  // Inputs entfernt, Standardwerte genutzt
-  generateInitialClusters(0);
-  setInterval(addRandomCluster,500);
-  requestAnimationFrame(gameLoop);
+/* ─── GAME STATE ─── */
+let score = 0;
+let mapOffset = {x:0, y:0};
+let keys = {};
+const speed = 5;
+let aiClusters = [];
+let activeCluster = null;
+let gameRunning = false;
+let animFrame = null;
+
+/* ─── OVERLAY CONTROL ─── */
+function showOverlay(html){
+  const el = document.getElementById('overlay');
+  el.innerHTML = `<div class="overlay-card">${html}</div>`;
+  el.classList.add('active');
+}
+function hideOverlay(){
+  const el = document.getElementById('overlay');
+  el.classList.remove('active');
+  el.innerHTML='';
 }
 
-// --- SPAWN ---
-function generateInitialClusters(num){
-  let attempts=0;
-  while(aiClusters.length<num && attempts<1000){
-    attempts++;
-    let type=AI_TYPES[Math.floor(Math.random()*AI_TYPES.length)];
-    let clusterSize=type.strength*3;
-    let cx=(Math.random()-0.5)*2000;
-    let cy=(Math.random()-0.5)*2000;
-    if(checkCollision(cx,cy,80)) continue;
-    let cluster={type:type,x:cx,y:cy,os:[]};
-    for(let j=0;j<clusterSize;j++){
-      let ox=cluster.x+Math.random()*40-20;
-      let oy=cluster.y+Math.random()*40-20;
-      cluster.os.push({x:ox,y:oy});
-    }
-    aiClusters.push(cluster);
-  }
-}
-
-function addRandomCluster(){
-  let type=AI_TYPES[Math.floor(Math.random()*AI_TYPES.length)];
-  let clusterSize=type.strength*3;
-  let cx=(Math.random()-0.5)*(cw*3)+mapOffset.x;
-  let cy=(Math.random()-0.5)*(ch*3)+mapOffset.y;
-  if(checkCollision(cx,cy,80)) return;
-  let cluster={type:type,x:cx,y:cy,os:[]};
-  for(let j=0;j<clusterSize;j++){
-    let ox=cluster.x+Math.random()*40-20;
-    let oy=cluster.y+Math.random()*40-20;
-    cluster.os.push({x:ox,y:oy});
+/* ─── SPAWN ─── */
+function spawnCluster(cx, cy){
+  const type = AI_TYPES[Math.floor(Math.random()*AI_TYPES.length)];
+  const n = type.strength * 3;
+  const cluster = {type, x:cx, y:cy, os:[]};
+  for(let i=0;i<n;i++){
+    cluster.os.push({x:cx+Math.random()*60-30, y:cy+Math.random()*60-30});
   }
   aiClusters.push(cluster);
 }
 
-function checkCollision(x,y,r){
-  for(let c of aiClusters){
-    if(Math.hypot(c.x-x,c.y-y)<r) return true;
-  }
-  return false;
+function collides(cx,cy,r){
+  return aiClusters.some(c=>Math.hypot(c.x-cx,c.y-cy)<r);
 }
 
-// --- INPUT ---
-window.addEventListener("keydown",e=>keys[e.key]=true);
-window.addEventListener("keyup",e=>keys[e.key]=false);
+function populatMap(){
+  for(let i=0;i<30;i++){
+    let cx, cy, tries=0;
+    do { cx=(Math.random()-0.5)*3000; cy=(Math.random()-0.5)*3000; tries++; }
+    while(collides(cx,cy,100) && tries<50);
+    spawnCluster(cx,cy);
+  }
+}
 
-// --- GAME LOOP ---
+/* ─── INPUT ─── */
+window.addEventListener('keydown', e=>{ keys[e.key]=true; });
+window.addEventListener('keyup',   e=>{ keys[e.key]=false; });
+
+/* ─── GAME LOOP ─── */
 function gameLoop(){
+  if(!gameRunning){ return; }
   update();
   draw();
-  requestAnimationFrame(gameLoop);
+  animFrame = requestAnimationFrame(gameLoop);
 }
 
 function update(){
-  let dx=0,dy=0;
-  if(keys["ArrowUp"]||keys["w"]) dy=-speed;
-  if(keys["ArrowDown"]||keys["s"]) dy=speed;
-  if(keys["ArrowLeft"]||keys["a"]) dx=-speed;
-  if(keys["ArrowRight"]||keys["d"]) dx=speed;
-  mapOffset.x+=dx;
-  mapOffset.y+=dy;
+  if(activeCluster) return;
+  let dx=0, dy=0;
+  if(keys['ArrowUp']   ||keys['w']) dy=-speed;
+  if(keys['ArrowDown'] ||keys['s']) dy= speed;
+  if(keys['ArrowLeft'] ||keys['a']) dx=-speed;
+  if(keys['ArrowRight']||keys['d']) dx= speed;
+  mapOffset.x+=dx; mapOffset.y+=dy;
 
-  player.trail.push({x:player.x,y:player.y});
-  while(player.trail.length>player.length) player.trail.shift();
+  // Spawn more clusters
+  if(aiClusters.length < 20){
+    const cx = (Math.random()-0.5)*3000 + mapOffset.x;
+    const cy = (Math.random()-0.5)*3000 + mapOffset.y;
+    if(!collides(cx,cy,100)) spawnCluster(cx,cy);
+  }
 
-  if(!activeCluster){
-    for(let cluster of aiClusters){
-      for(let o of cluster.os){
-        let px=cw/2;
-        let py=ch/2;
-        if(Math.hypot(px-(o.x-mapOffset.x),py-(o.y-mapOffset.y))<player.size){
-          activeCluster=cluster;
-          showTask(cluster);
-          return;
-        }
+  const px = cw/2, py = ch/2;
+  for(const cluster of aiClusters){
+    for(const o of cluster.os){
+      const sx = o.x - mapOffset.x;
+      const sy = o.y - mapOffset.y;
+      if(Math.hypot(px-sx, py-sy) < 28){
+        activeCluster = cluster;
+        showTask(cluster);
+        return;
       }
     }
   }
 }
 
 function draw(){
-  ctx.fillStyle="#222"; ctx.fillRect(0,0,cw,ch);
+  ctx.fillStyle='#0e0e18';
+  ctx.fillRect(0,0,cw,ch);
 
+  // grid
+  ctx.strokeStyle='rgba(255,255,255,0.03)';
+  ctx.lineWidth=1;
+  const gs=80;
+  const ox=(((-mapOffset.x)%gs)+gs)%gs;
+  const oy=(((-mapOffset.y)%gs)+gs)%gs;
+  for(let x=ox;x<cw;x+=gs){ ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,ch);ctx.stroke(); }
+  for(let y=oy;y<ch;y+=gs){ ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(cw,y);ctx.stroke(); }
+
+  // clusters
   aiClusters.forEach(cluster=>{
     cluster.os.forEach(o=>{
+      const sx = o.x - mapOffset.x;
+      const sy = o.y - mapOffset.y;
+      if(sx < -60 || sx > cw+60 || sy < -60 || sy > ch+60) return;
+      ctx.shadowBlur=12; ctx.shadowColor=cluster.type.color;
       ctx.fillStyle=cluster.type.color;
-      ctx.fillRect(o.x-mapOffset.x-15,o.y-mapOffset.y-15,30,30);
+      ctx.beginPath(); ctx.roundRect(sx-12,sy-12,24,24,6); ctx.fill();
+      ctx.shadowBlur=0;
     });
+    // label
+    const lx=cluster.x-mapOffset.x, ly=cluster.y-mapOffset.y;
+    if(lx>-100&&lx<cw+100&&ly>-100&&ly<ch+100){
+      ctx.fillStyle=cluster.type.color;
+      ctx.font="bold 11px 'Space Mono', monospace";
+      ctx.textAlign='center';
+      ctx.fillText(cluster.type.name, lx, ly-cluster.type.strength*15-10);
+    }
   });
 
-  for(let i=0;i<player.trail.length;i++){
-    let p=player.trail[i];
-    ctx.fillStyle="yellow";
-    ctx.fillRect(cw/2-15+(i-player.trail.length/2),ch/2-15+(i-player.trail.length/2),30,30);
+  // player
+  const px=cw/2, py=ch/2;
+  ctx.shadowBlur=20; ctx.shadowColor=var_accent();
+  ctx.fillStyle='#7c5cfc';
+  ctx.beginPath(); ctx.arc(px,py,18,0,Math.PI*2); ctx.fill();
+  ctx.shadowBlur=0;
+  ctx.fillStyle='#fff';
+  ctx.font="bold 14px Arial";
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('⚡',px,py);
+  ctx.textBaseline='alphabetic';
+
+  // score
+  document.getElementById('scoreVal').textContent = score;
+}
+
+function var_accent(){ return '#7c5cfc'; }
+
+/* ─── TASK ─── */
+function showTask(cluster){
+  if(animFrame){ cancelAnimationFrame(animFrame); animFrame=null; }
+
+  const task = tasks[Math.floor(Math.random()*tasks.length)];
+  const q = task['q_'+LANG] || task.q_de;
+
+  const opts = task.a.map((ans,i)=>`
+    <button class="answer-opt" onclick="answerTask(${i},${task.c},this)">
+      ${ans}
+    </button>
+  `).join('');
+
+  showOverlay(`
+    <div class="overlay-label" data-de="Python Frage" data-en="Python Question">${LANG==='de'?'Python Frage':'Python Question'}</div>
+    <div class="overlay-title">${q}</div>
+    <div class="answer-options">${opts}</div>
+  `);
+}
+
+function answerTask(chosen, correct, btn){
+  const allBtns = document.querySelectorAll('.answer-opt');
+  allBtns.forEach(b=>b.disabled=true);
+
+  if(chosen===correct){
+    btn.style.background='rgba(0,200,122,0.15)';
+    btn.style.borderColor='rgba(0,200,122,0.5)';
+    btn.style.color='#00c87a';
+    score += activeCluster.type.strength;
+    document.getElementById('scoreVal').textContent=score;
+  } else {
+    btn.style.background='rgba(255,107,107,0.15)';
+    btn.style.borderColor='rgba(255,107,107,0.4)';
+    btn.style.color='#ff6b6b';
+    allBtns[correct].style.background='rgba(0,200,122,0.1)';
+    allBtns[correct].style.borderColor='rgba(0,200,122,0.4)';
+    allBtns[correct].style.color='#00c87a';
   }
 
-  player.segments.forEach(seg=>{
-    ctx.fillStyle=seg.color;
-    ctx.fillRect(cw/2-15+seg.offsetX,ch/2-15+seg.offsetY,30,30);
-  });
+  const idx = aiClusters.indexOf(activeCluster);
+  if(idx>-1) aiClusters.splice(idx,1);
+  activeCluster=null;
 
-  ctx.fillStyle="orange";
-  ctx.fillRect(cw/2-15,ch/2-15,30,30);
-
-  scoreboard.innerHTML="Score: "+score;
+  setTimeout(()=>{
+    hideOverlay();
+    gameRunning=true;
+    animFrame=requestAnimationFrame(gameLoop);
+  },900);
 }
 
-function showTask(cluster){
-  overlay.innerHTML="";
-  overlay.style.display="block";
-  let task=tasks[Math.floor(Math.random()*tasks.length)];
-  overlay.innerHTML="<div style='font-size:28px;margin-bottom:15px;'>"+task.q+"</div>";
-  task.a.forEach((ans,i)=>{
-    let btn=document.createElement("button");
-    btn.innerText=ans;
-    btn.onclick=()=>{
-      if(i===task.c){
-        cluster.os.forEach(o=>{
-          player.segments.push({offsetX:o.x-cluster.x, offsetY:o.y-cluster.y, color:cluster.type.color});
-        });
-        score+=cluster.type.strength;
-      }
-      overlay.style.display="none";
-      let index=aiClusters.indexOf(cluster);
-      if(index>-1) aiClusters.splice(index,1);
-      activeCluster=null;
-    };
-    overlay.appendChild(btn);
-  });
+/* ─── START ─── */
+function startGame(){
+  hideOverlay();
+  populatMap();
+  score=0; mapOffset={x:0,y:0};
+  gameRunning=true;
+  animFrame=requestAnimationFrame(gameLoop);
 }
 
-// --- SCORE IMPORT / EXPORT ---
+/* ─── SAVE / LOAD ─── */
 function saveScore(){
-  let data=JSON.stringify({score,playerLength:player.length,segments:player.segments.length});
-  let blob=new Blob([data],{type:"application/json"});
-  let a=document.createElement("a");
+  const data = JSON.stringify({score});
+  const blob = new Blob([data],{type:'application/json'});
+  const a = document.createElement('a');
   a.href=URL.createObjectURL(blob);
-  a.download="score.json";
+  a.download='pythongame_score.json';
   a.click();
 }
 function loadScore(){
-  let input=document.createElement("input");
-  input.type="file";
-  input.accept=".json";
+  const input=document.createElement('input');
+  input.type='file'; input.accept='.json';
   input.onchange=e=>{
-    let file=input.files[0];
-    let reader=new FileReader();
-    reader.onload=function(ev){
-      let obj=JSON.parse(ev.target.result);
-      score=obj.score||0;
-      player.length=obj.playerLength||5;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      try {
+        const obj=JSON.parse(ev.target.result);
+        score=obj.score||0;
+        document.getElementById('scoreVal').textContent=score;
+      } catch(e){}
     };
-    reader.readAsText(file);
+    reader.readAsText(input.files[0]);
   };
   input.click();
 }
-
-// --- START ---
-startGame();
 </script>
 </body>
 </html>
