@@ -354,7 +354,26 @@ infoBtn.onclick = () => {
     location.href = 'info1.html';
 };
 </script>
+<script>
+function googleTranslateElementInit() {
+    new google.translate.TranslateElement({
+        pageLanguage: 'de',
+        includedLanguages: 'en,de',
+        layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+    }, 'google_translate_element');
 
+    // Frage den Benutzer nach Sprache beim Laden
+    let userLang = prompt("Bitte wähle Sprache / Please choose language: 'de' oder 'en'", "de");
+    if(userLang === 'en' || userLang === 'de') {
+        const select = document.querySelector('#google_translate_element select');
+        if(select){
+            select.value = userLang;
+            select.dispatchEvent(new Event('change'));
+        }
+    }
+}
+</script>
+    
 <script>
 function googleTranslateElementInit() {
   new google.translate.TranslateElement({
