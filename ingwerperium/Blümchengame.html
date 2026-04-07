@@ -58,35 +58,35 @@ canvas { background:#88cc88; border:1px solid #444; }
 
 <div id="gui">
   <div class="gui-section">
-    <strong>Aktionen</strong>
+    <strong>---------</strong>
     <div class="gui-buttons">
-      <button id="btnRain">🌧 Regen</button>
-      <button id="btnSun">☀ Sonne</button>
-      <button id="btnGrass">✂ Gras</button>
+      <button id="btnRain">🌧</button>
+      <button id="btnSun">☀</button>
+      <button id="btnGrass">✂</button>
     </div>
   </div>
 
   <div class="gui-section">
-    <strong>Werkzeuge</strong>
+    <strong>---------</strong>
     <div class="gui-buttons">
-      <button id="btnSeed">🌱 Samen</button>
-      <button id="btnShovel">⛏ Schaufel</button>
-      <button id="btnFertilizer">💩 Dünger</button>
+      <button id="btnSeed">🌱</button>
+      <button id="btnShovel">⛏</button>
+      <button id="btnFertilizer">💩</button>
     </div>
   </div>
 
   <div class="gui-section">
     <strong>Status</strong>
-    <span id="statusSeeds">Samen: 0</span>
-    <span id="statusFertilizer">Dünger: 0</span>
-    <span id="statusMode">Modus: Samen</span>
+    <span id="statusSeeds">🌱 0</span>
+    <span id="statusFertilizer">💩 0</span>
+    <span id="statusMode">(🌱)</span>
 
     <div class="status-bar">
-      <div>Feuchtigkeit</div>
+      <div>🌊</div>
       <div style="background:#444"><div id="barMoisture" class="status-fill" style="background:#0f0"></div></div>
-      <div>Energie</div>
+      <div>⚡</div>
       <div style="background:#444"><div id="barLight" class="status-fill" style="background:#ff0"></div></div>
-      <div>Unkraut</div>
+      <div>🌿</div>
       <div style="background:#444"><div id="barWeed" class="status-fill" style="background:#f00"></div></div>
     </div>
   </div>
@@ -99,25 +99,32 @@ canvas { background:#88cc88; border:1px solid #444; }
 <div id="saveLoad" style="position:fixed; bottom:10px; left:10px; background:rgba(0,0,0,0.7); color:white; padding:8px; border-radius:5px; font-size:14px; z-index:10;">
   <button id="btnExport">📤Export</button>
   <button id="btnImport">📥Import</button>
-  <button id="btnGuide">Anleitung</button>
+  <button id="btnGuide">Anleitung/Instructions</button>
   <input type="file" id="fileInput" style="display:none" accept=".json">
 </div>
 
 <div id="guideOverlay">
   <div class="guideContent">
-    <h1>Anleitung</h1>
+    <h1>Anleitung/Instructions</h1>
 
     <div class="accordion">
-      <button class="accordionButton">Ziel des Spiels</button>
+      <button class="accordionButton">🏁</button>
       <div class="accordionPanel">
         <p>
-          Pflege eine gesunde, blühende Blumenwiese. Pflanze Blumen, gieße sie, setze sie der Sonne aus, entferne Unkraut und gib Dünger. Um einen Modus auszuwählen, klicke auf ein Werkzeug.
+          Maintain a healthy, blooming flower meadow. Plant flowers, water them, expose them to sunlight, remove weeds, and fertilize. To select a mode, click on a tool. / Pflege eine gesunde, blühende Blumenwiese. Pflanze Blumen, gieße sie, setze sie der Sonne aus, entferne Unkraut und gib Dünger. Um einen Modus auszuwählen, klicke auf ein Werkzeug.
         </p>
       </div>
 
-      <button class="accordionButton">Spielstand speichern und laden</button>
+      <button class="accordionButton">Save and load game progress / Spielstand speichern und laden</button>
       <div class="accordionPanel">
         <p>
+          Save your current game progress: Click "Export Game Save." Your browser will download a file containing your game save.
+
+          Load your last game save: Click "Import Game Save" and select the previously saved file.
+          
+          Tip: Store the file in a safe place, such as your Documents folder.
+
+          
           Jetzigen Spielstand speichern: Klicke auf „Spielstand exportieren“. Dein Browser lädt eine Datei herunter. Diese Datei enthält deinen Spielstand.
 
           Letzten Spielstand laden: Klicke auf „Spielstand importieren“ und wähle die zuvor gespeicherte Datei aus.
@@ -126,50 +133,50 @@ canvas { background:#88cc88; border:1px solid #444; }
         </p>
       </div>
 
-      <button class="accordionButton">Schaufel</button>
+      <button class="accordionButton">⛏</button>
       <div class="accordionPanel">
         <p>
-          Entferne verwelkte Blumen, um Dünger zu erhalten.
+          Remove wilted flowers to obtain fertilizer. / Entferne verwelkte Blumen, um Dünger zu erhalten.
         </p>
       </div>
 
-      <button class="accordionButton">Regen</button>
+      <button class="accordionButton">🌧</button>
       <div class="accordionPanel">
         <p>
-          Erhöht die Feuchtigkeit der Blumen und fördert das Wachstum. Zu viel oder zu wenig ist schlecht.
+          It increases the moisture content of the flowers and promotes growth. Too much or too little is bad. / Erhöht die Feuchtigkeit der Blumen und fördert das Wachstum. Zu viel oder zu wenig ist schlecht.
         </p>
       </div>
 
-      <button class="accordionButton">Sonne</button>
+      <button class="accordionButton">☀</button>
       <div class="accordionPanel">
         <p>
-          Erhöht kurzzeitig das Licht für die Blumen, beschleunigt Wachstum. Zu viel oder zu wenig ist schlecht.
+          It temporarily increases the light available to the flowers, accelerating growth. Too much or too little is bad. / Erhöht kurzzeitig das Licht für die Blumen, beschleunigt Wachstum. Zu viel oder zu wenig ist schlecht.
         </p>
       </div>
 
-      <button class="accordionButton">Gras</button>
+      <button class="accordionButton">✂</button>
       <div class="accordionPanel">
         <p>
-          Schneide das Gras, um Unkraut zu reduzieren und die Wiese gepflegt zu halten.
+          Cut the grass to reduce weeds and keep the meadow tidy. / Schneide das Gras, um Unkraut zu reduzieren und die Wiese gepflegt zu halten.
         </p>
       </div>
 
-      <button class="accordionButton">Samen</button>
+      <button class="accordionButton">🌱</button>
       <div class="accordionPanel">
         <p>
-          Du benötigst Samen, um neue Blumen zu pflanzen. Klicke dafür auf den Boden, wenn der Samen-Modus aktiviert ist.
+          You need seeds to plant new flowers. Click on the ground when seed mode is activated. / Du benötigst Samen, um neue Blumen zu pflanzen. Klicke dafür auf den Boden, wenn der Samen-Modus aktiviert ist.
         </p>
       </div>
 
-      <button class="accordionButton">Dünger</button>
+      <button class="accordionButton">💩</button>
       <div class="accordionPanel">
         <p>
-          Dünger gibt einem ausgewählten Blumenexemplar einen Wachstumsschub und verlängert seine Lebenszeit.
+          Fertilizer gives a selected flower specimen a growth boost and extends its lifespan. / Dünger gibt einem ausgewählten Blumenexemplar einen Wachstumsschub und verlängert seine Lebenszeit.
         </p>
       </div>
     </div>
 
-    <button id="closeGuide">Schließen</button>
+    <button id="closeGuide">Close / Schließen</button>
   </div>
 </div>
 
