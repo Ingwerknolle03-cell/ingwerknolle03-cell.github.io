@@ -22,7 +22,7 @@ button { padding:6px 12px; }
 
 <div id="top">
 <button id="editBtn" data-de="TXT" data-en="TXT">TXT</button>
-<button id="speedBtn" data-de="Start" data-en="Start">Play</button>
+<button id="speedBtn" data-de="▹" data-en="▹">▹</button>
 <input id="answerInput"
        data-de-placeholder="Antwort / Answer"
        data-en-placeholder="Enter answer…"
@@ -119,7 +119,7 @@ document.getElementById("speedBtn").onclick = function(){
   if(speed>10) speed=0;
   const lang = window.LANG || 'de';
   if(speed === 0){
-    this.innerText = lang === "en" ? "Start" : "Start";
+    this.innerText = lang === "en" ? "▹" : "▹";
   } else {
     this.innerText = (lang === "en" ? "Speed: " : "Speed/Geschwindigkeit: ") + speed;
   }
