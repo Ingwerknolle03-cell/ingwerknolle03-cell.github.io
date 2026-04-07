@@ -2,12 +2,37 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>Chronos V 3.0 (Neues System/Layout/Features)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chronos V 3.0 – Ingwerperium Hub</title>
 <style>
 html,body{margin:0;padding:0;height:100%;width:100%;font-family:monospace;background:#1c1c1c;color:#ccc;}
-body{display:flex;flex-direction:row;}
-#main{flex:3;display:flex;flex-direction:column;padding:16px;border-right:1px solid #444;height:100vh;box-sizing:border-box;overflow:hidden;}
-#side{flex:1;display:flex;flex-direction:column;padding:16px;background:#111;height:100vh;box-sizing:border-box;overflow-y:auto;}
+body{display:flex;flex-direction:column;}
+
+/* top bar */
+#topBar{
+  display:flex;align-items:center;gap:8px;
+  padding:6px 12px;background:#111;border-bottom:1px solid #444;
+  flex-shrink:0;
+}
+#backBtn{
+  padding:4px 12px;background:#2a2f36;color:#ddd;
+  border:1px solid #555;border-radius:4px;font-size:12px;
+  text-decoration:none;cursor:pointer;transition:background 0.2s;
+}
+#backBtn:hover{background:#3a4048;}
+#topTitle{font-size:15px;font-weight:bold;color:#e0e0e0;font-family:monospace;flex:1;}
+.lang-btn{
+  padding:4px 10px;background:#2a2f36;color:#ddd;
+  border:1px solid #555;border-radius:4px;font-size:12px;
+  font-weight:bold;cursor:pointer;transition:background 0.2s;
+}
+.lang-btn.active,.lang-btn:hover{background:#3a4048;color:#fff;}
+
+/* main layout */
+#layout{display:flex;flex-direction:row;flex:1;overflow:hidden;}
+#main{flex:3;display:flex;flex-direction:column;padding:16px;border-right:1px solid #444;height:100%;box-sizing:border-box;overflow:hidden;}
+#side{flex:1;display:flex;flex-direction:column;padding:16px;background:#111;height:100%;box-sizing:border-box;overflow-y:auto;}
+
 h1,h2{margin:0 0 10px;color:#e0e0e0;}
 #log{flex:1;background:#111;border:1px solid #333;padding:8px;overflow:auto;font-size:13px;margin-bottom:10px;}
 #table{flex:1;background:#111;border:1px solid #333;padding:8px;overflow:auto;font-size:13px;}
@@ -18,234 +43,326 @@ input[type=file]{display:none;}
 </head>
 <body>
 
-<div id="main">
-  <h1>Chronos</h1>
-  <div id="log"></div>
-  <div id="table"></div>
-  <div>
-    <button onclick="running=!running">Start / Pause</button>
-    <button onclick="saveGame()">Speichern</button>
-    <button onclick="document.getElementById('fileInput').click()">Laden</button>
-    <input type="file" id="fileInput" accept=".json" onchange="loadGame(event)">
+<!-- TOP BAR -->
+<div id="topBar">
+  <a id="backBtn" href="index.html" data-de="← Hub" data-en="← Hub">← Hub</a>
+  <div id="topTitle">Chronos V 3.0</div>
+  <button class="lang-btn active" id="btn-de" onclick="switchLang('de')">DE</button>
+  <button class="lang-btn" id="btn-en" onclick="switchLang('en')">EN</button>
+</div>
+
+<div id="layout">
+  <!-- MAIN -->
+  <div id="main">
+    <h1 data-de="Chronos" data-en="Chronos">Chronos</h1>
+    <div id="log"></div>
+    <div id="table"></div>
+    <div>
+      <button onclick="running=!running"   data-de="Start / Pause"  data-en="Start / Pause">Start / Pause</button>
+      <button onclick="saveGame()"         data-de="Speichern"      data-en="Save">Speichern</button>
+      <button onclick="document.getElementById('fileInput').click()" data-de="Laden" data-en="Load">Laden</button>
+      <input type="file" id="fileInput" accept=".json" onchange="loadGame(event)">
+    </div>
+  </div>
+
+  <!-- SIDE -->
+  <div id="side">
+    <h2 data-de="Pflanzen" data-en="Plants">Pflanzen</h2>
+    <div id="plants"></div>
+    <h2 data-de="Tiere" data-en="Animals">Tiere</h2>
+    <div id="animals"></div>
+    <h2 data-de="Pilze" data-en="Fungi">Pilze</h2>
+    <div id="fungi"></div>
+    <h2 data-de="Substrate" data-en="Substrates">Substrate</h2>
+    <div id="substrates"></div>
   </div>
 </div>
 
-<div id="side">
-  <h2>Pflanzen</h2>
-  <div id="plants"></div>
-  <h2>Tiere</h2>
-  <div id="animals"></div>
-  <h2>Pilze</h2>
-  <div id="fungi"></div>
-  <h2>Substrate</h2>
-  <div id="substrates"></div>
-</div>
-
 <script>
-/* ================= BASIS ================= */
-const logBox=document.getElementById("log");
-const tableBox=document.getElementById("table");
-let running=true;
-let stepCount=0;
-let seasonIndex=0;
-const seasons=["Frühling","Sommer","Herbst","Winter"];
+/* ─── LANGUAGE SYSTEM ─── */
+let LANG = 'de';
+(function(){
+  const u = new URLSearchParams(window.location.search).get('lang');
+  const s = localStorage.getItem('ingw-lang');
+  const l = (u==='en'||u==='de') ? u : (s==='en'||s==='de') ? s : 'de';
+  if(u) localStorage.setItem('ingw-lang', u);
+  LANG = l;
+})();
 
-/* ================= SUBSTRATE ================= */
-let substrates={Erde:0,Wasser:0,Sand:0,Sumpf:0}; // # Faktoren dynamisch, können wachsen oder schrumpfen
+function applyLang(lang){
+  LANG = lang;
+  document.documentElement.lang = lang;
+  localStorage.setItem('ingw-lang', lang);
+  document.querySelectorAll('[data-de],[data-en]').forEach(el=>{
+    const t = el.getAttribute('data-'+lang);
+    if(t !== null) el.textContent = t;
+  });
+  document.querySelectorAll('a[href]').forEach(a=>{
+    const h = a.getAttribute('href');
+    if(!h||h.startsWith('http')||h.startsWith('//')||h.startsWith('#')) return;
+    const [p,q] = h.split('?');
+    const params = new URLSearchParams(q||'');
+    params.set('lang', lang);
+    a.setAttribute('href', p+'?'+params.toString());
+  });
+  document.getElementById('btn-de').className = 'lang-btn'+(lang==='de'?' active':'');
+  document.getElementById('btn-en').className = 'lang-btn'+(lang==='en'?' active':'');
+  // rebuild side buttons with new language labels
+  rebuildButtons();
+  draw();
+}
+window.switchLang = function(l){ applyLang(l); };
 
-/* ================= ARTEN ================= */
-const species={
-  // Pflanzen
-  "Gräser":{typ:"pflanze",substrat:["Erde"],wachstum:0.25,max:1200},
-  "Buchen":{typ:"pflanze",substrat:["Erde"],wachstum:0.08,max:600},
-  "Farne":{typ:"pflanze",substrat:["Erde","Sumpf"],wachstum:0.18,max:800},
-  "Algen":{typ:"pflanze",substrat:["Wasser"],wachstum:0.22,max:500},
-  "Wasserpflanzen":{typ:"pflanze",substrat:["Wasser","Sumpf"],wachstum:0.2,max:400},
-
-  // Tiere Land
-  "Mammut":{typ:"tier",frisst:["Gräser"],feinde:["Säbelzahntiger"],substrat:["Erde"],wachstum:0.06,max:200},
-  "Pferd":{typ:"tier",frisst:["Gräser"],feinde:["Säbelzahntiger","Wolf"],substrat:["Erde"],wachstum:0.08,max:150},
-  "Säbelzahntiger":{typ:"tier",frisst:["Mammut","Pferd"],feinde:[],substrat:["Erde"],wachstum:0.05,max:80},
-  "Wolf":{typ:"tier",frisst:["Pferd"],feinde:[],substrat:["Erde"],wachstum:0.07,max:60},
-  "Kellerasseln":{typ:"tier",frisst:["Farne"],feinde:["Pferd","Mammut"],substrat:["Erde","Sumpf"],wachstum:0.15,max:300},
-
-  // Tiere Sumpf
-  "Sumpffrosch":{typ:"tier",frisst:["Algen","Wasserpflanzen"],feinde:["Räuberfisch"],substrat:["Sumpf"],wachstum:0.12,max:150},
-
-  // Aquatische Tiere
-  "Urzeitfisch":{typ:"tier",frisst:["Algen","Wasserpflanzen"],feinde:["Räuberfisch"],substrat:["Wasser"],wachstum:0.12,max:120},
-  "Räuberfisch":{typ:"tier",frisst:["Urzeitfisch","Sumpffrosch"],feinde:[],substrat:["Wasser"],wachstum:0.08,max:50},
-
-  // Pilze
-  "Pilze":{typ:"pilz",zersetzt:true,substrat:["Erde","Sumpf"],wachstum:0.2,max:900}
+/* ─── TRANSLATIONS ─── */
+const T = {
+  seasons: {
+    de: ['Frühling','Sommer','Herbst','Winter'],
+    en: ['Spring','Summer','Autumn','Winter']
+  },
+  season_new:    { de: s=>`— Neue Jahreszeit: ${s} —`,    en: s=>`— New season: ${s} —` },
+  ice_event:     { de: '❄ Eiszeit-Event: Pflanzen & Landtiere wachsen langsamer!',
+                   en: '❄ Ice Age Event: Plants & land animals grow slower!' },
+  grow:          { de: (n,d)=>`${n} wachsen (+${d})`,     en: (n,d)=>`${n} grow (+${d})` },
+  starve:        { de: (n,d)=>`${n} stirbt wegen Nahrungsknappheit (-${d})`,
+                   en: (n,d)=>`${n} dying from food shortage (-${d})` },
+  eat:           { de: (a,b,d)=>`${a} fressen ${b} (-${d})`,
+                   en: (a,b,d)=>`${a} eat ${b} (-${d})` },
+  fungi_grow:    { de: d=>`Pilze vermehren sich durch Zersetzung (+${d})`,
+                   en: d=>`Fungi spread through decomposition (+${d})` },
+  spawn:         { de: n=>`${n} entstehen`,               en: n=>`${n} appear` },
+  sub_increase:  { de: (s,v)=>`${s} erhöht sich. Faktor jetzt: ${v}`,
+                   en: (s,v)=>`${s} increased. Factor now: ${v}` },
+  saved:         { de: 'Spiel gespeichert.',               en: 'Game saved.' },
+  loaded:        { de: 'Spiel geladen.',                   en: 'Game loaded.' },
+  load_err:      { de: 'Fehler beim Laden.',               en: 'Error loading file.' },
+  season_label:  { de: 'Jahreszeit',                       en: 'Season' },
+  substrate_lbl: { de: 'Substrate',                        en: 'Substrates' },
+  factor_lbl:    { de: 'Faktor',                           en: 'Factor' },
+  species_lbl:   { de: 'Arten',                            en: 'Species' },
 };
 
-/* ================= WELT ================= */
-let world={};
-Object.keys(species).forEach(s=>world[s]=0);
-let biomass=0; // organische Masse für Pilze
+function t(key, ...args){
+  const val = T[key][LANG];
+  return typeof val === 'function' ? val(...args) : val;
+}
 
-/* ================= LOG ================= */
+/* ─── SPECIES DEFINITIONS ─── */
+// Names are bilingual objects; log & UI use the right one
+const speciesDef = {
+  // Plants
+  "Gräser":        { en:"Grasses",       typ:"pflanze", substrat:["Erde"], wachstum:0.25, max:1200 },
+  "Buchen":        { en:"Beeches",       typ:"pflanze", substrat:["Erde"], wachstum:0.08, max:600  },
+  "Farne":         { en:"Ferns",         typ:"pflanze", substrat:["Erde","Sumpf"], wachstum:0.18, max:800 },
+  "Algen":         { en:"Algae",         typ:"pflanze", substrat:["Wasser"], wachstum:0.22, max:500 },
+  "Wasserpflanzen":{ en:"Water Plants",  typ:"pflanze", substrat:["Wasser","Sumpf"], wachstum:0.2, max:400 },
+  // Land animals
+  "Mammut":        { en:"Mammoth",       typ:"tier",   frisst:["Gräser"], feinde:["Säbelzahntiger"], substrat:["Erde"], wachstum:0.06, max:200 },
+  "Pferd":         { en:"Horse",         typ:"tier",   frisst:["Gräser"], feinde:["Säbelzahntiger","Wolf"], substrat:["Erde"], wachstum:0.08, max:150 },
+  "Säbelzahntiger":{ en:"Saber-tooth Tiger", typ:"tier", frisst:["Mammut","Pferd"], feinde:[], substrat:["Erde"], wachstum:0.05, max:80 },
+  "Wolf":          { en:"Wolf",          typ:"tier",   frisst:["Pferd"], feinde:[], substrat:["Erde"], wachstum:0.07, max:60 },
+  "Kellerasseln":  { en:"Woodlice",      typ:"tier",   frisst:["Farne"], feinde:["Pferd","Mammut"], substrat:["Erde","Sumpf"], wachstum:0.15, max:300 },
+  // Swamp animals
+  "Sumpffrosch":   { en:"Swamp Frog",   typ:"tier",   frisst:["Algen","Wasserpflanzen"], feinde:["Räuberfisch"], substrat:["Sumpf"], wachstum:0.12, max:150 },
+  // Aquatic animals
+  "Urzeitfisch":   { en:"Ancient Fish", typ:"tier",   frisst:["Algen","Wasserpflanzen"], feinde:["Räuberfisch"], substrat:["Wasser"], wachstum:0.12, max:120 },
+  "Räuberfisch":   { en:"Predator Fish",typ:"tier",   frisst:["Urzeitfisch","Sumpffrosch"], feinde:[], substrat:["Wasser"], wachstum:0.08, max:50 },
+  // Fungi
+  "Pilze":         { en:"Fungi",         typ:"pilz",  zersetzt:true, substrat:["Erde","Sumpf"], wachstum:0.2, max:900 },
+};
+
+// Substrate bilingual
+const substrateDef = {
+  "Erde":  { en:"Soil"  },
+  "Wasser":{ en:"Water" },
+  "Sand":  { en:"Sand"  },
+  "Sumpf": { en:"Swamp" },
+};
+
+function spName(key){
+  if(LANG === 'en') return speciesDef[key]?.en || key;
+  return key;
+}
+function subName(key){
+  if(LANG === 'en') return substrateDef[key]?.en || key;
+  return key;
+}
+
+/* ─── WORLD STATE ─── */
+const logBox   = document.getElementById('log');
+const tableBox = document.getElementById('table');
+let running    = true;
+let stepCount  = 0;
+let seasonIndex = 0;
+
+let substrates = { Erde:0, Wasser:0, Sand:0, Sumpf:0 };
+let world      = {};
+Object.keys(speciesDef).forEach(s => world[s] = 0);
+let biomass    = 0;
+
+/* ─── LOG ─── */
 function log(text){
-  logBox.innerText += text + "\n";
-  logBox.scrollTop = logBox.scrollHeight; 
+  logBox.textContent += text + '\n';
+  logBox.scrollTop = logBox.scrollHeight;
 }
 
-/* ================= DARSTELLUNG ================= */
+/* ─── DRAW ─── */
 function draw(){
-  tableBox.innerHTML=`Jahreszeit: ${seasons[seasonIndex]}<br><br>`;
-  tableBox.innerHTML+="<b>Substrate:</b><br>";
+  const seasons = T.seasons[LANG];
+  let html = `${t('season_label')}: ${seasons[seasonIndex]}<br><br>`;
+  html += `<b>${t('substrate_lbl')}:</b><br>`;
   Object.entries(substrates).forEach(([k,v])=>{
-    tableBox.innerHTML+=`${k}: Faktor ${v.toFixed(2)}<br>`;
+    html += `${subName(k)}: ${t('factor_lbl')} ${v.toFixed(2)}<br>`;
   });
-  tableBox.innerHTML+="<br><b>Arten:</b><br>";
+  html += `<br><b>${t('species_lbl')}:</b><br>`;
   Object.entries(world).forEach(([k,v])=>{
-    if(v>0) tableBox.innerHTML+=`${k}: ${v}<br>`;
+    if(v > 0) html += `${spName(k)}: ${v}<br>`;
   });
+  tableBox.innerHTML = html;
 }
 
-/* ================= SIMULATION ================= */
+/* ─── SIMULATION ─── */
 function step(){
   stepCount++;
-  // Eiszeit-Event zufällig im Winter
-  let iceFactor=1;
-  if(seasons[seasonIndex]==="Winter" && Math.random()<0.05){
-    iceFactor=0.5;
-    log("❄ Eiszeit-Event: Pflanzen & Landtiere wachsen langsamer!");
+  const seasons = T.seasons[LANG];
+  let iceFactor = 1;
+
+  if(seasons[seasonIndex] === seasons[3] && Math.random() < 0.05){
+    iceFactor = 0.5;
+    log(t('ice_event'));
   }
 
   if(stepCount % 50 === 0){
-    seasonIndex=(seasonIndex+1)%4;
-    log(`— Neue Jahreszeit: ${seasons[seasonIndex]} —`);
+    seasonIndex = (seasonIndex + 1) % 4;
+    log(t('season_new', seasons[seasonIndex]));
   }
 
-  // Wachstum & Überleben
-  Object.entries(species).forEach(([name,sp])=>{
-    if(world[name]<=0) return;
+  // Growth & survival
+  Object.entries(speciesDef).forEach(([name, sp])=>{
+    if(world[name] <= 0) return;
 
-    let seasonFactor=1;
-    if(seasons[seasonIndex]==="Winter") seasonFactor=0.4;
-    if(seasons[seasonIndex]==="Sommer") seasonFactor=1.2;
+    const si = seasonIndex;
+    let seasonFactor = 1;
+    if(si === 3) seasonFactor = 0.4;   // winter
+    if(si === 1) seasonFactor = 1.2;   // summer
 
-    let foodFactor=1;
+    let foodFactor = 1;
     if(sp.frisst){
-      const food=sp.frisst.reduce((s,f)=>s+(world[f]||0),0);
-      if(food<=0) foodFactor=0.2;
+      const food = sp.frisst.reduce((s,f) => s + (world[f]||0), 0);
+      if(food <= 0) foodFactor = 0.2;
     }
 
-    // Substratfaktor dynamisch
-    const substrateFactor = sp.substrat.reduce((s,f)=>s+substrates[f],0)/sp.substrat.length;
+    const substrateFactor = sp.substrat.reduce((s,f) => s + substrates[f], 0) / sp.substrat.length;
+    const delta = Math.floor(world[name] * sp.wachstum * seasonFactor * foodFactor * substrateFactor * iceFactor * (1 - world[name]/sp.max));
 
-    const delta=Math.floor(world[name]*sp.wachstum*seasonFactor*foodFactor*substrateFactor*iceFactor*(1-world[name]/sp.max));
-
-    if(delta>0){
-      world[name]+=delta;
-      log(`${name} wachsen (+${delta})`);
-    } else if(sp.frisst && foodFactor<0.5){
-      const sterbe=Math.max(1,Math.floor(world[name]*0.05));
-      world[name]-=sterbe;
-      log(`${name} stirbt wegen Nahrungsknappheit (-${sterbe})`);
-      if(world[name]<0) world[name]=0;
+    if(delta > 0){
+      world[name] += delta;
+      log(t('grow', spName(name), delta));
+    } else if(sp.frisst && foodFactor < 0.5){
+      const sterbe = Math.max(1, Math.floor(world[name] * 0.05));
+      world[name] -= sterbe;
+      log(t('starve', spName(name), sterbe));
+      if(world[name] < 0) world[name] = 0;
     }
   });
 
-  // Fressen
-  Object.entries(species).forEach(([pred,sp])=>{
-    if(!sp.frisst||world[pred]<=0) return;
+  // Predation
+  Object.entries(speciesDef).forEach(([pred, sp])=>{
+    if(!sp.frisst || world[pred] <= 0) return;
     sp.frisst.forEach(prey=>{
-      if(world[prey]>0){
-        const eat=Math.min(world[prey],Math.floor(world[pred]*0.15));
-        if(eat>0){
-          world[prey]-=eat;
-          biomass+=eat; 
-          log(`${pred} fressen ${prey} (-${eat})`);
+      if(world[prey] > 0){
+        const eat = Math.min(world[prey], Math.floor(world[pred] * 0.15));
+        if(eat > 0){
+          world[prey] -= eat;
+          biomass += eat;
+          log(t('eat', spName(pred), spName(prey), eat));
         }
       }
     });
   });
 
-  // Pilze – Zersetzer
-  if(world["Pilze"]>0 && biomass>0){
-    const grow=Math.floor(biomass*0.1);
-    const actualGrow=Math.min(grow, species["Pilze"].max-world["Pilze"]);
-    if(actualGrow>0){
-      world["Pilze"]+=actualGrow;
-      biomass-=actualGrow;
-      log(`Pilze vermehren sich durch Zersetzung (+${actualGrow})`);
+  // Fungi decomposition
+  if(world['Pilze'] > 0 && biomass > 0){
+    const grow = Math.floor(biomass * 0.1);
+    const actualGrow = Math.min(grow, speciesDef['Pilze'].max - world['Pilze']);
+    if(actualGrow > 0){
+      world['Pilze'] += actualGrow;
+      biomass -= actualGrow;
+      log(t('fungi_grow', actualGrow));
     }
   }
 
   draw();
 }
 
-/* ================= ZEIT ================= */
-setInterval(()=>{ if(running) step(); },2000);
+setInterval(() => { if(running) step(); }, 2000);
 
-/* ================= BUTTONS ================= */
-function addButtons(){
-  Object.entries(species).forEach(([n,s])=>{
-    const b=document.createElement("button");
-    b.innerText=n;
-    b.onclick=()=>{
-      world[n]+=s.typ==="pflanze"?80: s.typ==="tier"?20:40;
-      log(`${n} entstehen`);
-      draw();
-    };
-    document.getElementById(
-      s.typ==="pflanze"?"plants":s.typ==="tier"?"animals":"fungi"
-    ).appendChild(b);
+/* ─── SIDE BUTTONS ─── */
+function rebuildButtons(){
+  ['plants','animals','fungi','substrates'].forEach(id => {
+    document.getElementById(id).innerHTML = '';
   });
 
-  // Substrate dynamisch erhöhen
-  Object.keys(substrates).forEach(sub=>{
-    const b=document.createElement("button");
-    b.innerText=sub+" (+0.5)";
-    b.onclick=()=>{
-      substrates[sub]+=0.5;
-      log(`${sub} erhöht sich. Faktor jetzt: ${substrates[sub].toFixed(2)}`);
+  Object.entries(speciesDef).forEach(([n, s])=>{
+    const b = document.createElement('button');
+    b.textContent = spName(n);
+    b.onclick = () => {
+      world[n] += s.typ==='pflanze' ? 80 : s.typ==='tier' ? 20 : 40;
+      log(t('spawn', spName(n)));
       draw();
     };
-    document.getElementById("substrates").appendChild(b);
+    const panel = s.typ==='pflanze' ? 'plants' : s.typ==='tier' ? 'animals' : 'fungi';
+    document.getElementById(panel).appendChild(b);
+  });
+
+  Object.keys(substrates).forEach(sub=>{
+    const b = document.createElement('button');
+    b.textContent = subName(sub) + ' (+0.5)';
+    b.onclick = () => {
+      substrates[sub] += 0.5;
+      log(t('sub_increase', subName(sub), substrates[sub].toFixed(2)));
+      draw();
+    };
+    document.getElementById('substrates').appendChild(b);
   });
 }
 
-addButtons();
-draw();
-
-/* ================= SPIEL SPEICHERN & LADEN ================= */
+/* ─── SAVE / LOAD ─── */
 function saveGame(){
-  const data=JSON.stringify({world,biomass,stepCount,seasonIndex,substrates});
-  const blob=new Blob([data],{type:"application/json"});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement("a");
-  a.href=url;
-  a.download="chronos_save.json";
+  const data = JSON.stringify({ world, biomass, stepCount, seasonIndex, substrates });
+  const blob = new Blob([data], { type:'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'chronos_save.json';
   a.click();
   URL.revokeObjectURL(url);
-  log("Spiel gespeichert.");
+  log(t('saved'));
 }
 
 function loadGame(event){
-  const file=event.target.files[0];
+  const file = event.target.files[0];
   if(!file) return;
-  const reader=new FileReader();
-  reader.onload=e=>{
-    try{
-      const data=JSON.parse(e.target.result);
-      world=data.world||world;
-      biomass=data.biomass||0;
-      stepCount=data.stepCount||0;
-      seasonIndex=data.seasonIndex||0;
-      substrates=data.substrates||substrates;
-      log("Spiel geladen.");
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      world       = data.world       || world;
+      biomass     = data.biomass     || 0;
+      stepCount   = data.stepCount   || 0;
+      seasonIndex = data.seasonIndex || 0;
+      substrates  = data.substrates  || substrates;
+      log(t('loaded'));
       draw();
-    }catch{
-      alert("Fehler beim Laden.");
+    } catch {
+      alert(t('load_err'));
     }
   };
   reader.readAsText(file);
-  event.target.value="";
+  event.target.value = '';
 }
+
+/* ─── INIT ─── */
+applyLang(LANG);
 </script>
 </body>
 </html>
