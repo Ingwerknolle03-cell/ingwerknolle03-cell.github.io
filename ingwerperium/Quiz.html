@@ -2,7 +2,8 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>Quizzz</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mehrspieler Quiz – Ingwerperium Hub</title>
 <style>
 body {
     margin: 0;
@@ -10,260 +11,406 @@ body {
     background: linear-gradient(120deg, #84fab0, #8fd3f4);
     display: flex;
     justify-content: center;
-    padding: 40px;
+    padding: 40px 20px;
+    min-height: 100vh;
+    box-sizing: border-box;
 }
 .container {
     background: white;
     padding: 25px;
     border-radius: 20px;
     width: 700px;
+    max-width: 95%;
     box-shadow: 0 15px 30px rgba(0,0,0,0.25);
     position: relative;
 }
 .hidden { display: none; }
 h1, h2 { text-align: center; }
 button {
-    padding: 10px 20px;
-    margin: 6px;
-    border: none;
-    border-radius: 10px;
-    font-size: 16px;
-    cursor: pointer;
-    background: #4f46e5;
-    color: white;
+    padding: 10px 20px; margin: 6px;
+    border: none; border-radius: 10px;
+    font-size: 16px; cursor: pointer;
+    background: #4f46e5; color: white;
+    transition: 0.2s;
 }
 button:hover { background: #4338ca; }
-.answer-btn {
-    display: block;
-    width: 100%;
-    margin: 6px 0;
-}
+.answer-btn { display: block; width: 100%; margin: 6px 0; }
 .correct { background: #4caf50 !important; }
 .wrong { background: #f44336 !important; }
-.info {
-    margin-top: 15px;
-    padding: 15px;
-    border-radius: 10px;
-}
+.info { margin-top: 15px; padding: 15px; border-radius: 10px; line-height: 1.5; }
 .good { background: #d4edda; border: 2px solid #4caf50; }
-.bad { background: #f8d7da; border: 2px solid #f44336; }
-input, select { padding: 8px; width: 80%; margin: 5px; }
+.bad  { background: #f8d7da; border: 2px solid #f44336; }
+input, select { padding: 8px; width: 80%; margin: 5px; border-radius: 6px; border: 1px solid #ccc; }
 .finish-btn {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: gold;
-    color: black;
-    font-weight: bold;
+    position: absolute; top: 15px; right: 15px;
+    background: gold; color: black; font-weight: bold;
 }
 .timer { font-size: 20px; font-weight: bold; text-align: center; }
+label { font-weight: bold; color: #333; }
+
+/* top bar */
+#topBar {
+    position: fixed; top: 10px; left: 0; right: 0;
+    display: flex; justify-content: space-between; padding: 0 16px;
+    z-index: 9999; pointer-events: none;
+}
+#topBar > * { pointer-events: all; }
+#backBtn {
+    padding: 5px 14px;
+    background: rgba(60,180,100,0.2);
+    border: 1px solid rgba(60,180,100,0.4);
+    color: #1a5c35;
+    border-radius: 6px; font-size: 13px;
+    cursor: pointer; text-decoration: none; transition: background 0.2s;
+}
+#backBtn:hover { background: rgba(60,180,100,0.35); }
+.lang-toggle { display: flex; gap: 6px; }
+.lang-toggle button {
+    padding: 5px 12px; font-size: 13px; font-weight: bold; margin: 0;
+    background: rgba(60,180,100,0.15);
+    border: 1px solid rgba(60,180,100,0.35);
+    color: #1a5c35; border-radius: 6px;
+    cursor: pointer; transition: background 0.2s;
+}
+.lang-toggle button.active,
+.lang-toggle button:hover { background: rgba(60,180,100,0.4); }
+
+.section-label { margin: 10px 0 4px; display: block; }
 </style>
 </head>
 <body>
 
-<div class="container">
-
-<!-- START -->
-<div id="start">
-<h1>Quizzz</h1>
-Spieleranzahl (2–100)<br>
-<input type="number" id="playerCount" min="2" max="100" value="2"><br>
-Fragenlimit<br>
-<input type="number" id="questionLimit" value="10"><br>
-Timer pro Frage (Sekunden)<br>
-<input type="number" id="timeLimit" value="15"><br>
-Kategorie<br>
-<select id="category">
-    <option value="all">Alle Kategorien (gemischt)</option>
-    <option value="geschichte">Geschichte</option>
-    <option value="natur">Natur</option>
-    <option value="it">IT</option>
-</select><br>
-Schwierigkeit<br>
-<select id="difficulty">
-    <option value="leicht">Leicht (1 Punkt)</option>
-    <option value="mittel">Mittel (2 Punkte)</option>
-    <option value="schwer">Schwer (3 Punkte)</option>
-</select><br>
-<button onclick="nameSetup()">Weiter</button>
+<div id="topBar">
+  <a id="backBtn" href="index.html" data-de="← Hub" data-en="← Hub">← Hub</a>
+  <div class="lang-toggle">
+    <button id="btn-de" class="active" onclick="switchLang('de')">DE</button>
+    <button id="btn-en" onclick="switchLang('en')">EN</button>
+  </div>
 </div>
 
-<!-- NAMEN -->
-<div id="names" class="hidden">
-<h2>Spielernamen</h2>
-<div id="nameInputs"></div>
-<button onclick="startGame()">Spiel starten</button>
-</div>
+<div class="container" style="margin-top:40px;">
 
-<!-- GAME -->
-<div id="game" class="hidden">
-<button class="finish-btn" onclick="finish()">Fertig</button>
-<div class="timer" id="timer"></div>
-<h2 id="turn"></h2>
-<h3 id="question"></h3>
-<div id="answers"></div>
-<div id="info" class="info hidden"></div>
-<button id="next" class="hidden" onclick="next()">Weiter</button>
-</div>
+  <!-- START -->
+  <div id="start">
+    <h1 data-de="Mehrspieler Quiz" data-en="Multiplayer Quiz">Mehrspieler Quiz</h1>
 
-<!-- RESULT -->
-<div id="result" class="hidden">
-<h1>🏆🏆🏆</h1>
-<div id="ranking"></div>
-<button onclick="location.reload()">Neu starten</button>
-</div>
+    <label class="section-label" data-de="Spieleranzahl (2–20)" data-en="Number of players (2–20)">Spieleranzahl</label><br>
+    <input type="number" id="playerCount" min="1" max="200" value="2"><br>
+
+    <label class="section-label" data-de="Fragenlimit" data-en="Question limit">Fragenlimit</label><br>
+    <input type="number" id="questionLimit" value="10"><br>
+
+    <label class="section-label" data-de="Timer pro Frage (Sekunden)" data-en="Timer per question (seconds)">Timer</label><br>
+    <input type="number" id="timeLimit" value="15"><br>
+
+    <label class="section-label" data-de="Kategorie" data-en="Category">Kategorie</label><br>
+    <select id="category">
+      <option value="all"        data-de="Alle Kategorien (gemischt)"    data-en="All categories (mixed)">Alle Kategorien (gemischt)</option>
+      <option value="geschichte" data-de="Geschichte"                    data-en="History">Geschichte</option>
+      <option value="natur"      data-de="Natur & Wissenschaft"          data-en="Nature & Science">Natur & Wissenschaft</option>
+      <option value="it"         data-de="IT & Technologie"              data-en="IT & Technology">IT & Technologie</option>
+      <option value="geografie"  data-de="Geografie"                     data-en="Geography">Geografie</option>
+      <option value="sport"      data-de="Sport"                         data-en="Sport">Sport</option>
+      <option value="kultur"     data-de="Kultur & Kunst"                data-en="Culture & Art">Kultur & Kunst</option>
+    </select><br>
+
+    <label class="section-label" data-de="Schwierigkeit" data-en="Difficulty">Schwierigkeit</label><br>
+    <select id="difficulty">
+      <option value="leicht" data-de="Leicht (1 Punkt)"  data-en="Easy (1 point)">Leicht (1 Punkt)</option>
+      <option value="mittel" data-de="Mittel (2 Punkte)" data-en="Medium (2 points)">Mittel (2 Punkte)</option>
+      <option value="schwer" data-de="Schwer (3 Punkte)" data-en="Hard (3 points)">Schwer (3 Punkte)</option>
+    </select><br>
+
+    <button onclick="nameSetup()" data-de="Weiter →" data-en="Next →">Weiter →</button>
+  </div>
+
+  <!-- NAMEN -->
+  <div id="names" class="hidden">
+    <h2 data-de="Spielernamen" data-en="Player Names">Spielernamen</h2>
+    <div id="nameInputs"></div>
+    <button onclick="startGame()" data-de="Spiel starten" data-en="Start Game">Spiel starten</button>
+  </div>
+
+  <!-- GAME -->
+  <div id="game" class="hidden">
+    <button class="finish-btn" onclick="finish()" data-de="Fertig" data-en="Finish">Fertig</button>
+    <div class="timer" id="timer"></div>
+    <h2 id="turn"></h2>
+    <h3 id="question" style="line-height:1.4;"></h3>
+    <div id="answers"></div>
+    <div id="info" class="info hidden"></div>
+    <button id="next" class="hidden" onclick="nextQ()" data-de="Weiter →" data-en="Next →">Weiter →</button>
+  </div>
+
+  <!-- RESULT -->
+  <div id="result" class="hidden">
+    <h1>🏆🏆🏆</h1>
+    <div id="ranking" style="font-size:18px;line-height:2;text-align:center;"></div>
+    <div style="text-align:center;margin-top:16px;">
+      <button onclick="location.reload()" data-de="Neu starten" data-en="Restart">Neu starten</button>
+    </div>
+  </div>
 
 </div>
 
 <script>
-let players=[], scores=[], current=0, questions=[], limit=0, timerValue=0, points=1, interval=null, currentQ=null;
+/* ─── LANGUAGE ─── */
+let LANG = 'de';
+(function(){
+  const u = new URLSearchParams(window.location.search).get('lang');
+  const s = localStorage.getItem('ingw-lang');
+  const l = (u==='en'||u==='de') ? u : (s==='en'||s==='de') ? s : 'de';
+  if(u) localStorage.setItem('ingw-lang', u);
+  LANG = l;
+})();
+function applyLang(lang){
+  LANG = lang;
+  document.documentElement.lang = lang;
+  localStorage.setItem('ingw-lang', lang);
+  document.querySelectorAll('[data-de],[data-en]').forEach(el=>{
+    const t = el.getAttribute('data-'+lang);
+    if(t !== null) el.textContent = t;
+  });
+  // option elements
+  document.querySelectorAll('option[data-de],option[data-en]').forEach(el=>{
+    const t = el.getAttribute('data-'+lang);
+    if(t !== null) el.textContent = t;
+  });
+  document.querySelectorAll('a[href]').forEach(a=>{
+    const h = a.getAttribute('href');
+    if(!h||h.startsWith('http')||h.startsWith('//')||h.startsWith('#')) return;
+    const [p,q] = h.split('?');
+    const params = new URLSearchParams(q||'');
+    params.set('lang', lang);
+    a.setAttribute('href', p+'?'+params.toString());
+  });
+  document.getElementById('btn-de').className = lang==='de' ? 'active' : '';
+  document.getElementById('btn-en').className = lang==='en' ? 'active' : '';
+}
+window.switchLang = function(l){ applyLang(l); };
+applyLang(LANG);
 
+/* ─── QUESTION POOL (bilingual) ─── */
 const pool = {
-geschichte:[
-  {q:"Wann begann der Erste Weltkrieg?", a:["1912","1914","1918"], c:1, i:"Begann 1914 nach dem Attentat von Sarajevo."},
-  {q:"Wer war Napoleon?", a:["Kaiser","Papst","Philosoph"], c:0, i:"Napoleon war Kaiser der Franzosen."},
-  {q:"Wann fiel die Berliner Mauer?", a:["1989","1991","1987"], c:0, i:"Die Mauer fiel am 9. November 1989."},
-  {q:"Wer entdeckte Amerika?", a:["Christopher Columbus","Leif Erikson","Marco Polo"], c:0, i:"1492 segelte Columbus nach Amerika."},
-  {q:"Wann begann der Zweite Weltkrieg?", a:["1939","1945","1918"], c:0, i:"Der Zweite Weltkrieg begann 1939."},
-  {q:"Wer war Martin Luther?", a:["Reformator","Kaiser","Philosoph"], c:0, i:"Er leitete die Reformation ein und veröffentlichte 1517 seine 95 Thesen."},
-  {q:"Wann endete der Zweite Weltkrieg?", a:["1945","1940","1939"], c:0, i:"Er endete 1945 in Europa."},
-  {q:"Wer war Julius Cäsar?", a:["Römischer Diktator","Philosoph","Kaiser von Frankreich"], c:0, i:"Cäsar war römischer Diktator und Feldherr."},
-  {q:"Was war die Französische Revolution?", a:["Umsturz 1789","Kaiserzeit","Industrialisierung"], c:0, i:"1789 begann die Französische Revolution gegen die Monarchie."},
-  {q:"Wann wurde die UNO gegründet?", a:["1945","1919","1939"], c:0, i:"Die Vereinten Nationen wurden 1945 gegründet."}
+geschichte: [
+  { de:{q:"Wann begann der Erste Weltkrieg?",a:["1910","1914","1918","1920"],c:1,i:"Der Erste Weltkrieg begann 1914 nach dem Attentat in Sarajevo."},
+    en:{q:"When did World War I begin?",a:["1910","1914","1918","1920"],c:1,i:"World War I began in 1914 following the assassination in Sarajevo."} },
+  { de:{q:"Wer war Napoleon Bonaparte?",a:["Kaisser Frankreichs","Papst","Philosoph","König Englands"],c:0,i:"Napoleon war Kaiser der Franzosen (1804–1814/1815)."},
+    en:{q:"Who was Napoleon Bonaparte?",a:["Emperor of France","Pope","Philosopher","King of England"],c:0,i:"Napoleon was Emperor of the French (1804–1814/1815)."} },
+  { de:{q:"Wann fiel die Berliner Mauer?",a:["1987","1988","1989","1991"],c:2,i:"Die Berliner Mauer fiel am 9. November 1989."},
+    en:{q:"When did the Berlin Wall fall?",a:["1987","1988","1989","1991"],c:2,i:"The Berlin Wall fell on 9 November 1989."} },
+  { de:{q:"Wann begann der Zweite Weltkrieg?",a:["1935","1937","1939","1941"],c:2,i:"Der Zweite Weltkrieg begann am 1. September 1939 mit dem deutschen Überfall auf Polen."},
+    en:{q:"When did World War II begin?",a:["1935","1937","1939","1941"],c:2,i:"World War II began on 1 September 1939 with Germany's invasion of Poland."} },
+  { de:{q:"Wer entdeckte Amerika 1492?",a:["Vasco da Gama","Ferdinand Magellan","Christopher Columbus","Amerigo Vespucci"],c:2,i:"Christopher Columbus erreichte 1492 Amerika, obwohl er glaubte, Indien gefunden zu haben."},
+    en:{q:"Who discovered America in 1492?",a:["Vasco da Gama","Ferdinand Magellan","Christopher Columbus","Amerigo Vespucci"],c:2,i:"Christopher Columbus reached America in 1492, although he believed he had found India."} },
+  { de:{q:"In welchem Jahr wurde Deutschland geteilt?",a:["1945","1947","1949","1952"],c:2,i:"1949 entstanden zwei deutsche Staaten: die BRD (Westdeutschland) und die DDR (Ostdeutschland)."},
+    en:{q:"In which year was Germany divided?",a:["1945","1947","1949","1952"],c:2,i:"In 1949 two German states were established: the FRG (West Germany) and the GDR (East Germany)."} },
+  { de:{q:"Wer war der erste Kanzler der Bundesrepublik Deutschland?",a:["Willy Brandt","Helmut Schmidt","Konrad Adenauer","Ludwig Erhard"],c:2,i:"Konrad Adenauer war von 1949 bis 1963 der erste Bundeskanzler der BRD."},
+    en:{q:"Who was the first Chancellor of West Germany?",a:["Willy Brandt","Helmut Schmidt","Konrad Adenauer","Ludwig Erhard"],c:2,i:"Konrad Adenauer was the first Federal Chancellor of the FRG from 1949 to 1963."} },
+  { de:{q:"Was war die Oktoberrevolution (1917)?",a:["Französische Revolution","Russische Bolschewiken-Revolution","Amerikanische Unabhängigkeit","Chinesische Revolution"],c:1,i:"Die Oktoberrevolution 1917 brachte die Bolschewiken unter Lenin in Russland an die Macht."},
+    en:{q:"What was the October Revolution (1917)?",a:["French Revolution","Russian Bolshevik Revolution","American Independence","Chinese Revolution"],c:1,i:"The October Revolution of 1917 brought the Bolsheviks under Lenin to power in Russia."} },
+  { de:{q:"Wer schrieb das Kommunistische Manifest (1848)?",a:["Friedrich Engels allein","Karl Marx allein","Marx und Engels gemeinsam","Vladimir Lenin"],c:2,i:"Das Kommunistische Manifest wurde 1848 gemeinsam von Karl Marx und Friedrich Engels verfasst."},
+    en:{q:"Who wrote the Communist Manifesto (1848)?",a:["Friedrich Engels alone","Karl Marx alone","Marx and Engels together","Vladimir Lenin"],c:2,i:"The Communist Manifesto was written together by Karl Marx and Friedrich Engels in 1848."} },
+  { de:{q:"Welches Schiff sank 1912 im Nordatlantik?",a:["Lusitania","Bismarck","Titanic","Britannic"],c:2,i:"Die Titanic sank in der Nacht vom 14. auf den 15. April 1912. Über 1500 Menschen kamen ums Leben."},
+    en:{q:"Which ship sank in the North Atlantic in 1912?",a:["Lusitania","Bismarck","Titanic","Britannic"],c:2,i:"The Titanic sank on the night of 14–15 April 1912. Over 1,500 people lost their lives."} },
 ],
-natur:[
-  {q:"Größtes Organ?", a:["Herz","Haut","Leber"], c:1, i:"Die Haut ist das größte Organ."},
-  {q:"Schnellstes Tier?", a:["Falke","Gepard","Strauß"], c:0, i:"Der Wanderfalke erreicht über 300 km/h."},
-  {q:"Wie viele Planeten hat unser Sonnensystem?", a:["7","8","9"], c:1, i:"Es gibt 8 Planeten; Pluto gilt nicht mehr als Planet."},
-  {q:"Welches Tier legt Eier?", a:["Frosch","Säugetier","Vogel"], c:2, i:"Vögel legen Eier."},
-  {q:"Wie viele Kontinente gibt es?", a:["5","6","7"], c:2, i:"Es gibt 7 Kontinente."},
-  {q:"Was ist Photosynthese?", a:["Energie aus Licht","Essen von Pflanzen","Atmung"], c:0, i:"Pflanzen erzeugen Energie aus Sonnenlicht."},
-  {q:"Welches Tier ist ein Säugetier?", a:["Hai","Wal","Krokodil"], c:1, i:"Wale sind Säugetiere."},
-  {q:"Was ist das größte Säugetier?", a:["Elefant","Blauwal","Giraffe"], c:1, i:"Der Blauwal ist das größte Säugetier der Erde."},
-  {q:"Wie nennt man fliegende Säugetiere?", a:["Vögel","Fledermäuse","Insekten"], c:1, i:"Fledermäuse sind die einzigen fliegenden Säugetiere."},
-  {q:"Welches Gas atmen wir ein?", a:["Sauerstoff","Kohlenstoff","Stickstoff"], c:0, i:"Menschen atmen Sauerstoff ein."}
+natur: [
+  { de:{q:"Was ist das größte Tier der Welt?",a:["Elefant","Blauwal","Walhai","Riesentintenfisch"],c:1,i:"Der Blauwal kann bis zu 30 Meter lang und 180 Tonnen schwer werden."},
+    en:{q:"What is the largest animal in the world?",a:["Elephant","Blue whale","Whale shark","Giant squid"],c:1,i:"The blue whale can be up to 30 metres long and weigh 180 tonnes."} },
+  { de:{q:"Wie viele Planeten hat unser Sonnensystem?",a:["7","8","9","10"],c:1,i:"Es gibt 8 Planeten. Pluto gilt seit 2006 offiziell nicht mehr als Planet."},
+    en:{q:"How many planets does our solar system have?",a:["7","8","9","10"],c:1,i:"There are 8 planets. Pluto has officially not been classified as a planet since 2006."} },
+  { de:{q:"Welches Gas atmen Menschen ein?",a:["Kohlendioxid","Stickstoff","Sauerstoff","Argon"],c:2,i:"Menschen atmen Sauerstoff ein und Kohlendioxid aus. Sauerstoff macht ca. 21% der Luft aus."},
+    en:{q:"Which gas do humans breathe in?",a:["Carbon dioxide","Nitrogen","Oxygen","Argon"],c:2,i:"Humans breathe in oxygen and breathe out carbon dioxide. Oxygen makes up about 21% of air."} },
+  { de:{q:"Was ist Photosynthese?",a:["Atmung","Verdauung","Lichtumwandlung in Energie durch Pflanzen","Verdunstung"],c:2,i:"Bei der Photosynthese wandeln Pflanzen Sonnenlicht, Wasser und CO₂ in Glukose und Sauerstoff um."},
+    en:{q:"What is photosynthesis?",a:["Breathing","Digestion","Light conversion to energy by plants","Evaporation"],c:2,i:"In photosynthesis, plants convert sunlight, water and CO₂ into glucose and oxygen."} },
+  { de:{q:"Wie heißt das schnellste Landtier?",a:["Löwe","Gepard","Puma","Wolf"],c:1,i:"Der Gepard kann kurzfristig über 110 km/h erreichen und ist das schnellste Landtier der Welt."},
+    en:{q:"What is the fastest land animal?",a:["Lion","Cheetah","Puma","Wolf"],c:1,i:"The cheetah can briefly reach over 110 km/h and is the fastest land animal in the world."} },
+  { de:{q:"Aus welchem Element besteht die Sonne hauptsächlich?",a:["Helium","Sauerstoff","Wasserstoff","Kohlenstoff"],c:2,i:"Die Sonne besteht zu ca. 73% aus Wasserstoff. Durch Kernfusion entsteht Helium und Energie."},
+    en:{q:"What element is the Sun mainly made of?",a:["Helium","Oxygen","Hydrogen","Carbon"],c:2,i:"The Sun is about 73% hydrogen. Nuclear fusion converts it to helium and releases energy."} },
+  { de:{q:"Wie viele Knochen hat ein erwachsener Mensch?",a:["156","186","206","226"],c:2,i:"Erwachsene Menschen haben 206 Knochen. Babys haben mehr – diese wachsen beim Heranreifen zusammen."},
+    en:{q:"How many bones does an adult human have?",a:["156","186","206","226"],c:2,i:"Adult humans have 206 bones. Babies have more – these fuse together as they grow up."} },
+  { de:{q:"Was ist das häufigste Gas in der Erdatmosphäre?",a:["Sauerstoff","Kohlendioxid","Stickstoff","Argon"],c:2,i:"Stickstoff (N₂) macht ca. 78% der Erdatmosphäre aus, Sauerstoff ca. 21%."},
+    en:{q:"What is the most common gas in Earth's atmosphere?",a:["Oxygen","Carbon dioxide","Nitrogen","Argon"],c:2,i:"Nitrogen (N₂) makes up about 78% of Earth's atmosphere, oxygen about 21%."} },
+  { de:{q:"Welcher Planet ist der größte im Sonnensystem?",a:["Saturn","Uranus","Jupiter","Neptun"],c:2,i:"Jupiter ist mit einem Durchmesser von ca. 142.000 km der größte Planet – er ist 11× so groß wie die Erde."},
+    en:{q:"Which planet is the largest in the solar system?",a:["Saturn","Uranus","Jupiter","Neptune"],c:2,i:"Jupiter with a diameter of about 142,000 km is the largest planet – 11 times the size of Earth."} },
+  { de:{q:"Wofür steht DNA?",a:["Deoxyribonucleic Acid","Dynamic Nucleic Acid","Dextrose Nuclear Atoms","Digital Nucleotide Analysis"],c:0,i:"DNA (Desoxyribonukleinsäure) trägt die genetische Information aller bekannten Lebewesen."},
+    en:{q:"What does DNA stand for?",a:["Deoxyribonucleic Acid","Dynamic Nucleic Acid","Dextrose Nuclear Atoms","Digital Nucleotide Analysis"],c:0,i:"DNA (Deoxyribonucleic Acid) carries the genetic information of all known living organisms."} },
+  { de:{q:"Was ist das chemische Symbol für Gold?",a:["Ag","Go","Au","Gd"],c:2,i:"Au kommt vom lateinischen Wort 'aurum'. Gold hat die Ordnungszahl 79."},
+    en:{q:"What is the chemical symbol for gold?",a:["Ag","Go","Au","Gd"],c:2,i:"Au comes from the Latin word 'aurum'. Gold has the atomic number 79."} },
 ],
-it:[
-  {q:"Was ist HTML?", a:["Programmiersprache","Auszeichnungssprache","Datenbank"], c:1, i:"HTML strukturiert Webseiten."},
-  {q:"Was bedeutet CPU?", a:["Zentralprozessor","Grafikkarte","RAM"], c:0, i:"CPU ist das Herz des Computers."},
-  {q:"Wofür steht RAM?", a:["Random Access Memory","Read And Move","Rapid Application Module"], c:0, i:"RAM ist der Arbeitsspeicher eines Computers."},
-  {q:"Was ist ein Byte?", a:["8 Bits","16 Bits","32 Bits"], c:0, i:"Ein Byte besteht aus 8 Bits."},
-  {q:"Was ist eine IP-Adresse?", a:["Identifikationsnummer eines Computers im Netzwerk","Passwort","Webadresse"], c:0, i:"IP-Adressen identifizieren Geräte im Netzwerk."},
-  {q:"Welche Programmiersprache ist serverseitig beliebt?", a:["PHP","HTML","CSS"], c:0, i:"PHP wird oft für serverseitige Webseiten verwendet."},
-  {q:"Was ist CSS?", a:["Designsprache","Programmiersprache","Datenbank"], c:0, i:"CSS wird für das Design von Webseiten verwendet."},
-  {q:"Was ist JavaScript?", a:["Programmiersprache","Betriebssystem","Hardware"], c:0, i:"JavaScript wird für dynamische Webseiten genutzt."},
-  {q:"Was macht eine Firewall?", a:["Blockiert ungewollten Zugriff","Beschleunigt Internet","Speichert Daten"], c:0, i:"Firewalls schützen Netzwerke vor unerwünschtem Zugriff."},
-  {q:"Was ist eine Domain?", a:["Webadresse","Prozessor","RAM"], c:0, i:"Eine Domain ist die Adresse einer Webseite."}
-]
+it: [
+  { de:{q:"Was ist HTML?",a:["Programmiersprache","Datenbank","Auszeichnungssprache","Betriebssystem"],c:2,i:"HTML (HyperText Markup Language) strukturiert Webseiten. Sie ist keine Programmiersprache."},
+    en:{q:"What is HTML?",a:["Programming language","Database","Markup language","Operating system"],c:2,i:"HTML (HyperText Markup Language) structures web pages. It is not a programming language."} },
+  { de:{q:"Was bedeutet CPU?",a:["Central Power Unit","Central Processing Unit","Core Program Utility","Computer Protocol Unit"],c:1,i:"CPU (Central Processing Unit) ist der Hauptprozessor – das 'Gehirn' des Computers."},
+    en:{q:"What does CPU stand for?",a:["Central Power Unit","Central Processing Unit","Core Program Utility","Computer Protocol Unit"],c:1,i:"CPU (Central Processing Unit) is the main processor – the 'brain' of the computer."} },
+  { de:{q:"Was ist ein Byte?",a:["4 Bits","8 Bits","16 Bits","32 Bits"],c:1,i:"Ein Byte besteht aus 8 Bits. Ein Kilobyte (KB) hat 1024 Bytes."},
+    en:{q:"What is a byte?",a:["4 bits","8 bits","16 bits","32 bits"],c:1,i:"A byte consists of 8 bits. A kilobyte (KB) has 1,024 bytes."} },
+  { de:{q:"Was ist CSS?",a:["Programmiersprache","Stylesheet-Sprache für Design","Datenbank","Server-Protokoll"],c:1,i:"CSS (Cascading Style Sheets) definiert das Aussehen von HTML-Elementen."},
+    en:{q:"What is CSS?",a:["Programming language","Stylesheet language for design","Database","Server protocol"],c:1,i:"CSS (Cascading Style Sheets) defines the appearance of HTML elements."} },
+  { de:{q:"Was ist JavaScript?",a:["Betriebssystem","Datenbanksprache","Skriptsprache für Webseiten","Hardware-Protokoll"],c:2,i:"JavaScript macht Webseiten dynamisch und interaktiv und läuft im Browser."},
+    en:{q:"What is JavaScript?",a:["Operating system","Database language","Scripting language for websites","Hardware protocol"],c:2,i:"JavaScript makes websites dynamic and interactive and runs in the browser."} },
+  { de:{q:"Was macht eine Firewall?",a:["Beschleunigt Internet","Speichert Daten","Schützt vor ungewolltem Netzwerkzugriff","Verbindet Netzwerke"],c:2,i:"Eine Firewall überwacht den Datenverkehr und blockiert unerwünschte Verbindungen."},
+    en:{q:"What does a firewall do?",a:["Speeds up internet","Stores data","Protects against unwanted network access","Connects networks"],c:2,i:"A firewall monitors network traffic and blocks unwanted connections."} },
+  { de:{q:"Wann wurde das Internet (ARPANET) erfunden?",a:["1959","1969","1979","1989"],c:1,i:"Das ARPANET, der Vorläufer des Internets, wurde 1969 vom US-Militär entwickelt."},
+    en:{q:"When was the internet (ARPANET) invented?",a:["1959","1969","1979","1989"],c:1,i:"ARPANET, the precursor to the internet, was developed by the US military in 1969."} },
+  { de:{q:"Was steht für RAM?",a:["Random Access Memory","Read And Move","Rapid Application Module","Redundant Array Memory"],c:0,i:"RAM (Random Access Memory) ist der flüchtige Arbeitsspeicher – er verliert Daten ohne Strom."},
+    en:{q:"What does RAM stand for?",a:["Random Access Memory","Read And Move","Rapid Application Module","Redundant Array Memory"],c:0,i:"RAM (Random Access Memory) is volatile memory – it loses data without power."} },
+  { de:{q:"Welches Unternehmen entwickelte Android?",a:["Apple","Microsoft","Google","Samsung"],c:2,i:"Google übernahm Android Inc. 2005 und entwickelte es zum weltweit meistgenutzten Smartphone-OS."},
+    en:{q:"Which company developed Android?",a:["Apple","Microsoft","Google","Samsung"],c:2,i:"Google acquired Android Inc. in 2005 and developed it into the world's most used smartphone OS."} },
+  { de:{q:"Was ist Python?",a:["Eine Schlange","Eine Programmiersprache","Ein Betriebssystem","Ein Netzwerkprotokoll"],c:1,i:"Python ist eine weit verbreitete, leicht erlernbare Programmiersprache, die u.a. für KI und Data Science genutzt wird."},
+    en:{q:"What is Python?",a:["A snake","A programming language","An operating system","A network protocol"],c:1,i:"Python is a widely used, easy-to-learn programming language used for AI, data science and more."} },
+],
+geografie: [
+  { de:{q:"Was ist die Hauptstadt Australiens?",a:["Sydney","Melbourne","Brisbane","Canberra"],c:3,i:"Canberra ist die Hauptstadt Australiens – als Kompromiss zwischen Sydney und Melbourne gegründet."},
+    en:{q:"What is the capital of Australia?",a:["Sydney","Melbourne","Brisbane","Canberra"],c:3,i:"Canberra is Australia's capital – founded as a compromise between Sydney and Melbourne."} },
+  { de:{q:"Welcher Fluss ist der längste der Welt?",a:["Amazonas","Jangtse","Nil","Mississippi"],c:2,i:"Der Nil (ca. 6.650 km) gilt als längster Fluss. Der Amazonas führt aber das meiste Wasser."},
+    en:{q:"Which river is the longest in the world?",a:["Amazon","Yangtze","Nile","Mississippi"],c:2,i:"The Nile (approx. 6,650 km) is considered the longest river. The Amazon carries the most water."} },
+  { de:{q:"Was ist der höchste Berg der Welt?",a:["K2","Kangchendzönga","Mount Everest","Lhotse"],c:2,i:"Der Mount Everest (8.849 m) ist der höchste Berg, gelegen im Himalaya zwischen Nepal und Tibet."},
+    en:{q:"What is the highest mountain in the world?",a:["K2","Kangchenjunga","Mount Everest","Lhotse"],c:2,i:"Mount Everest (8,849 m) is the highest mountain, in the Himalayas between Nepal and Tibet."} },
+  { de:{q:"In welchem Land liegt der Amazonas-Regenwald hauptsächlich?",a:["Kolumbien","Peru","Venezuela","Brasilien"],c:3,i:"Ca. 60 % des Amazonas-Regenwalds liegt in Brasilien. Er ist der größte Regenwald der Erde."},
+    en:{q:"In which country is the Amazon rainforest mainly located?",a:["Colombia","Peru","Venezuela","Brazil"],c:3,i:"About 60% of the Amazon rainforest lies in Brazil. It is the largest rainforest on Earth."} },
+  { de:{q:"Welches Land hat die größte Bevölkerung?",a:["Indien","China","USA","Indonesien"],c:0,i:"Indien überholte China 2023 und hat nun die größte Bevölkerung der Welt mit über 1,4 Milliarden Menschen."},
+    en:{q:"Which country has the largest population?",a:["India","China","USA","Indonesia"],c:0,i:"India overtook China in 2023 and now has the world's largest population with over 1.4 billion people."} },
+  { de:{q:"Welches ist das flächenmäßig größte Land der Welt?",a:["Kanada","USA","Russland","China"],c:2,i:"Russland ist mit ca. 17,1 Millionen km² das flächenmäßig größte Land der Welt."},
+    en:{q:"Which is the largest country by area?",a:["Canada","USA","Russia","China"],c:2,i:"Russia is the largest country in the world by area at approximately 17.1 million km²."} },
+],
+sport: [
+  { de:{q:"In welchem Land wurde Fußball erfunden?",a:["Deutschland","Spanien","England","Brasilien"],c:2,i:"Die modernen Fußballregeln wurden 1863 in England vom Football Association festgelegt."},
+    en:{q:"In which country was football (soccer) invented?",a:["Germany","Spain","England","Brazil"],c:2,i:"The modern rules of football were established in England in 1863 by the Football Association."} },
+  { de:{q:"Wie oft findet die Fußball-Weltmeisterschaft statt?",a:["Jährlich","Alle 2 Jahre","Alle 4 Jahre","Alle 6 Jahre"],c:2,i:"Die FIFA-WM findet alle 4 Jahre statt und ist das meistgesehene Sportereignis weltweit."},
+    en:{q:"How often does the Football World Cup take place?",a:["Annually","Every 2 years","Every 4 years","Every 6 years"],c:2,i:"The FIFA World Cup takes place every 4 years and is the most-watched sporting event worldwide."} },
+  { de:{q:"Wie viele Spieler hat eine Fußballmannschaft auf dem Platz?",a:["9","10","11","12"],c:2,i:"Jede Fußballmannschaft hat 11 Spieler auf dem Platz, inklusive Torwart."},
+    en:{q:"How many players does a football team have on the pitch?",a:["9","10","11","12"],c:2,i:"Each football team has 11 players on the pitch, including the goalkeeper."} },
+  { de:{q:"In welchem Land finden die Olympischen Ursprungsspiele statt?",a:["Italien","Griechenland","Türkei","Ägypten"],c:1,i:"Die antiken Olympischen Spiele fanden in Olympia, Griechenland, statt. 1896 wurden sie in Athen neu belebt."},
+    en:{q:"In which country did the ancient Olympic Games take place?",a:["Italy","Greece","Turkey","Egypt"],c:1,i:"The ancient Olympic Games took place in Olympia, Greece. They were revived in Athens in 1896."} },
+  { de:{q:"Über welche Distanz läuft man einen Marathon?",a:["21,1 km","40,0 km","42,195 km","50,0 km"],c:2,i:"Ein Marathon ist 42,195 km lang. Die Distanz geht auf die Legende des griechischen Läufers Pheidippides zurück."},
+    en:{q:"What distance is a marathon?",a:["21.1 km","40.0 km","42.195 km","50.0 km"],c:2,i:"A marathon is 42.195 km. The distance is based on the legend of the Greek runner Pheidippides."} },
+],
+kultur: [
+  { de:{q:"Wer schrieb Romeo und Julia?",a:["Dickens","Goethe","Shakespeare","Victor Hugo"],c:2,i:"Romeo und Julia wurde von William Shakespeare um 1597 geschrieben."},
+    en:{q:"Who wrote Romeo and Juliet?",a:["Dickens","Goethe","Shakespeare","Victor Hugo"],c:2,i:"Romeo and Juliet was written by William Shakespeare around 1597."} },
+  { de:{q:"In welchem Museum hängt die Mona Lisa?",a:["British Museum","Prado","Louvre","Uffizien"],c:2,i:"Die Mona Lisa hängt im Louvre in Paris, hinter Panzerglas."},
+    en:{q:"In which museum is the Mona Lisa displayed?",a:["British Museum","Prado","Louvre","Uffizi"],c:2,i:"The Mona Lisa hangs in the Louvre in Paris, behind bulletproof glass."} },
+  { de:{q:"Wer komponierte die 9. Sinfonie (Ode an die Freude)?",a:["Mozart","Bach","Beethoven","Brahms"],c:2,i:"Ludwig van Beethoven komponierte die 9. Sinfonie – obwohl er zu diesem Zeitpunkt bereits vollständig taub war."},
+    en:{q:"Who composed the 9th Symphony (Ode to Joy)?",a:["Mozart","Bach","Beethoven","Brahms"],c:2,i:"Ludwig van Beethoven composed the 9th Symphony – even though he was completely deaf at the time."} },
+  { de:{q:"Welche Sprache wird von den meisten Menschen als Muttersprache gesprochen?",a:["Englisch","Spanisch","Mandarin-Chinesisch","Hindi"],c:2,i:"Mandarin-Chinesisch hat über 900 Millionen Muttersprachler und ist damit die meistgesprochene Muttersprache."},
+    en:{q:"Which language has the most native speakers?",a:["English","Spanish","Mandarin Chinese","Hindi"],c:2,i:"Mandarin Chinese has over 900 million native speakers, making it the most spoken mother tongue."} },
+  { de:{q:"Wer malte die Sixtinische Kapelle aus?",a:["Leonardo da Vinci","Raphael","Michelangelo","Botticelli"],c:2,i:"Michelangelo malte die Decke der Sixtinischen Kapelle zwischen 1508 und 1512."},
+    en:{q:"Who painted the Sistine Chapel?",a:["Leonardo da Vinci","Raphael","Michelangelo","Botticelli"],c:2,i:"Michelangelo painted the ceiling of the Sistine Chapel between 1508 and 1512."} },
+],
 };
 
+/* ─── GAME STATE ─── */
+let players=[], scores=[], currentP=0, questions=[], limit=0, timerValue=0, points=1;
+let interval=null, currentQ=null;
+
+function getQ(q){ return q[LANG] || q.de; }
+function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
 
 function nameSetup(){
-    let c = parseInt(document.getElementById("playerCount").value);
-    let nameInputsDiv = document.getElementById("nameInputs");
-    nameInputsDiv.innerHTML="";
-    for(let i=0;i<c;i++){
-        nameInputsDiv.innerHTML+=`<input id="n${i}" placeholder="Spieler ${i+1}"><br>`;
-    }
-    document.getElementById("start").classList.add("hidden");
-    document.getElementById("names").classList.remove("hidden");
+  const c = parseInt(document.getElementById('playerCount').value);
+  const div = document.getElementById('nameInputs');
+  div.innerHTML = '';
+  for(let i=0;i<c;i++){
+    const placeholder = LANG==='de' ? `Spieler ${i+1}` : `Player ${i+1}`;
+    div.innerHTML += `<input id="n${i}" placeholder="${placeholder}"><br>`;
+  }
+  show('names');
 }
 
 function startGame(){
-    let c = parseInt(document.getElementById("playerCount").value);
-    players=[]; scores=[];
-    for(let i=0;i<c;i++){
-        let name=document.getElementById(`n${i}`).value||`Spieler ${i+1}`;
-        players.push(name); scores.push(0);
-    }
-    limit=parseInt(document.getElementById("questionLimit").value);
-    timerValue=parseInt(document.getElementById("timeLimit").value);
-    points={"leicht":1,"mittel":2,"schwer":3}[document.getElementById("difficulty").value];
-    
-    // Kategorie wählen
-    let cat=document.getElementById("category").value;
-    if(cat==="all"){
-        questions=[];
-        for(let k in pool) questions=questions.concat(pool[k]);
-    } else {
-        questions=[...pool[cat]];
-    }
-    shuffle(questions);
-    
-    document.getElementById("names").classList.add("hidden");
-    document.getElementById("game").classList.remove("hidden");
-    next();
+  const c = parseInt(document.getElementById('playerCount').value);
+  players=[]; scores=[];
+  for(let i=0;i<c;i++){
+    const name = document.getElementById(`n${i}`).value.trim() ||
+      (LANG==='de' ? `Spieler ${i+1}` : `Player ${i+1}`);
+    players.push(name); scores.push(0);
+  }
+  limit       = parseInt(document.getElementById('questionLimit').value);
+  timerValue  = parseInt(document.getElementById('timeLimit').value);
+  points      = {leicht:1, mittel:2, schwer:3}[document.getElementById('difficulty').value];
+  const cat   = document.getElementById('category').value;
+  let all = [];
+  if(cat==='all'){ for(let k in pool) all=all.concat(pool[k]); }
+  else all = [...pool[cat]||[]];
+  questions = shuffle(all);
+  currentP = 0;
+  show('game');
+  nextQ();
 }
 
-// Weiter mit Button oder Leertaste
-document.addEventListener("keydown", function(e){
-    if(e.code==="Space" && !document.getElementById("next").classList.contains("hidden")){
-        e.preventDefault(); next();
-    }
+document.addEventListener('keydown', e=>{
+  if(e.code==='Space' && !document.getElementById('next').classList.contains('hidden')){
+    e.preventDefault(); nextQ();
+  }
 });
 
-function next(){
-    if(limit<=0 || questions.length===0) return finish();
-    limit--;
-    document.getElementById("info").classList.add("hidden");
-    document.getElementById("next").classList.add("hidden");
-    
-    currentQ = questions.pop();
-    document.getElementById("turn").innerText=`${players[current]} (${scores[current]} Punkte)`;
-    document.getElementById("question").innerText=currentQ.q;
-    
-    let answersDiv = document.getElementById("answers");
-    answersDiv.innerHTML="";
-    currentQ.a.forEach((ans,i)=>{
-        let btn=document.createElement("button");
-        btn.className="answer-btn"; btn.innerText=ans;
-        btn.onclick=()=>answer(i);
-        answersDiv.appendChild(btn);
-    });
-    
-    startTimer();
+function nextQ(){
+  if(limit <= 0 || questions.length === 0){ finish(); return; }
+  limit--;
+  document.getElementById('info').classList.add('hidden');
+  document.getElementById('next').classList.add('hidden');
+  currentQ = questions.pop();
+  const qData = getQ(currentQ);
+  const pts = LANG==='de' ? 'Punkte' : 'pts';
+  document.getElementById('turn').textContent = `${players[currentP]} (${scores[currentP]} ${pts})`;
+  document.getElementById('question').textContent = qData.q;
+  const answersDiv = document.getElementById('answers');
+  answersDiv.innerHTML = '';
+  qData.a.forEach((ans,i)=>{
+    const btn = document.createElement('button');
+    btn.className='answer-btn'; btn.textContent=ans;
+    btn.onclick=()=>answer(i,qData);
+    answersDiv.appendChild(btn);
+  });
+  startTimer();
 }
 
 function startTimer(){
-    let t=timerValue;
-    let timerDiv = document.getElementById("timer");
-    timerDiv.innerText=`⏱ ${t}s`;
-    clearInterval(interval);
-    interval=setInterval(()=>{
-        t--;
-        timerDiv.innerText=`⏱ ${t}s`;
-        if(t<=0){clearInterval(interval);answer(-1);}
-    },1000);
+  let t = timerValue;
+  const td = document.getElementById('timer');
+  td.textContent = `⏱ ${t}s`;
+  clearInterval(interval);
+  interval = setInterval(()=>{
+    t--;
+    td.textContent = `⏱ ${t}s`;
+    if(t<=0){ clearInterval(interval); answer(-1, getQ(currentQ)); }
+  },1000);
 }
 
-function answer(i){
-    clearInterval(interval);
-    document.querySelectorAll(".answer-btn").forEach(b=>b.disabled=true);
-    let infoDiv=document.getElementById("info");
-    infoDiv.classList.remove("hidden","good","bad");
-    
-    if(i===currentQ.c){
-        scores[current]+=points;
-        infoDiv.classList.add("good");
-        infoDiv.innerHTML="✅ Richtig<br>"+currentQ.i;
-    } else {
-        infoDiv.classList.add("bad");
-        infoDiv.innerHTML="❌ Falsch<br>"+currentQ.i;
-    }
-    
-    document.getElementById("next").classList.remove("hidden");
-    current=(current+1)%players.length;
+function answer(i, qData){
+  clearInterval(interval);
+  document.querySelectorAll('.answer-btn').forEach(b=>b.disabled=true);
+  const infoDiv = document.getElementById('info');
+  infoDiv.classList.remove('hidden','good','bad');
+  if(i===qData.c){
+    scores[currentP]+=points;
+    infoDiv.classList.add('good');
+    infoDiv.innerHTML=`✅ ${LANG==='de'?'Richtig':'Correct'}<br>${qData.i}`;
+  } else {
+    infoDiv.classList.add('bad');
+    const corr = qData.a[qData.c];
+    infoDiv.innerHTML=`❌ ${LANG==='de'?`Falsch! Richtig: ${corr}`:`Wrong! Correct: ${corr}`}<br>${qData.i}`;
+  }
+  document.getElementById('next').classList.remove('hidden');
+  currentP = (currentP+1) % players.length;
 }
 
 function finish(){
-    document.getElementById("game").classList.add("hidden");
-    document.getElementById("result").classList.remove("hidden");
-    let rank=players.map((p,i)=>({p,s:scores[i]})).sort((a,b)=>b.s-b.s);
-    document.getElementById("ranking").innerHTML=rank.map((r,i)=>`${i+1}. ${r.p} – ${r.s} Punkte`).join("<br>");
+  clearInterval(interval);
+  show('result');
+  const ranked = players.map((p,i)=>({p,s:scores[i]})).sort((a,b)=>b.s-a.s);
+  const medals = ['🥇','🥈','🥉'];
+  const pts = LANG==='de' ? 'Punkte' : 'pts';
+  document.getElementById('ranking').innerHTML =
+    ranked.map((r,i)=>`${medals[i]||`${i+1}.`} ${r.p} – ${r.s} ${pts}`).join('<br>');
 }
 
-function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}}
+function show(id){
+  ['start','names','game','result'].forEach(s=>document.getElementById(s).classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+  applyLang(LANG);
+}
 </script>
 </body>
 </html>
-
