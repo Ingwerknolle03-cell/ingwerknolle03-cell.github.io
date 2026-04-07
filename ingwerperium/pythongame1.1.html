@@ -74,14 +74,23 @@ header {
   flex: 1; position: relative; overflow: hidden;
 }
 canvas {
-  display: block; width: 100%; height: 100%;
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
 }
 
 /* ─── OVERLAY ─── */
 #overlay {
-  position: absolute; inset: 0; z-index: 100;
-  display: flex; align-items: center; justify-content: center;
-  background: rgba(8,8,14,0.7); backdrop-filter: blur(8px);
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8,8,14,0.35);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   pointer-events: none;
 }
 #overlay.active { pointer-events: all; }
@@ -245,34 +254,22 @@ function applyLang(lang){
 window.switchLang = function(l){ applyLang(l); };
 applyLang(LANG);
 
+/* ─── CANVAS SETUP ─── */
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-
 let cw, ch;
-
 function resize(){
   const wrapper = document.getElementById('gameWrapper');
   const dpr = window.devicePixelRatio || 1;
-
-  const width = wrapper.clientWidth;
-  const height = wrapper.clientHeight;
-
-  // echte Pixel (hochaufgelöst)
-  canvas.width = width * dpr;
-  canvas.height = height * dpr;
-
-  // visuelle Größe (bleibt gleich)
-  canvas.style.width = width + "px";
-  canvas.style.height = height + "px";
-
-  // wichtig: alles skalieren
+  cw = wrapper.clientWidth;
+  ch = wrapper.clientHeight;
+  canvas.style.width = cw + 'px';
+  canvas.style.height = ch + 'px';
+  canvas.width = Math.round(cw * dpr);
+  canvas.height = Math.round(ch * dpr);
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-  // für dein Game wichtig
-  cw = width;
-  ch = height;
+  ctx.imageSmoothingEnabled = false;
 }
-
 window.addEventListener('resize', resize);
 resize();
 
@@ -309,11 +306,11 @@ const tasks = [
   {q_de:"x=5; x>3?",  q_en:"x=5; x>3?",    a:["True","False","Error"], c:0},
   {q_de:"type(3.14)?", q_en:"type(3.14)?",  a:["int","float","str"], c:1},
   {q_de:"10-7=?",      q_en:"10-7=?",       a:["2","3","4"], c:1},
-  {q_de:"2*3=?",       q_en:"2*3=?",        a:["5","6","7"], c:1},
-  {q_de:"5%2=?",       q_en:"5%2=?",        a:["2","1","0"], c:1},
-  {q_de:"bool(0)?",    q_en:"bool(0)?",     a:["True","False","Error"], c:1},
-  {q_de:"bool(1)?",    q_en:"bool(1)?",     a:["True","False","Error"], c:0},
-  {q_de:"not True?",   q_en:"not True?",    a:["False","True","Error"], c:0},
+  {q_de:"2*3=?",       q_en:"2*3=?",       a:["5","6","7"], c:1},
+  {q_de:"5%2=?",       q_en:"5%2=?",       a:["2","1","0"], c:1},
+  {q_de:"bool(0)?",    q_en:"bool(0)?",    a:["True","False","Error"], c:1},
+  {q_de:"bool(1)?",    q_en:"bool(1)?",    a:["True","False","Error"], c:0},
+  {q_de:"not True?",   q_en:"not True?",   a:["False","True","Error"], c:0},
   {q_de:"5>3?",        q_en:"5>3?",         a:["True","False","Error"], c:0},
   {q_de:"3==3?",       q_en:"3==3?",        a:["True","False","Error"], c:0},
   {q_de:"x=5; x+=2; x?", q_en:"x=5; x+=2; x?", a:["5","7","2"], c:1},
@@ -398,7 +395,6 @@ function update(){
   if(keys['ArrowRight']||keys['d']) dx= speed;
   mapOffset.x+=dx; mapOffset.y+=dy;
 
-  // Spawn more clusters
   if(aiClusters.length < 20){
     const cx = (Math.random()-0.5)*3000 + mapOffset.x;
     const cy = (Math.random()-0.5)*3000 + mapOffset.y;
@@ -423,7 +419,6 @@ function draw(){
   ctx.fillStyle='#0e0e18';
   ctx.fillRect(0,0,cw,ch);
 
-  // grid
   ctx.strokeStyle='rgba(255,255,255,0.03)';
   ctx.lineWidth=1;
   const gs=80;
@@ -432,7 +427,6 @@ function draw(){
   for(let x=ox;x<cw;x+=gs){ ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,ch);ctx.stroke(); }
   for(let y=oy;y<ch;y+=gs){ ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(cw,y);ctx.stroke(); }
 
-  // clusters
   aiClusters.forEach(cluster=>{
     cluster.os.forEach(o=>{
       const sx = o.x - mapOffset.x;
@@ -443,7 +437,6 @@ function draw(){
       ctx.beginPath(); ctx.roundRect(sx-12,sy-12,24,24,6); ctx.fill();
       ctx.shadowBlur=0;
     });
-    // label
     const lx=cluster.x-mapOffset.x, ly=cluster.y-mapOffset.y;
     if(lx>-100&&lx<cw+100&&ly>-100&&ly<ch+100){
       ctx.fillStyle=cluster.type.color;
@@ -453,7 +446,6 @@ function draw(){
     }
   });
 
-  // player
   const px=cw/2, py=ch/2;
   ctx.shadowBlur=20; ctx.shadowColor=var_accent();
   ctx.fillStyle='#7c5cfc';
@@ -465,7 +457,6 @@ function draw(){
   ctx.fillText('⚡',px,py);
   ctx.textBaseline='alphabetic';
 
-  // score
   document.getElementById('scoreVal').textContent = score;
 }
 
