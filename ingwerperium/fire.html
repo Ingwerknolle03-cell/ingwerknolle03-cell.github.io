@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Forum Ingwerperium Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0a0a0f; --surface:#111118; --surface2:#17171f; --surface3:#1e1e2a;
+      --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.12);
+      --accent:#7c5cfc; --accent2:#00d4ff; --green:#00c87a; --red:#ff6b6b;
+      --yellow:#ffd166; --text:#e8e8f0; --text-muted:#888898; --text-dim:#555566;
+      --glow:rgba(124,92,252,0.25); --radius:16px; --radius-sm:10px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{
+      background:var(--bg); color:var(--text); font-family:"DM Sans",sans-serif;
+      min-height:100vh; display:flex; flex-direction:column;
+    }
+    body::before{
+      content:""; position:fixed; inset:0;
+      background:
+        radial-gradient(ellipse at 20% 0%, rgba(124,92,252,.07), transparent 55%),
+        radial-gradient(ellipse at 80% 90%, rgba(0,212,255,.05), transparent 55%);
+      pointer-events:none; z-index:0;
+    }
+    .page-wrap{
+      position:relative; z-index:1; max-width:1100px; margin:0 auto; width:100%;
+      padding:48px 32px 80px; display:grid; grid-template-columns:1fr 300px; gap:28px;
+      align-items:start;
+    }
+    header{
+      position:sticky; top:0; z-index:200; padding:0 32px; height:64px;
+      display:flex; align-items:center; justify-content:space-between;
+      background:rgba(10,10,15,.92); backdrop-filter:blur(20px); border-bottom:1px solid var(--border);
+    }
+    .header-logo{
+      font-family:"Space Mono",monospace; font-size:.85rem; font-weight:700;
+      color:var(--text-muted); text-decoration:none; display:flex; align-items:center; gap:8px;
+    }
+    .logo-dot,.forum-live-dot,.online-dot{border-radius:50%}
+    .logo-dot{width:7px;height:7px;background:var(--accent);box-shadow:0 0 10px var(--accent)}
+    .header-title{
+      font-family:"Space Mono",monospace; font-size:.95rem; font-weight:700; color:var(--text);
+      padding-left:20px; border-left:1px solid var(--border); display:flex; align-items:center; gap:8px;
+    }
+    .forum-live-dot{width:6px;height:6px;background:var(--green);box-shadow:0 0 8px var(--green)}
+    .header-nav{display:flex; align-items:center; gap:8px}
+    .user-chip,.lang-btn{
+      padding:6px 12px; border-radius:8px; font-family:"Space Mono",monospace;
+      font-size:.75rem; cursor:pointer; transition:.2s; display:flex; align-items:center; gap:6px;
+      border:1px solid var(--border2); background:var(--surface2); color:var(--text-muted);
+    }
+    .user-chip:hover,.lang-btn:hover{border-color:var(--accent); color:var(--text)}
+    .lang-btn{border-color:var(--accent); background:rgba(124,92,252,.12); color:var(--accent); font-weight:700}
+    .user-avatar-sm,.user-avatar,.profile-avatar-big{
+      display:flex; align-items:center; justify-content:center; border-radius:50%; font-weight:700;
+      font-family:"Space Mono",monospace; overflow:hidden;
+    }
+    .user-avatar-sm{width:20px;height:20px;font-size:.6rem;flex-shrink:0}
+    .user-avatar-sm img,.user-avatar img,.profile-avatar-big img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+    .forum-hero{margin-bottom:32px}
+    .forum-label{
+      font-family:"Space Mono",monospace; font-size:.65rem; letter-spacing:.2em; text-transform:uppercase;
+      color:var(--accent); margin-bottom:10px; display:flex; align-items:center; gap:10px;
+    }
+    .forum-label::before{content:""; width:16px; height:1px; background:var(--accent)}
+    .forum-hero h1{
+      font-family:"Space Mono",monospace; font-size:2rem; font-weight:700; color:var(--text);
+      letter-spacing:-.02em; margin-bottom:6px;
+    }
+    .forum-hero p{color:var(--text-muted); font-size:.9rem; line-height:1.6}
+    .filters-row{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:24px}
+    .cat-btn{
+      padding:7px 16px; border:1px solid var(--border); border-radius:20px; background:transparent;
+      color:var(--text-muted); font-size:.82rem; font-weight:500; cursor:pointer; transition:.2s;
+    }
+    .cat-btn.active,.cat-btn:hover{border-color:var(--accent); color:var(--text); background:rgba(124,92,252,.1)}
+    .new-post-card,.sidebar-card,.post-card{
+      background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+    }
+    .new-post-card{padding:24px; margin-bottom:24px; position:relative; overflow:hidden}
+    .new-post-card::before{
+      content:""; position:absolute; top:0; left:0; right:0; height:2px;
+      background:linear-gradient(90deg,var(--accent),var(--accent2),transparent);
+    }
+    .new-post-top{display:flex; gap:12px; align-items:flex-start; margin-bottom:14px}
+    .user-avatar{width:36px;height:36px; flex-shrink:0; font-size:.75rem;}
+    .post-inputs{flex:1; display:flex; flex-direction:column; gap:10px}
+    .post-title-input,.post-textarea,.post-input,.search-input,.name-input,.modal-name-input,.reply-input,.cat-select,.sort-select,.post-bio-input{
+      width:100%; padding:10px 14px; background:var(--surface2); border:1px solid var(--border);
+      border-radius:var(--radius-sm); color:var(--text); font-family:"DM Sans",sans-serif;
+      font-size:.9rem; outline:none; transition:border-color .2s;
+    }
+    .post-title-input:focus,.post-textarea:focus,.post-input:focus,.search-input:focus,.name-input:focus,.modal-name-input:focus,.reply-input:focus,.cat-select:focus,.sort-select:focus,.post-bio-input:focus{
+      border-color:var(--accent); box-shadow:0 0 0 3px rgba(124,92,252,.1);
+    }
+    .post-title-input::placeholder,.post-textarea::placeholder,.search-input::placeholder,.name-input::placeholder,.modal-name-input::placeholder,.reply-input::placeholder,.post-bio-input::placeholder{color:var(--text-dim)}
+    .post-textarea{resize:vertical; min-height:90px; line-height:1.6}
+    .post-controls{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap}
+    .submit-btn,.save-name-btn,.modal-submit,.reply-submit{
+      border:none; border-radius:var(--radius-sm); cursor:pointer; transition:.2s; font-weight:700;
+      font-family:"Space Mono",monospace;
+    }
+    .submit-btn,.modal-submit{
+      padding:10px 24px; background:linear-gradient(135deg,var(--accent),#5a3dd8); color:#fff; font-size:.82rem; letter-spacing:.04em;
+    }
+    .submit-btn:hover,.modal-submit:hover,.save-name-btn:hover,.reply-submit:hover{transform:translateY(-1px)}
+    .submit-btn:disabled{opacity:.5; cursor:not-allowed; transform:none}
+    .cat-select,.sort-select{font-size:.82rem; color:var(--text-muted)}
+    .posts-header{display:flex; align-items:center; justify-content:space-between; margin-bottom:16px}
+    .posts-title{
+      font-family:"Space Mono",monospace; font-size:.7rem; letter-spacing:.15em; text-transform:uppercase;
+      color:var(--text-dim); display:flex; align-items:center; gap:10px; flex:1;
+    }
+    .posts-title::after{content:""; flex:1; height:1px; background:var(--border)}
+    .post-count{color:var(--accent); font-weight:700}
+    .post-card{padding:20px 24px; margin-bottom:14px; transition:border-color .2s,box-shadow .2s}
+    .post-card:hover{border-color:rgba(124,92,252,.25); box-shadow:0 4px 24px rgba(124,92,252,.06)}
+    .post-card.pinned{border-color:rgba(255,209,102,.3); background:rgba(255,209,102,.03)}
+    .post-header,.post-author-row,.reply-author-row,.post-footer,.reply-input-wrap{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+    .post-header{gap:12px; margin-bottom:10px}
+    .post-meta{flex:1; min-width:0}
+    .post-author-row{gap:8px; margin-bottom:3px}
+    .post-author,.reply-author{font-family:"Space Mono",monospace; font-weight:700}
+    .post-author{font-size:.8rem; color:var(--text)}
+    .post-time,.reply-time{font-size:.75rem; color:var(--text-dim)}
+    .cat-badge,.pin-badge{
+      padding:3px 9px; border-radius:5px; font-family:"Space Mono",monospace; font-weight:700; letter-spacing:.05em;
+      text-transform:uppercase;
+    }
+    .cat-badge{font-size:.62rem}
+    .pin-badge{font-size:.6rem; background:rgba(255,209,102,.12); border:1px solid rgba(255,209,102,.25); color:var(--yellow)}
+    .post-title{font-weight:600; font-size:1rem; color:var(--text); margin-bottom:8px; line-height:1.4}
+    .post-body{
+      color:var(--text-muted); font-size:.875rem; line-height:1.7; margin-bottom:14px; white-space:pre-wrap; word-break:break-word;
+    }
+    .post-body.collapsed{
+      display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
+    }
+    .read-more,.action-btn{background:none; border:none; padding:0; cursor:pointer;}
+    .read-more{font-size:.78rem; color:var(--accent)}
+    .action-btn{
+      display:flex; align-items:center; gap:6px; padding:6px 12px; border:1px solid var(--border); border-radius:7px;
+      background:transparent; color:var(--text-muted); font-family:"Space Mono",monospace; font-size:.72rem;
+    }
+    .action-btn:hover{border-color:var(--accent); color:var(--accent)}
+    .action-btn.liked{border-color:rgba(255,107,107,.4); color:var(--red); background:rgba(255,107,107,.08)}
+    .action-btn.report-btn:hover{border-color:rgba(255,107,107,.4); color:var(--red)}
+    .replies-wrap{margin-top:14px; padding-top:14px; border-top:1px solid var(--border); display:none}
+    .replies-wrap.open{display:block}
+    .reply-card{
+      display:flex; gap:10px; margin-bottom:10px; padding:12px 14px; background:var(--surface2);
+      border-radius:var(--radius-sm); border-left:2px solid var(--accent);
+    }
+    .reply-body{flex:1}
+    .reply-author-row{gap:8px; margin-bottom:4px}
+    .reply-author{font-size:.75rem; color:var(--text)}
+    .reply-text{font-size:.85rem; color:var(--text-muted); line-height:1.6; white-space:pre-wrap; word-break:break-word}
+    .reply-input-wrap{margin-top:10px}
+    .reply-input{flex:1; font-size:.85rem; padding:9px 12px}
+    .reply-submit{padding:9px 16px; background:rgba(124,92,252,.15); border:1px solid rgba(124,92,252,.3); color:var(--accent); font-size:.75rem}
+    .sidebar{display:flex; flex-direction:column; gap:16px}
+    .sidebar-card{padding:20px}
+    .sidebar-title{
+      font-family:"Space Mono",monospace; font-size:.65rem; letter-spacing:.15em; text-transform:uppercase;
+      color:var(--text-dim); margin-bottom:14px; display:flex; align-items:center; gap:8px; cursor:pointer; user-select:none;
+    }
+    .sidebar-title::after{content:""; flex:1; height:1px; background:var(--border)}
+    .sidebar-title .collapse-arrow{margin-left:4px; transition:transform .25s; font-style:normal; font-size:.8rem}
+    .sidebar-title.collapsed-title .collapse-arrow{transform:rotate(-90deg)}
+    .sidebar-card-body{overflow:hidden; transition:max-height .3s ease, opacity .3s ease; max-height:600px; opacity:1}
+    .sidebar-card-body.hidden{max-height:0; opacity:0; pointer-events:none}
+    .profile-display{text-align:center}
+    .profile-avatar-big{
+      width:64px;height:64px;font-size:1.2rem;margin:0 auto 10px; position:relative; cursor:pointer;
+    }
+    .profile-avatar-big:hover::after{
+      content:"📷"; position:absolute; inset:0; border-radius:50%; background:rgba(0,0,0,.55);
+      display:flex; align-items:center; justify-content:center; font-size:1.3rem;
+    }
+    .avatar-upload-input{display:none}
+    .profile-name{font-family:"Space Mono",monospace; font-size:.9rem; font-weight:700; margin-bottom:2px}
+    .profile-bio{font-size:.78rem; color:var(--text-muted); margin-bottom:10px; line-height:1.5; word-break:break-word}
+    .profile-id{font-size:.72rem; color:var(--text-dim); margin-bottom:14px}
+    .stat-row{display:flex; justify-content:space-between; margin-bottom:8px}
+    .stat-item{text-align:center}
+    .stat-num{font-family:"Space Mono",monospace; font-size:1.1rem; font-weight:700; color:var(--accent); display:block}
+    .stat-lbl{font-size:.72rem; color:var(--text-dim)}
+    .empty-state{text-align:center; padding:60px 20px; color:var(--text-dim)}
+    .empty-icon{font-size:2.5rem; margin-bottom:12px; display:block; opacity:.35}
+    .loading-ring{
+      width:36px;height:36px;border:2px solid var(--border2); border-top-color:var(--accent);
+      border-radius:50%; animation:spin .8s linear infinite; margin:40px auto; display:block;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .toast{
+      position:fixed; top:76px; left:50%; transform:translateX(-50%); padding:11px 22px; border-radius:10px;
+      font-weight:600; font-size:.875rem; z-index:9999; pointer-events:none; animation:toastIn .3s ease,toastOut .3s ease 1.4s forwards;
+    }
+    .toast.ok{background:rgba(0,200,122,.92); color:#000}
+    .toast.err{background:rgba(255,107,107,.92); color:#fff}
+    .toast.warn{background:rgba(255,209,102,.92); color:#000}
+    @keyframes toastIn{from{opacity:0;transform:translate(-50%,-8px)}to{opacity:1;transform:translate(-50%,0)}}
+    @keyframes toastOut{to{opacity:0;transform:translate(-50%,-8px)}}
+
+    /* ─── Modals ─── */
+    .modal-bg{
+      position:fixed; inset:0; z-index:500; background:rgba(8,8,14,.8); backdrop-filter:blur(12px);
+      display:none; align-items:center; justify-content:center;
+    }
+    .modal-box{
+      background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:36px 40px;
+      max-width:440px; width:90%; text-align:center; position:relative; overflow:hidden;
+    }
+    .modal-box::before{
+      content:""; position:absolute; top:0; left:0; right:0; height:2px;
+      background:linear-gradient(90deg,var(--accent),var(--accent2),transparent);
+    }
+    .modal-box h2{font-family:"Space Mono",monospace; font-size:1.2rem; margin-bottom:8px}
+    .modal-box p{color:var(--text-muted); font-size:.875rem; margin-bottom:20px; line-height:1.6}
+    .modal-name-input{text-align:center; font-family:"Space Mono",monospace; font-weight:700; margin-bottom:10px}
+    .modal-submit{width:100%; padding:13px; font-size:.95rem; margin-top:6px}
+    .modal-close-btn{
+      position:absolute; top:12px; right:16px; background:none; border:none; color:var(--text-dim);
+      font-size:1.2rem; cursor:pointer; line-height:1;
+    }
+    .modal-close-btn:hover{color:var(--text)}
+
+    /* ─── Media attachments ─── */
+    .media-toolbar{display:flex; gap:8px; flex-wrap:wrap; margin-top:6px}
+    .media-btn{
+      display:flex; align-items:center; gap:5px; padding:6px 12px; border:1px solid var(--border);
+      border-radius:7px; background:transparent; color:var(--text-muted); font-size:.78rem; cursor:pointer; transition:.2s;
+    }
+    .media-btn:hover{border-color:var(--accent); color:var(--accent)}
+    .media-btn.active{border-color:var(--accent); color:var(--accent); background:rgba(124,92,252,.1)}
+    .media-preview-wrap{margin-top:8px; display:none}
+    .media-preview-wrap.has-content{display:block}
+    .media-preview-img{max-width:100%; max-height:200px; border-radius:var(--radius-sm); object-fit:contain}
+    .media-preview-video{max-width:100%; max-height:200px; border-radius:var(--radius-sm)}
+    .media-preview-audio{width:100%; margin-top:4px}
+    .media-remove{
+      font-size:.75rem; color:var(--red); background:none; border:none; cursor:pointer; margin-top:4px;
+    }
+
+    /* poll builder */
+    .poll-builder{background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:14px; margin-top:6px; display:none}
+    .poll-builder.open{display:block}
+    .poll-option-row{display:flex; gap:6px; margin-bottom:8px}
+    .poll-option-input{
+      flex:1; padding:7px 12px; background:var(--surface3); border:1px solid var(--border);
+      border-radius:7px; color:var(--text); font-size:.85rem; outline:none;
+    }
+    .poll-option-input:focus{border-color:var(--accent)}
+    .poll-remove-btn{
+      background:none; border:none; color:var(--text-dim); cursor:pointer; font-size:1rem; padding:0 4px;
+    }
+    .poll-remove-btn:hover{color:var(--red)}
+    .poll-add-btn{
+      background:none; border:1px dashed var(--border2); border-radius:7px; color:var(--text-dim);
+      font-size:.8rem; padding:6px 12px; cursor:pointer; width:100%; transition:.2s;
+    }
+    .poll-add-btn:hover{border-color:var(--accent); color:var(--accent)}
+
+    /* poll display in post */
+    .poll-display{margin:10px 0; background:var(--surface2); border-radius:var(--radius-sm); overflow:hidden}
+    .poll-option-item{
+      padding:10px 14px; cursor:pointer; display:flex; align-items:center; gap:10px;
+      position:relative; overflow:hidden; transition:.15s;
+    }
+    .poll-option-item:hover{background:var(--surface3)}
+    .poll-option-item.voted{pointer-events:none}
+    .poll-bar{
+      position:absolute; left:0; top:0; bottom:0; background:rgba(124,92,252,.15); transition:width .4s ease; z-index:0;
+    }
+    .poll-option-label{position:relative; z-index:1; flex:1; font-size:.85rem}
+    .poll-option-pct{position:relative; z-index:1; font-family:"Space Mono",monospace; font-size:.75rem; color:var(--accent)}
+    .poll-total{padding:6px 14px; font-size:.75rem; color:var(--text-dim); border-top:1px solid var(--border)}
+
+    /* post media display */
+    .post-img{max-width:100%; border-radius:var(--radius-sm); margin-bottom:10px; cursor:pointer}
+    .post-video{max-width:100%; border-radius:var(--radius-sm); margin-bottom:10px}
+    .post-audio{width:100%; margin-bottom:10px}
+
+    /* ─── Ban badge ─── */
+    .banned-notice{
+      background:rgba(255,107,107,.08); border:1px solid rgba(255,107,107,.3); border-radius:var(--radius-sm);
+      padding:16px; text-align:center; color:var(--red); font-size:.85rem; margin-bottom:16px;
+    }
+
+    /* ─── Report modal ─── */
+    .report-reason-select{
+      width:100%; padding:10px 14px; background:var(--surface2); border:1px solid var(--border);
+      border-radius:var(--radius-sm); color:var(--text); font-size:.9rem; outline:none; margin-bottom:10px;
+    }
+    .report-reason-select:focus{border-color:var(--accent)}
+
+    /* save-name-btn */
+    .save-name-btn{
+      padding:9px 18px; background:rgba(124,92,252,.15); border:1px solid rgba(124,92,252,.3); color:var(--accent); font-size:.8rem;
+    }
+
+    @media (max-width:900px){
+      .page-wrap{grid-template-columns:1fr; padding:24px 16px 60px}
+      .sidebar{order:-1}
+      header{padding:0 16px}
+      .header-title{display:none}
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── Name Modal ─── -->
+<div class="modal-bg" id="nameModal" style="display:none">
+  <div class="modal-box">
+    <div style="font-size:2rem;margin-bottom:12px">👋</div>
+    <h2 data-de="Wie heißt du?" data-en="What's your name?">Wie heißt du?</h2>
+    <p data-de="Wähle einen Anzeigenamen für das Forum." data-en="Choose a display name for the forum.">Wähle einen Anzeigenamen für das Forum.</p>
+    <input class="modal-name-input" id="modalNameInput" maxlength="20" placeholder="Dein Name" />
+    <button class="modal-submit" id="modalSubmitBtn" data-de="Forum betreten" data-en="Enter Forum">Forum betreten</button>
+  </div>
+</div>
+
+<!-- ─── Report Modal ─── -->
+<div class="modal-bg" id="reportModal" style="display:none">
+  <div class="modal-box">
+    <button class="modal-close-btn" onclick="closeReportModal()">✕</button>
+    <div style="font-size:1.8rem;margin-bottom:10px">🚩</div>
+    <h2 data-de="Nutzer melden" data-en="Report User">Nutzer melden</h2>
+    <p id="reportModalDesc" style="margin-bottom:14px"></p>
+    <select class="report-reason-select" id="reportReasonSelect">
+      <option value="spam" data-de="Spam" data-en="Spam">Spam</option>
+      <option value="hate" data-de="Hassrede" data-en="Hate speech">Hassrede</option>
+      <option value="harassment" data-de="Belästigung" data-en="Harassment">Belästigung</option>
+      <option value="misinformation" data-de="Falschinformationen" data-en="Misinformation">Falschinformationen</option>
+      <option value="other" data-de="Sonstiges" data-en="Other">Sonstiges</option>
+    </select>
+    <button class="modal-submit" id="reportSubmitBtn" style="background:linear-gradient(135deg,var(--red),#c0392b)" data-de="Melden" data-en="Report">Melden</button>
+  </div>
+</div>
+
+<!-- ─── Image Lightbox ─── -->
+<div class="modal-bg" id="lightbox" style="display:none" onclick="closeLightbox()">
+  <img id="lightboxImg" src="" style="max-width:92vw;max-height:88vh;border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,.8)">
+</div>
+
+<header>
+  <a href="/" class="header-logo"><div class="logo-dot"></div><span>Hub</span></a>
+  <div class="header-title"><div class="forum-live-dot"></div><span data-de="Community Forum" data-en="Community Forum">Community Forum</span></div>
+  <nav class="header-nav">
+    <div class="user-chip" id="userChip" onclick="openNameEdit()">
+      <div class="user-avatar-sm" id="headerAvatar"></div>
+      <span id="headerName"></span>
+    </div>
+    <button class="lang-btn" id="lang-toggle-btn" onclick="switchLang()">EN</button>
+  </nav>
+</header>
+
+<div class="page-wrap">
+  <main class="left-col">
+    <div class="forum-hero">
+      <div class="forum-label" data-de="Ingwerperium Community" data-en="Ingwerperium Community">Ingwerperium Community</div>
+      <h1 data-de="Forum" data-en="Forum">Forum</h1>
+      <p data-de="Teile Gedanken, stelle Fragen und diskutiere mit der Community." data-en="Share thoughts, ask questions and discuss with the community.">Teile Gedanken, stelle Fragen und diskutiere mit der Community.</p>
+    </div>
+
+    <div class="filters-row" id="catFilters"></div>
+
+    <div id="banNotice"></div>
+
+    <div class="new-post-card" id="newPostCard">
+      <div class="new-post-top">
+        <div class="user-avatar" id="newPostAvatar"></div>
+        <div class="post-inputs">
+          <input class="post-title-input" id="postTitle" maxlength="80" placeholder="Titel deines Beitrags" data-placeholder-de="Titel deines Beitrags" data-placeholder-en="Post title" />
+          <textarea class="post-textarea" id="postText" maxlength="1200" placeholder="Was möchtest du sagen?" data-placeholder-de="Was möchtest du sagen?" data-placeholder-en="What do you want to say?"></textarea>
+
+          <!-- Media toolbar -->
+          <div class="media-toolbar">
+            <button class="media-btn" id="imgBtn" onclick="triggerMediaInput('image')" title="Bild">🖼️ <span data-de="Bild" data-en="Image">Bild</span></button>
+            <button class="media-btn" id="vidBtn" onclick="triggerMediaInput('video')" title="Video">🎬 <span data-de="Video" data-en="Video">Video</span></button>
+            <button class="media-btn" id="audBtn" onclick="triggerMediaInput('audio')" title="Audio">🎵 <span data-de="Audio" data-en="Audio">Audio</span></button>
+            <button class="media-btn" id="pollBtn" onclick="togglePollBuilder()" title="Umfrage">📊 <span data-de="Umfrage" data-en="Poll">Umfrage</span></button>
+          </div>
+          <input type="file" id="mediaFileInput" style="display:none" onchange="handleMediaFile(event)" />
+
+          <div class="media-preview-wrap" id="mediaPreviewWrap">
+            <div id="mediaPreviewInner"></div>
+            <button class="media-remove" onclick="clearMedia()" data-de="Anhang entfernen" data-en="Remove attachment">Anhang entfernen</button>
+          </div>
+
+          <!-- Poll builder -->
+          <div class="poll-builder" id="pollBuilder">
+            <div style="font-size:.75rem;color:var(--text-dim);font-family:'Space Mono',monospace;margin-bottom:10px" data-de="UMFRAGE ERSTELLEN" data-en="CREATE POLL">UMFRAGE ERSTELLEN</div>
+            <div id="pollOptions">
+              <div class="poll-option-row"><input class="poll-option-input" placeholder="Option 1" /><button class="poll-remove-btn" onclick="removePollOption(this)">✕</button></div>
+              <div class="poll-option-row"><input class="poll-option-input" placeholder="Option 2" /><button class="poll-remove-btn" onclick="removePollOption(this)">✕</button></div>
+            </div>
+            <button class="poll-add-btn" onclick="addPollOption()" data-de="+ Option hinzufügen" data-en="+ Add option">+ Option hinzufügen</button>
+          </div>
+        </div>
+      </div>
+      <div class="post-controls">
+        <select class="cat-select" id="catSelect"></select>
+        <button class="submit-btn" id="postBtn" onclick="submitPost()" data-de="Posten" data-en="Post">Posten</button>
+      </div>
+    </div>
+
+    <div class="posts-header">
+      <div class="posts-title"><span data-de="Beiträge" data-en="Posts">Beiträge</span> <span class="post-count" id="postCountBadge">0</span></div>
+      <select class="sort-select" id="sortSelect" onchange="renderPosts()">
+        <option value="new" data-de="Neueste" data-en="Newest">Neueste</option>
+        <option value="likes" data-de="Beliebteste" data-en="Most Liked">Beliebteste</option>
+      </select>
+    </div>
+
+    <div id="postsContainer"><div class="loading-ring"></div></div>
+  </main>
+
+  <aside class="sidebar">
+    <!-- Search -->
+    <div class="sidebar-card">
+      <div class="sidebar-title" onclick="toggleCard(this)" data-de="Suche" data-en="Suche">Suche <i class="collapse-arrow">▾</i></div>
+      <div class="sidebar-card-body">
+        <input class="search-input" id="searchInput" placeholder="Beiträge suchen" data-placeholder-de="Beiträge suchen" data-placeholder-en="Search posts" oninput="renderPosts()" />
+      </div>
+    </div>
+
+    <!-- Profile -->
+    <div class="sidebar-card">
+      <div class="sidebar-title" onclick="toggleCard(this)" data-de="Dein Profil" data-en="Your Profile">Dein Profil <i class="collapse-arrow">▾</i></div>
+      <div class="sidebar-card-body">
+        <div class="profile-display">
+          <div class="profile-avatar-big" id="sidebarAvatar" onclick="document.getElementById('avatarUploadInput').click()" title="Profilbild ändern"></div>
+          <input type="file" id="avatarUploadInput" class="avatar-upload-input" accept="image/*" onchange="handleAvatarUpload(event)" />
+          <div class="profile-name" id="sidebarName"></div>
+          <div class="profile-bio" id="sidebarBio"></div>
+          <div class="profile-id" id="sidebarId"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">
+          <input class="name-input" id="sidebarNameInput" maxlength="20" placeholder="Name ändern" data-placeholder-de="Name ändern" data-placeholder-en="Change name" />
+          <textarea class="post-bio-input" id="sidebarBioInput" maxlength="120" rows="2" placeholder="Profilbeschreibung (max. 120 Zeichen)" data-placeholder-de="Profilbeschreibung" data-placeholder-en="Profile description" style="resize:none"></textarea>
+          <button class="save-name-btn" onclick="saveName()" data-de="Speichern" data-en="Save">Speichern</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="sidebar-card">
+      <div class="sidebar-title" onclick="toggleCard(this)" data-de="Forum Stats" data-en="Forum Stats">Forum Stats <i class="collapse-arrow">▾</i></div>
+      <div class="sidebar-card-body">
+        <div class="stat-row">
+          <div class="stat-item"><span class="stat-num" id="statPosts">0</span><span class="stat-lbl" data-de="Beiträge" data-en="Posts">Beiträge</span></div>
+          <div class="stat-item"><span class="stat-num" id="statLikes">0</span><span class="stat-lbl" data-de="Likes" data-en="Likes">Likes</span></div>
+          <div class="stat-item"><span class="stat-num" id="statReplies">0</span><span class="stat-lbl" data-de="Antworten" data-en="Replies">Antworten</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rules -->
+    <div class="sidebar-card">
+      <div class="sidebar-title" onclick="toggleCard(this)" data-de="Regeln" data-en="Rules">Regeln <i class="collapse-arrow">▾</i></div>
+      <div class="sidebar-card-body">
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;gap:8px;align-items:flex-start"><span style="color:var(--green);font-family:'Space Mono',monospace;font-size:.7rem;flex-shrink:0;margin-top:2px">01</span><span style="font-size:.82rem;color:var(--text-muted)" data-de="Sei freundlich und respektvoll." data-en="Be kind and respectful.">Sei freundlich und respektvoll.</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start"><span style="color:var(--green);font-family:'Space Mono',monospace;font-size:.7rem;flex-shrink:0;margin-top:2px">02</span><span style="font-size:.82rem;color:var(--text-muted)" data-de="Kein Spam oder Eigenwerbung." data-en="No spam or self-promotion.">Kein Spam oder Eigenwerbung.</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start"><span style="color:var(--green);font-family:'Space Mono',monospace;font-size:.7rem;flex-shrink:0;margin-top:2px">03</span><span style="font-size:.82rem;color:var(--text-muted)" data-de="Bleib beim Thema." data-en="Stay on topic.">Bleib beim Thema.</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start"><span style="color:var(--green);font-family:'Space Mono',monospace;font-size:.7rem;flex-shrink:0;margin-top:2px">04</span><span style="font-size:.82rem;color:var(--text-muted)" data-de="Hab Spaß!" data-en="Have fun!">Hab Spaß!</span></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import {
+  getFirestore, addDoc, collection, onSnapshot, query, orderBy,
+  doc, updateDoc, arrayUnion, arrayRemove, serverTimestamp, increment,
+  deleteDoc, getDoc, setDoc
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBqkzJEJa94RQd9KYzpwR6rmIcvEouAJ-s",
+  authDomain: "ingwerperium.firebaseapp.com",
+  projectId: "ingwerperium",
+  storageBucket: "ingwerperium.firebasestorage.app",
+  messagingSenderId: "43358415912",
+  appId: "1:43358415912:web:abda437dc5f0905ede591d"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// ─── Ban thresholds (reports → duration in ms) ───
+const BAN_LEVELS = [
+  { min: 10, ms: Infinity,              label_de: "Permanent",       label_en: "Permanent" },
+  { min: 5,  ms: 7*24*60*60*1000,      label_de: "1 Woche",         label_en: "1 Week" },
+  { min: 3,  ms: 24*60*60*1000,        label_de: "1 Tag",           label_en: "1 Day" },
+  { min: 2,  ms: 12*60*60*1000,        label_de: "12 Stunden",      label_en: "12 Hours" },
+  { min: 1,  ms: 60*60*1000,           label_de: "1 Stunde",        label_en: "1 Hour" },
+];
+
+const CATS = {
+  all:      { de:"Alle",       en:"All",       color:"#7c5cfc" },
+  general:  { de:"Allgemein",  en:"General",   color:"#888898" },
+  python:   { de:"Python",     en:"Python",    color:"#00d4ff" },
+  spiele:   { de:"Spiele",     en:"Games",     color:"#00c87a" },
+  feedback: { de:"Nature",     en:"Nature",    color:"#ffd166" },
+  fragen:   { de:"Feedback",   en:"Feedback",  color:"#ff9f43" },
+  ideen:    { de:"Ideen",      en:"Ideas",     color:"#ff6b6b" }
+};
+
+let LANG         = localStorage.getItem("ingw-lang") || "de";
+let currentUser  = null;
+let userName     = localStorage.getItem("ingw-forum-name") || "";
+let userBio      = localStorage.getItem("ingw-forum-bio") || "";
+let userAvatarB64 = localStorage.getItem("ingw-avatar") || "";
+let allPosts     = [];
+let activeFilter = "all";
+let isBanned     = false;
+let banUntil     = 0;
+
+// media attachment state
+let attachedMediaB64  = null;
+let attachedMediaType = null; // "image"|"video"|"audio"
+let pollOpen          = false;
+
+// ─── Utilities ───
+function getAvatarColor(uid=""){
+  const cols=["#7c5cfc","#00d4ff","#00c87a","#ffd166","#ff6b6b","#ff9f43","#f48fb1"];
+  let h=0; for(let c of uid) h=(h*31+c.charCodeAt(0))%cols.length; return cols[h];
+}
+function getInitials(name=""){ if(!name.trim())return"?"; return name.trim().split(/\s+/).map(w=>w[0]).join("").toUpperCase().slice(0,2); }
+function escHtml(s=""){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function timeAgo(ts,lang){
+  const diff=Date.now()-ts, s=Math.floor(diff/1000), m=Math.floor(s/60), h=Math.floor(m/60), d=Math.floor(h/24);
+  if(lang==="de"){
+    if(s<60)return"gerade eben"; if(m<60)return`vor ${m} Min.`; if(h<24)return`vor ${h} Std.`; return`vor ${d} Tag${d>1?"en":""}`;
+  }else{
+    if(s<60)return"just now"; if(m<60)return`${m}m ago`; if(h<24)return`${h}h ago`; return`${d}d ago`;
+  }
+}
+function toast(msg,type="ok"){
+  const t=document.createElement("div"); t.className=`toast ${type}`; t.textContent=msg;
+  document.body.appendChild(t); setTimeout(()=>t.remove(),1800);
+}
+
+// ─── Sidebar collapse ───
+window.toggleCard = function(titleEl){
+  titleEl.classList.toggle("collapsed-title");
+  const body=titleEl.nextElementSibling;
+  body.classList.toggle("hidden");
+};
+
+// ─── Language ───
+function applyLang(lang){
+  LANG=lang; localStorage.setItem("ingw-lang",lang); document.documentElement.lang=lang;
+  document.querySelectorAll("[data-de],[data-en]").forEach(el=>{
+    const t=el.getAttribute(`data-${lang}`); if(t)el.textContent=t;
+  });
+  document.querySelectorAll("[data-placeholder-de],[data-placeholder-en]").forEach(el=>{
+    const p=el.getAttribute(`data-placeholder-${lang}`); if(p)el.placeholder=p;
+  });
+  document.getElementById("lang-toggle-btn").textContent=lang==="de"?"EN":"DE";
+  renderFilters(); renderCatSelect(); renderPosts(); updateAvatars();
+}
+window.switchLang=function(){ applyLang(LANG==="de"?"en":"de"); };
+
+// ─── Filters ───
+function renderFilters(){
+  const row=document.getElementById("catFilters"); row.innerHTML="";
+  Object.entries(CATS).forEach(([key,cat])=>{
+    const btn=document.createElement("button");
+    btn.className=`cat-btn ${activeFilter===key?"active":""}`;
+    btn.textContent=cat[LANG];
+    btn.onclick=()=>{ activeFilter=key; renderFilters(); renderPosts(); };
+    row.appendChild(btn);
+  });
+}
+function renderCatSelect(){
+  const sel=document.getElementById("catSelect"); const cur=sel.value||"general"; sel.innerHTML="";
+  Object.entries(CATS).forEach(([key,cat])=>{
+    if(key==="all")return;
+    const opt=document.createElement("option"); opt.value=key; opt.textContent=cat[LANG];
+    if(key===cur)opt.selected=true; sel.appendChild(opt);
+  });
+}
+
+// ─── Avatars ───
+function avatarHtml(uid,name,size=38){
+  const col=getAvatarColor(uid||""); const ini=getInitials(name||"");
+  if(uid===currentUser?.uid && userAvatarB64){
+    return `<img src="${userAvatarB64}" style="width:${size}px;height:${size}px;border-radius:50%;object-fit:cover">`;
+  }
+  return `<span style="width:${size}px;height:${size}px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:${size*0.3}px;font-weight:700;font-family:'Space Mono',monospace;background:${col}33;color:${col}">${ini}</span>`;
+}
+
+function updateAvatars(){
+  const col=getAvatarColor(currentUser?.uid||"x"), ini=getInitials(userName);
+  // header avatar (small)
+  const ha=document.getElementById("headerAvatar");
+  if(ha){ if(userAvatarB64){ ha.innerHTML=`<img src="${userAvatarB64}">`; ha.style.background="none"; ha.style.color="inherit"; } else { ha.style.background=col+"33"; ha.style.color=col; ha.textContent=ini; } }
+  // new post avatar
+  const npa=document.getElementById("newPostAvatar");
+  if(npa){ if(userAvatarB64){ npa.innerHTML=`<img src="${userAvatarB64}" style="width:36px;height:36px;border-radius:50%;object-fit:cover">`; npa.style.background="none"; } else { npa.style.background=col+"33"; npa.style.color=col; npa.textContent=ini; } }
+  // sidebar big
+  const sa=document.getElementById("sidebarAvatar");
+  if(sa){ if(userAvatarB64){ sa.innerHTML=`<img src="${userAvatarB64}" style="width:64px;height:64px;border-radius:50%;object-fit:cover">`; sa.style.background="none"; } else { sa.style.background=col+"33"; sa.style.color=col; sa.textContent=ini; } }
+
+  document.getElementById("headerName").textContent=userName||(LANG==="de"?"Anonym":"Anonymous");
+  document.getElementById("sidebarName").textContent=userName||(LANG==="de"?"Anonym":"Anonymous");
+  document.getElementById("sidebarBio").textContent=userBio||"";
+  if(currentUser) document.getElementById("sidebarId").textContent=`ID ${currentUser.uid.slice(0,8)}`;
+}
+
+// ─── Avatar upload ───
+window.handleAvatarUpload = function(e){
+  const file=e.target.files[0]; if(!file)return;
+  if(file.size>2*1024*1024){ toast(LANG==="de"?"Max. 2 MB!":"Max. 2 MB!","err"); return; }
+  const reader=new FileReader();
+  reader.onload=ev=>{ userAvatarB64=ev.target.result; localStorage.setItem("ingw-avatar",userAvatarB64); updateAvatars(); toast(LANG==="de"?"Profilbild gespeichert!":"Profile picture saved!","ok"); };
+  reader.readAsDataURL(file);
+};
+
+// ─── Name/bio save ───
+window.openNameEdit=function(){ document.getElementById("sidebarNameInput").focus(); };
+function openNameModal(){ document.getElementById("nameModal").style.display="flex"; setTimeout(()=>document.getElementById("modalNameInput").focus(),200); }
+function closeNameModal(){ document.getElementById("nameModal").style.display="none"; }
+
+window.saveName=function(){
+  const v=document.getElementById("sidebarNameInput").value.trim();
+  const b=document.getElementById("sidebarBioInput").value.trim();
+  if(!v)return toast(LANG==="de"?"Bitte einen Namen eingeben.":"Please enter a name.","err");
+  userName=v; userBio=b;
+  localStorage.setItem("ingw-forum-name",v); localStorage.setItem("ingw-forum-bio",b);
+  updateAvatars(); toast(LANG==="de"?"Profil gespeichert!":"Profile saved!","ok");
+  document.getElementById("sidebarNameInput").value=""; document.getElementById("sidebarBioInput").value="";
+};
+
+document.getElementById("modalSubmitBtn").onclick=function(){
+  const v=document.getElementById("modalNameInput").value.trim();
+  if(!v)return toast(LANG==="de"?"Bitte einen Namen eingeben!":"Please enter a name!","err");
+  userName=v; localStorage.setItem("ingw-forum-name",v); closeNameModal(); updateAvatars();
+  toast((LANG==="de"?"Willkommen, ":"Welcome, ")+v+"!","ok");
+};
+document.getElementById("modalNameInput").addEventListener("keydown",e=>{ if(e.key==="Enter")document.getElementById("modalSubmitBtn").click(); });
+document.getElementById("sidebarNameInput").addEventListener("keydown",e=>{ if(e.key==="Enter")saveName(); });
+
+// ─── Media attachment ───
+let mediaInputTarget="image";
+window.triggerMediaInput=function(type){
+  if(type===mediaInputTarget&&attachedMediaB64){ clearMedia(); return; }
+  mediaInputTarget=type;
+  const inp=document.getElementById("mediaFileInput");
+  inp.accept = type==="image"?"image/*":type==="video"?"video/*":"audio/*";
+  inp.value=""; inp.click();
+};
+window.handleMediaFile=function(e){
+  const file=e.target.files[0]; if(!file)return;
+  if(file.size>10*1024*1024){ toast(LANG==="de"?"Max. 10 MB pro Datei!":"Max. 10 MB per file!","err"); return; }
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    attachedMediaB64=ev.target.result; attachedMediaType=mediaInputTarget;
+    const wrap=document.getElementById("mediaPreviewWrap");
+    const inner=document.getElementById("mediaPreviewInner");
+    wrap.classList.add("has-content");
+    if(mediaInputTarget==="image") inner.innerHTML=`<img class="media-preview-img" src="${attachedMediaB64}">`;
+    else if(mediaInputTarget==="video") inner.innerHTML=`<video class="media-preview-video" src="${attachedMediaB64}" controls></video>`;
+    else inner.innerHTML=`<audio class="media-preview-audio" src="${attachedMediaB64}" controls></audio>`;
+    // highlight button
+    ["imgBtn","vidBtn","audBtn"].forEach(id=>document.getElementById(id).classList.remove("active"));
+    const btnMap={image:"imgBtn",video:"vidBtn",audio:"audBtn"};
+    document.getElementById(btnMap[mediaInputTarget]).classList.add("active");
+  };
+  reader.readAsDataURL(file);
+};
+window.clearMedia=function(){
+  attachedMediaB64=null; attachedMediaType=null;
+  document.getElementById("mediaPreviewWrap").classList.remove("has-content");
+  document.getElementById("mediaPreviewInner").innerHTML="";
+  ["imgBtn","vidBtn","audBtn"].forEach(id=>document.getElementById(id).classList.remove("active"));
+};
+
+// ─── Poll builder ───
+window.togglePollBuilder=function(){
+  pollOpen=!pollOpen;
+  const pb=document.getElementById("pollBuilder");
+  pb.classList.toggle("open",pollOpen);
+  document.getElementById("pollBtn").classList.toggle("active",pollOpen);
+};
+window.addPollOption=function(){
+  const container=document.getElementById("pollOptions");
+  const count=container.querySelectorAll(".poll-option-row").length;
+  if(count>=8){ toast(LANG==="de"?"Max. 8 Optionen":"Max 8 options","warn"); return; }
+  const row=document.createElement("div"); row.className="poll-option-row";
+  row.innerHTML=`<input class="poll-option-input" placeholder="Option ${count+1}" /><button class="poll-remove-btn" onclick="removePollOption(this)">✕</button>`;
+  container.appendChild(row);
+};
+window.removePollOption=function(btn){
+  const rows=document.querySelectorAll(".poll-option-row");
+  if(rows.length<=2){ toast(LANG==="de"?"Mindestens 2 Optionen":"Min 2 options","warn"); return; }
+  btn.closest(".poll-option-row").remove();
+};
+function getPollOptions(){
+  if(!pollOpen)return null;
+  const inputs=document.querySelectorAll("#pollOptions .poll-option-input");
+  const opts=[...inputs].map(i=>i.value.trim()).filter(Boolean);
+  if(opts.length<2)return null;
+  return opts;
+}
+
+// ─── Auth ───
+async function ensureAuth(){ try{ await signInAnonymously(auth); }catch{ toast("Firebase Auth Fehler","err"); } }
+onAuthStateChanged(auth,user=>{
+  if(!user)return;
+  currentUser=user;
+  updateAvatars();
+  if(!userName)openNameModal();
+  checkBanStatus().then(()=>{ loadPosts(); });
+});
+
+// ─── Ban system ───
+async function checkBanStatus(){
+  if(!currentUser)return;
+  const ref=doc(db,"users",currentUser.uid);
+  const snap=await getDoc(ref);
+  if(!snap.exists()){ isBanned=false; banUntil=0; renderBanNotice(); return; }
+  const data=snap.data();
+  const reports=(data.reports||[]).length;
+  const currentBanUntil=data.banUntil||0;
+  banUntil=currentBanUntil;
+  isBanned=currentBanUntil>Date.now();
+  renderBanNotice();
+}
+
+function renderBanNotice(){
+  const el=document.getElementById("banNotice");
+  const card=document.getElementById("newPostCard");
+  if(isBanned){
+    const remaining=banUntil===Infinity?null:new Date(banUntil).toLocaleString(LANG==="de"?"de-DE":"en-GB");
+    el.innerHTML=`<div class="banned-notice">🚫 ${LANG==="de"?"Du bist gesperrt":"You are banned"}${remaining?` ${LANG==="de"?"bis":"until"} ${remaining}`:` (${LANG==="de"?"Permanent":"Permanently"})`}.</div>`;
+    card.style.display="none";
+  } else {
+    el.innerHTML=""; card.style.display="";
+  }
+}
+
+// ─── Reporting ───
+let reportTargetUid=null, reportTargetPostId=null;
+window.openReportModal=function(targetUid,postId){
+  if(!currentUser)return;
+  if(targetUid===currentUser.uid){ toast(LANG==="de"?"Du kannst dich nicht selbst melden.":"You can't report yourself.","warn"); return; }
+  reportTargetUid=targetUid; reportTargetPostId=postId;
+  const desc=document.getElementById("reportModalDesc");
+  desc.textContent=LANG==="de"?`Nutzer melden. Du kannst jeden Nutzer nur 1× pro Tag melden.`:`Report user. You can only report each user once per day.`;
+  document.getElementById("reportModal").style.display="flex";
+};
+window.closeReportModal=function(){ document.getElementById("reportModal").style.display="none"; reportTargetUid=null; reportTargetPostId=null; };
+
+document.getElementById("reportSubmitBtn").onclick=async function(){
+  if(!reportTargetUid||!currentUser)return;
+  const reason=document.getElementById("reportReasonSelect").value;
+  const myUid=currentUser.uid;
+  const todayKey=new Date().toISOString().slice(0,10); // YYYY-MM-DD
+
+  // Check if already reported today
+  const myReportsRef=doc(db,"userReports",`${myUid}_${reportTargetUid}`);
+  const mySnap=await getDoc(myReportsRef);
+  if(mySnap.exists()&&mySnap.data().date===todayKey){
+    toast(LANG==="de"?"Du hast diesen Nutzer heute bereits gemeldet!":"You already reported this user today!","warn");
+    closeReportModal(); return;
+  }
+
+  // Log that reporter reported today
+  await setDoc(myReportsRef,{ date:todayKey, reporterId:myUid, targetId:reportTargetUid });
+
+  // Add report to target user doc
+  const targetRef=doc(db,"users",reportTargetUid);
+  const targetSnap=await getDoc(targetRef);
+  const existing=targetSnap.exists()?targetSnap.data():{};
+  const reports=[...(existing.reports||[]),{ by:myUid, reason, postId:reportTargetPostId, at:Date.now() }];
+  const reportCount=reports.length;
+
+  // Determine ban duration
+  let banUntilNew=existing.banUntil||0;
+  for(const level of BAN_LEVELS){
+    if(reportCount>=level.min){
+      banUntilNew = level.ms===Infinity ? 9999999999999 : Date.now()+level.ms;
+      break;
+    }
+  }
+
+  await setDoc(targetRef,{ reports, banUntil:banUntilNew },{ merge:true });
+
+  toast(LANG==="de"?"Gemeldet! Danke.":"Reported! Thank you.","ok");
+  closeReportModal();
+  // If we banned ourselves somehow, refresh
+  if(reportTargetUid===myUid)await checkBanStatus();
+};
+
+// ─── Posts ───
+function loadPosts(){
+  const q=query(collection(db,"posts"),orderBy("created","desc"));
+  onSnapshot(q,snap=>{
+    allPosts=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderPosts(); updateStats();
+  });
+}
+
+function renderPosts(){
+  if(!currentUser)return;
+  const container=document.getElementById("postsContainer");
+  const sort=document.getElementById("sortSelect").value;
+  const search=document.getElementById("searchInput").value.toLowerCase().trim();
+
+  let posts=[...allPosts];
+  if(activeFilter!=="all")posts=posts.filter(p=>p.category===activeFilter);
+  if(search)posts=posts.filter(p=>
+    (p.title||"").toLowerCase().includes(search)||
+    (p.text||"").toLowerCase().includes(search)||
+    (p.userName||"").toLowerCase().includes(search)
+  );
+  if(sort==="likes")posts.sort((a,b)=>(b.likes?.length||0)-(a.likes?.length||0));
+  else posts.sort((a,b)=>(b.created?.seconds||0)-(a.created?.seconds||0));
+
+  const pinned=posts.filter(p=>p.pinned), normal=posts.filter(p=>!p.pinned);
+  posts=[...pinned,...normal];
+
+  document.getElementById("postCountBadge").textContent=posts.length;
+  if(!posts.length){
+    container.innerHTML=`<div class="empty-state"><span class="empty-icon">💬</span><p>${LANG==="de"?"Noch keine Beiträge. Sei der Erste!":"No posts yet. Be the first!"}</p></div>`;
+    return;
+  }
+  container.innerHTML="";
+  posts.forEach(post=>container.appendChild(buildPostCard(post)));
+}
+
+function buildPostCard(post){
+  const uid=currentUser.uid;
+  const likes=post.likes||[];
+  const isLiked=likes.includes(uid);
+  const catInfo=CATS[post.category]||CATS.general;
+  const catColor=catInfo.color;
+  const catName=catInfo[LANG];
+  const isOwn=post.uid===uid;
+  const date=post.created?.seconds?timeAgo(post.created.seconds*1000,LANG):"";
+  const body=post.text||"";
+  const isLong=body.length>220;
+
+  const avaHtml=avatarHtml(post.uid,post.userName,38);
+
+  const card=document.createElement("div");
+  card.className=`post-card ${post.pinned?"pinned":""}`;
+
+  // Poll display
+  let pollHtml="";
+  if(post.poll&&Array.isArray(post.poll.options)){
+    const totalVotes=Object.values(post.poll.votes||{}).length;
+    pollHtml=`<div class="poll-display" id="poll-${post.id}">`;
+    post.poll.options.forEach((opt,i)=>{
+      // count votes for this option
+      const voteCount=Object.values(post.poll.votes||{}).filter(v=>v===i).length;
+      const pct=totalVotes>0?Math.round(voteCount/totalVotes*100):0;
+      const myVote=post.poll.votes?.[uid];
+      const voted=myVote!==undefined;
+      pollHtml+=`
+        <div class="poll-option-item ${voted?"voted":""}" onclick="castVote('${post.id}',${i})" style="border-bottom:1px solid var(--border)">
+          <div class="poll-bar" style="width:${voted?pct:0}%"></div>
+          <span class="poll-option-label">${escHtml(opt)}</span>
+          ${voted?`<span class="poll-option-pct">${pct}%</span>`:""}
+        </div>`;
+    });
+    pollHtml+=`<div class="poll-total" id="poll-total-${post.id}">${totalVotes} ${LANG==="de"?"Stimme(n)":"vote(s)"}</div></div>`;
+  }
+
+  // Media display
+  let mediaHtml="";
+  if(post.mediaB64&&post.mediaType){
+    if(post.mediaType==="image") mediaHtml=`<img class="post-img" src="${post.mediaB64}" onclick="openLightbox('${post.id}')" alt="">`;
+    else if(post.mediaType==="video") mediaHtml=`<video class="post-video" src="${post.mediaB64}" controls></video>`;
+    else if(post.mediaType==="audio") mediaHtml=`<audio class="post-audio" src="${post.mediaB64}" controls></audio>`;
+  }
+
+  card.innerHTML=`
+    <div class="post-header">
+      ${avaHtml}
+      <div class="post-meta">
+        <div class="post-author-row">
+          <span class="post-author">${escHtml(post.userName||"Anonym")}</span>
+          ${isOwn?`<span style="font-size:.62rem;padding:2px 7px;border-radius:4px;background:rgba(124,92,252,.12);color:var(--accent);font-family:'Space Mono',monospace">${LANG==="de"?"Du":"You"}</span>`:""}
+          <span class="cat-badge" style="background:${catColor}22;color:${catColor};border:1px solid ${catColor}44">${catName}</span>
+          ${post.pinned?`<span class="pin-badge">${LANG==="de"?"Angepinnt":"Pinned"}</span>`:""}
+        </div>
+        <span class="post-time">${date}</span>
+      </div>
+    </div>
+
+    ${post.title?`<div class="post-title">${escHtml(post.title)}</div>`:""}
+    ${mediaHtml}
+    <div class="post-body ${isLong?"collapsed":""}" id="body-${post.id}">${escHtml(body)}</div>
+    ${isLong?`<button class="read-more" id="rm-${post.id}" onclick="toggleBody('${post.id}')">${LANG==="de"?"Mehr lesen":"Read more"}</button>`:""}
+    ${pollHtml}
+
+    <div class="post-footer" style="margin-top:10px">
+      <button class="action-btn ${isLiked?"liked":""}" id="like-${post.id}" onclick="toggleLike('${post.id}',${isLiked})">
+        ♥ <span id="like-count-${post.id}">${likes.length}</span>
+      </button>
+      <button class="action-btn" onclick="toggleReplies('${post.id}')">
+        ↩ <span id="reply-count-${post.id}">${post.replyCount||0}</span>
+      </button>
+      ${!isOwn?`<button class="action-btn report-btn" onclick="openReportModal('${post.uid}','${post.id}')" title="${LANG==="de"?"Melden":"Report"}">🚩</button>`:""}
+      ${isOwn?`<button class="action-btn" style="color:var(--red);border-color:rgba(255,107,107,.25)" onclick="deletePost('${post.id}')">${LANG==="de"?"Löschen":"Delete"}</button>`:""}
+    </div>
+
+    <div class="replies-wrap" id="replies-${post.id}">
+      <div id="replies-list-${post.id}" style="margin-bottom:10px"></div>
+      <div class="reply-input-wrap">
+        <input class="reply-input" id="reply-input-${post.id}" placeholder="${LANG==="de"?"Antwort schreiben":"Write a reply"}" maxlength="400" />
+        <button class="reply-submit" onclick="submitReply('${post.id}')">${LANG==="de"?"Senden":"Send"}</button>
+      </div>
+    </div>
+  `;
+
+  // Store mediaB64 for lightbox
+  if(post.mediaType==="image"&&post.mediaB64) card.dataset.imgSrc=post.mediaB64;
+
+  return card;
+}
+
+// ─── Lightbox ───
+window.openLightbox=function(postId){
+  const post=allPosts.find(p=>p.id===postId); if(!post)return;
+  document.getElementById("lightboxImg").src=post.mediaB64;
+  document.getElementById("lightbox").style.display="flex";
+};
+window.closeLightbox=function(){ document.getElementById("lightbox").style.display="none"; };
+
+// ─── Poll voting ───
+window.castVote=async function(postId,optionIndex){
+  if(!currentUser)return;
+  const ref=doc(db,"posts",postId);
+  await updateDoc(ref,{ [`poll.votes.${currentUser.uid}`]:optionIndex });
+};
+
+// ─── Post actions ───
+window.toggleBody=function(id){
+  const body=document.getElementById(`body-${id}`), btn=document.getElementById(`rm-${id}`);
+  const c=body.classList.contains("collapsed");
+  body.classList.toggle("collapsed",!c);
+  if(btn)btn.textContent=c?(LANG==="de"?"Weniger":"Less"):(LANG==="de"?"Mehr lesen":"Read more");
+};
+window.toggleLike=async function(postId,isLiked){
+  if(!currentUser)return;
+  const ref=doc(db,"posts",postId);
+  if(isLiked)await updateDoc(ref,{likes:arrayRemove(currentUser.uid)});
+  else await updateDoc(ref,{likes:arrayUnion(currentUser.uid)});
+};
+window.toggleReplies=function(postId){
+  const wrap=document.getElementById(`replies-${postId}`);
+  if(wrap.classList.contains("open")){ wrap.classList.remove("open"); }
+  else{ wrap.classList.add("open"); loadReplies(postId); }
+};
+async function loadReplies(postId){
+  const list=document.getElementById(`replies-list-${postId}`);
+  list.innerHTML=`<div class="loading-ring" style="width:20px;height:20px;border-width:1.5px;margin:8px auto"></div>`;
+  const q=query(collection(db,"posts",postId,"replies"),orderBy("created","asc"));
+  onSnapshot(q,snap=>{
+    list.innerHTML="";
+    snap.forEach(d=>{
+      const r=d.data();
+      const ava=getAvatarColor(r.uid||""), ini=getInitials(r.userName||"");
+      const div=document.createElement("div"); div.className="reply-card";
+      div.innerHTML=`
+        <div style="width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;background:${ava}33;color:${ava}">${ini}</div>
+        <div class="reply-body">
+          <div class="reply-author-row">
+            <span class="reply-author">${escHtml(r.userName||"Anonym")}</span>
+            ${r.uid===currentUser.uid?`<span style="font-size:.6rem;padding:1px 6px;border-radius:4px;background:rgba(124,92,252,.12);color:var(--accent);font-family:'Space Mono',monospace">${LANG==="de"?"Du":"You"}</span>`:""}
+            ${r.uid!==currentUser.uid?`<button class="action-btn report-btn" style="padding:2px 7px;font-size:.65rem" onclick="openReportModal('${r.uid}','${postId}')">🚩</button>`:""}
+            <span class="reply-time">${r.created?.seconds?timeAgo(r.created.seconds*1000,LANG):""}</span>
+          </div>
+          <div class="reply-text">${escHtml(r.text||"")}</div>
+        </div>`;
+      list.appendChild(div);
+    });
+    const cnt=document.getElementById(`reply-count-${postId}`);
+    if(cnt)cnt.textContent=snap.size;
+  });
+}
+window.submitReply=async function(postId){
+  if(isBanned){ toast(LANG==="de"?"Du bist gesperrt.":"You are banned.","err"); return; }
+  const inp=document.getElementById(`reply-input-${postId}`);
+  const text=inp.value.trim(); if(!text)return;
+  if(!userName)return toast(LANG==="de"?"Bitte zuerst einen Namen wählen!":"Please choose a name first!","err");
+  inp.value="";
+  await addDoc(collection(db,"posts",postId,"replies"),{ text, uid:currentUser.uid, userName, created:serverTimestamp() });
+  await updateDoc(doc(db,"posts",postId),{ replyCount:increment(1) });
+};
+window.deletePost=async function(postId){
+  const msg=LANG==="de"?"Beitrag wirklich löschen?":"Really delete this post?";
+  if(!confirm(msg))return;
+  await deleteDoc(doc(db,"posts",postId));
+  toast(LANG==="de"?"Beitrag gelöscht.":"Post deleted.","ok");
+};
+
+window.submitPost=async function(){
+  if(isBanned){ await checkBanStatus(); if(isBanned){ toast(LANG==="de"?"Du bist gesperrt.":"You are banned.","err"); return; } }
+  const title=document.getElementById("postTitle").value.trim();
+  const text=document.getElementById("postText").value.trim();
+  const cat=document.getElementById("catSelect").value;
+  const pollOptions=getPollOptions();
+
+  if(!text&&!attachedMediaB64&&!pollOptions)return toast(LANG==="de"?"Bitte etwas schreiben!":"Please write something!","err");
+  if(!userName)return openNameModal();
+
+  const btn=document.getElementById("postBtn"); btn.disabled=true;
+
+  const postData={
+    title, text, category:cat, uid:currentUser.uid, userName,
+    likes:[], replyCount:0, pinned:false, created:serverTimestamp()
+  };
+  if(attachedMediaB64){ postData.mediaB64=attachedMediaB64; postData.mediaType=attachedMediaType; }
+  if(pollOptions){ postData.poll={ options:pollOptions, votes:{} }; }
+
+  await addDoc(collection(db,"posts"),postData);
+
+  document.getElementById("postTitle").value="";
+  document.getElementById("postText").value="";
+  clearMedia();
+  if(pollOpen)togglePollBuilder();
+
+  btn.disabled=false;
+  toast(LANG==="de"?"Beitrag gepostet!":"Post published!","ok");
+};
+
+function updateStats(){
+  let totalLikes=0, totalReplies=0;
+  allPosts.forEach(p=>{ totalLikes+=(p.likes||[]).length; totalReplies+=p.replyCount||0; });
+  document.getElementById("statPosts").textContent=allPosts.length;
+  document.getElementById("statLikes").textContent=totalLikes;
+  document.getElementById("statReplies").textContent=totalReplies;
+}
+
+window.switchLang=switchLang;
+applyLang(LANG);
+updateAvatars();
+ensureAuth();
+</script>
+</body>
+</html>
