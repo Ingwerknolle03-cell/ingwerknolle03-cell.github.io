@@ -5,735 +5,223 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ingwerperium Hub</title>
 <meta name="description" content="Ingwerperium Hub – Lernspiele, Lernapps, Animationsfilme, viel Wissen, Python, Quizze und interaktive Inhalte.">
-
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-
 <style>
 :root {
-  --bg: #0a0a0f;
-  --surface: #111118;
-  --surface2: #17171f;
-  --surface3: #1e1e2a;
-  --border: rgba(255,255,255,0.07);
-  --accent: #7c5cfc;
-  --accent2: #00d4ff;
-  --accent3: #ff6b6b;
-  --text: #e8e8f0;
-  --text-muted: #888898;
-  --text-dim: #555566;
-  --glow: rgba(124,92,252,0.3);
-  --glow2: rgba(0,212,255,0.2);
-  --radius: 16px;
-  --radius-sm: 10px;
-}
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-html { scroll-behavior: smooth; }
-
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'DM Sans', sans-serif;
-  font-weight: 400;
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-
-/* ─── BACKGROUND MESH ─── */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 80% 50% at 20% 10%, rgba(124,92,252,0.08) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(0,212,255,0.06) 0%, transparent 60%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* ─── LANGUAGE MODAL ─── */
-#lang-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  background: rgba(8,8,14,0.96);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(20px);
-  animation: fadeInOverlay 0.4s ease;
-}
-
-@keyframes fadeInOverlay {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-.lang-modal {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  padding: 52px 60px;
-  text-align: center;
-  box-shadow:
-    0 0 0 1px rgba(124,92,252,0.15),
-    0 40px 80px rgba(0,0,0,0.6),
-    0 0 80px rgba(124,92,252,0.08);
-  max-width: 480px;
-  width: 90%;
-  animation: slideUp 0.5s cubic-bezier(0.34,1.56,0.64,1);
-}
-
-@keyframes slideUp {
-  from { transform: translateY(40px) scale(0.95); opacity: 0; }
-  to   { transform: translateY(0) scale(1); opacity: 1; }
-}
-
-.lang-modal-logo {
-  font-family: 'Space Mono', monospace;
-  font-size: 1.1rem;
-  color: var(--accent);
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  margin-bottom: 28px;
-  opacity: 0.8;
-}
-
-.lang-modal h2 {
-  font-family: 'Space Mono', monospace;
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--text);
-  margin-bottom: 10px;
-  letter-spacing: -0.02em;
-}
-
-.lang-modal p {
-  color: var(--text-muted);
-  font-size: 0.95rem;
-  margin-bottom: 40px;
-  line-height: 1.6;
-}
-
-.lang-buttons {
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-}
-
-.lang-btn {
-  flex: 1;
-  padding: 18px 28px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--surface3);
-  color: var(--text);
-  font-family: 'Space Mono', monospace;
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-
-.lang-btn .flag {
-  font-size: 2.2rem;
-  line-height: 1;
-}
-
-.lang-btn:hover {
-  border-color: var(--accent);
-  background: rgba(124,92,252,0.15);
-  color: #fff;
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px var(--glow);
-}
-
-.lang-btn.de:hover { border-color: #ffcc00; background: rgba(255,204,0,0.1); box-shadow: 0 8px 24px rgba(255,204,0,0.15); }
-.lang-btn.en:hover { border-color: var(--accent2); background: rgba(0,212,255,0.1); box-shadow: 0 8px 24px var(--glow2); }
-
-/* ─── HEADER ─── */
-header {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  padding: 0 40px;
-  height: 68px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: rgba(10,10,15,0.85);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border);
-}
-
-.header-logo {
-  font-family: 'Space Mono', monospace;
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--text);
-  letter-spacing: 0.05em;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.header-logo span {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 12px var(--accent);
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.4; }
-}
-
-.header-nav {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.nav-btn {
-  padding: 8px 20px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: transparent;
-  color: var(--text-muted);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-}
-
-.nav-btn:hover {
-  border-color: var(--accent);
-  color: var(--text);
-  background: rgba(124,92,252,0.1);
-}
-
-.lang-toggle-btn {
-  padding: 7px 14px;
-  border: 1px solid var(--accent);
-  border-radius: 8px;
-  background: rgba(124,92,252,0.12);
-  color: var(--accent);
-  font-family: 'Space Mono', monospace;
-  font-size: 0.8rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  letter-spacing: 0.05em;
-}
-
-.lang-toggle-btn:hover {
-  background: rgba(124,92,252,0.25);
-  box-shadow: 0 0 16px var(--glow);
-}
-
-/* ─── MAIN LAYOUT ─── */
-main {
-  position: relative;
-  z-index: 1;
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 56px 40px 80px;
-}
-
-.section-label {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.7rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 32px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.section-label::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--border);
-}
-
-/* ─── GRID ─── */
-.hub-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin-bottom: 60px;
-}
-
-/* ─── ACCORDION CARD ─── */
-.accordion-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  transition: border-color 0.25s ease, box-shadow 0.25s ease;
-}
-
-.accordion-card:hover {
-  border-color: rgba(124,92,252,0.3);
-  box-shadow: 0 4px 32px rgba(124,92,252,0.08);
-}
-
-.accordion-trigger {
-  width: 100%;
-  padding: 22px 28px;
-  background: transparent;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  color: var(--text);
-  text-align: left;
-  transition: background 0.2s ease;
-}
-
-.accordion-trigger:hover {
-  background: rgba(255,255,255,0.03);
-}
-
-.accordion-title {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.accordion-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.1rem;
-  flex-shrink: 0;
-}
-
-.acc-games  .accordion-icon { background: rgba(124,92,252,0.15); }
-.acc-python .accordion-icon { background: rgba(0,212,255,0.12); }
-.acc-nature .accordion-icon { background: rgba(0,200,100,0.12); }
-.acc-quiz   .accordion-icon { background: rgba(255,180,0,0.12); }
-
-.accordion-title h3 {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  color: var(--text);
-}
-
-.accordion-arrow {
-  width: 28px;
-  height: 28px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-muted);
-  font-size: 0.8rem;
-  transition: all 0.3s ease;
-  flex-shrink: 0;
-}
-
-.accordion-card.open .accordion-arrow {
-  transform: rotate(45deg);
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-.accordion-body {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1);
-}
-
-.accordion-body-inner {
-  padding: 4px 28px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  border-top: 1px solid var(--border);
-}
-
-.acc-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  padding: 14px 16px;
-  border-radius: var(--radius-sm);
-  background: var(--surface2);
-  border: 1px solid transparent;
-  text-decoration: none;
-  color: inherit;
-  transition: all 0.2s ease;
-  cursor: pointer;
-}
-
-.acc-item:hover {
-  border-color: var(--accent);
-  background: rgba(124,92,252,0.08);
-  transform: translateX(4px);
-}
-
-.acc-item-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--accent);
-  margin-top: 7px;
-  flex-shrink: 0;
-  opacity: 0.6;
-}
-
-.acc-item-text strong {
-  display: block;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: 2px;
-}
-
-.acc-item-text span {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  line-height: 1.4;
-}
-
-/* ─── FEATURED CARDS ROW ─── */
-.featured-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 20px;
-  margin-bottom: 60px;
-}
-
-.feature-card {
-  border-radius: var(--radius);
-  overflow: hidden;
-  cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  position: relative;
-  text-decoration: none;
-  color: inherit;
-  display: block;
-}
-
-.feature-card:hover {
-  transform: translateY(-6px);
-}
-
-.feature-card-inner {
-  padding: 32px 28px;
-  height: 100%;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface);
-  position: relative;
-  overflow: hidden;
-  transition: border-color 0.3s ease;
-}
-
-.feature-card:hover .feature-card-inner {
-  border-color: rgba(255,255,255,0.15);
-}
-
-.feature-card-glow {
-  position: absolute;
-  width: 160px;
-  height: 160px;
-  border-radius: 50%;
-  filter: blur(60px);
-  top: -40px;
-  right: -40px;
-  pointer-events: none;
-  opacity: 0.4;
-  transition: opacity 0.3s;
-}
-
-.feature-card:hover .feature-card-glow { opacity: 0.7; }
-
-.card-cacti .feature-card-glow    { background: rgba(0,200,80,0.5); }
-.card-info  .feature-card-glow    { background: rgba(124,92,252,0.5); }
-.card-films .feature-card-glow    { background: rgba(255,107,107,0.5); }
-
-.feature-card-emoji {
-  font-size: 2.4rem;
-  margin-bottom: 18px;
-  display: block;
-}
-
-.feature-card-label {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.65rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  margin-bottom: 8px;
-}
-
-.card-cacti .feature-card-label    { color: #00c850; }
-.card-info  .feature-card-label    { color: var(--accent); }
-.card-films .feature-card-label    { color: var(--accent3); }
-
-.feature-card h3 {
-  font-family: 'Space Mono', monospace;
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--text);
-  margin-bottom: 10px;
-  letter-spacing: -0.01em;
-}
-
-.feature-card p {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  line-height: 1.6;
-  margin-bottom: 22px;
-}
-
-.feature-card-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 18px;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: 'DM Sans', sans-serif;
-}
-
-.card-cacti .feature-card-btn    { background: rgba(0,200,80,0.15); color: #00c850; border: 1px solid rgba(0,200,80,0.3); }
-.card-info  .feature-card-btn    { background: rgba(124,92,252,0.15); color: var(--accent); border: 1px solid rgba(124,92,252,0.3); }
-.card-films .feature-card-btn    { background: rgba(255,107,107,0.15); color: var(--accent3); border: 1px solid rgba(255,107,107,0.3); }
-
-.feature-card:hover .feature-card-btn {
-  filter: brightness(1.2);
-  transform: translateX(4px);
-}
-
-/* ─── LEGACY SECTION ─── */
-.legacy-section {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 32px;
-  margin-bottom: 60px;
-}
-
-.legacy-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-top: 20px;
-}
-
-.legacy-item {
-  padding: 16px 18px;
-  border-radius: var(--radius-sm);
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  text-decoration: none;
-  color: var(--text-muted);
-  font-size: 0.85rem;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.legacy-item:hover {
-  color: var(--text);
-  border-color: var(--border);
-  background: var(--surface3);
-}
-
-.legacy-item::before {
-  content: '↗';
-  font-size: 0.75rem;
-  opacity: 0.4;
-}
-
-/* ─── FORUM ─── */
-.forum-section {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 0 20px;
-}
-
-.forum-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 14px;
-  padding: 20px 44px;
-  border-radius: var(--radius);
-  background: var(--surface);
-  border: 1px solid rgba(124,92,252,0.3);
-  color: #fff;
-  text-decoration: none;
-  font-family: 'Space Mono', monospace;
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  transition: all 0.3s ease;
-  box-shadow: 0 0 30px rgba(124,92,252,0.15);
-}
-
-.forum-link:hover {
-  background: rgba(124,92,252,0.15);
-  border-color: var(--accent);
-  box-shadow: 0 0 50px var(--glow);
-  transform: scale(1.05);
-}
-
-.forum-icon {
-  width: 36px;
-  height: 36px;
-  background: var(--accent);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-  box-shadow: 0 0 12px var(--accent);
-}
-/* ─── YOUTUBE ─── */
-.yt-section {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 60px 0 20px;
-}
-
-.yt-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 14px;
-  padding: 20px 44px;
-  border-radius: var(--radius);
-  background: var(--surface);
-  border: 1px solid rgba(255,0,0,0.2);
-  color: #fff;
-  text-decoration: none;
-  font-family: 'Space Mono', monospace;
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  transition: all 0.3s ease;
-  box-shadow: 0 0 30px rgba(255,0,0,0.08);
-}
-
-.yt-link:hover {
-  background: rgba(255,0,0,0.1);
-  border-color: rgba(255,0,0,0.5);
-  box-shadow: 0 0 50px rgba(255,0,0,0.2);
-  transform: scale(1.04);
-}
-
-.yt-icon {
-  width: 36px;
-  height: 36px;
-  background: #ff0000;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-}
-
-/* ─── FOOTER ─── */
-footer {
-  border-top: 1px solid var(--border);
-  padding: 32px 40px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  max-width: 1280px;
-  margin: 0 auto;
-}
-
-.footer-copy {
-  font-size: 0.8rem;
-  color: var(--text-dim);
-  font-family: 'Space Mono', monospace;
-}
-
-/* ─── RESPONSIVE ─── */
-@media (max-width: 900px) {
-  main { padding: 36px 20px 60px; }
-  header { padding: 0 20px; }
-  .hub-grid { grid-template-columns: 1fr; }
-  .featured-row { grid-template-columns: 1fr; }
-  .legacy-grid { grid-template-columns: 1fr 1fr; }
-  footer { flex-direction: column; gap: 12px; text-align: center; }
-}
-
-@media (max-width: 600px) {
-  .lang-modal { padding: 36px 28px; }
-  .lang-modal h2 { font-size: 1.5rem; }
-  .legacy-grid { grid-template-columns: 1fr; }
-}
-
-/* ─── TRANSITION for overlay exit ─── */
-#lang-overlay.exit {
-  animation: fadeOut 0.4s ease forwards;
-}
-@keyframes fadeOut {
-  to { opacity: 0; pointer-events: none; }
-}
+  --bg:#06060e;--surface:#0e0e1a;--surface2:#13131f;--surface3:#1a1a28;
+  --border:rgba(255,255,255,0.07);--accent:#7c5cfc;--accent2:#00d4ff;--accent3:#ff6b6b;
+  --text:#e8e8f0;--text-muted:#888898;--text-dim:#555566;
+  --glow:rgba(124,92,252,0.35);--glow2:rgba(0,212,255,0.25);
+  --radius:16px;--radius-sm:10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;}
+
+#galaxy-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 20% 10%,rgba(124,92,252,0.1) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 80% 80%,rgba(0,212,255,0.07) 0%,transparent 60%);pointer-events:none;z-index:0;}
+
+/* LANG OVERLAY */
+#lang-overlay{position:fixed;inset:0;z-index:9999;background:rgba(6,6,14,0.97);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(24px);animation:fadeInO 0.5s ease;}
+@keyframes fadeInO{from{opacity:0;}to{opacity:1;}}
+#lang-overlay.exit{animation:fadeOutO 0.4s ease forwards;}
+@keyframes fadeOutO{to{opacity:0;pointer-events:none;}}
+.lang-modal{background:linear-gradient(135deg,var(--surface2),var(--surface3));border:1px solid rgba(124,92,252,0.2);border-radius:28px;padding:56px 64px;text-align:center;box-shadow:0 0 0 1px rgba(124,92,252,0.1),0 60px 100px rgba(0,0,0,0.7),inset 0 1px 0 rgba(255,255,255,0.06);max-width:480px;width:90%;animation:slideUp 0.6s cubic-bezier(0.34,1.56,0.64,1);position:relative;overflow:hidden;}
+@keyframes slideUp{from{transform:translateY(50px) scale(0.92);opacity:0;}to{transform:translateY(0) scale(1);opacity:1;}}
+.lang-modal-logo{font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--accent);letter-spacing:0.25em;text-transform:uppercase;margin-bottom:28px;opacity:0.7;}
+.lang-modal h2{font-family:'Space Mono',monospace;font-size:2rem;font-weight:700;color:var(--text);margin-bottom:10px;}
+.lang-modal p{color:var(--text-muted);font-size:0.9rem;margin-bottom:44px;line-height:1.7;}
+.lang-buttons{display:flex;gap:16px;}
+.lang-btn{flex:1;padding:20px 24px;border:1px solid var(--border);border-radius:14px;background:var(--surface);color:var(--text);font-family:'Space Mono',monospace;font-size:0.95rem;font-weight:700;cursor:pointer;transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);display:flex;flex-direction:column;align-items:center;gap:8px;}
+.lang-btn .flag{font-size:2.4rem;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);}
+.lang-btn:hover .flag{transform:scale(1.2) rotate(-5deg);}
+.lang-btn.de:hover{border-color:#ffcc00;background:rgba(255,204,0,0.08);transform:translateY(-4px) scale(1.02);box-shadow:0 12px 36px rgba(255,204,0,0.2);}
+.lang-btn.en:hover{border-color:var(--accent2);background:rgba(0,212,255,0.08);transform:translateY(-4px) scale(1.02);box-shadow:0 12px 36px var(--glow2);}
+
+/* HEADER */
+header{position:sticky;top:0;z-index:100;padding:0 40px;height:68px;display:flex;align-items:center;justify-content:space-between;background:rgba(6,6,14,0.88);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);}
+.header-logo{font-family:'Space Mono',monospace;font-size:1.1rem;font-weight:700;color:var(--text);letter-spacing:0.05em;display:flex;align-items:center;gap:12px;}
+.logo-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 16px var(--accent);animation:dotpulse 2.5s infinite;}
+@keyframes dotpulse{0%,100%{opacity:1;box-shadow:0 0 16px var(--accent),0 0 32px rgba(124,92,252,0.4);}50%{opacity:0.5;box-shadow:0 0 8px var(--accent);}}
+.header-nav{display:flex;align-items:center;gap:10px;}
+.nav-btn{padding:8px 20px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--text-muted);font-family:'DM Sans',sans-serif;font-size:0.875rem;font-weight:500;cursor:pointer;transition:all 0.25s ease;text-decoration:none;display:inline-flex;align-items:center;}
+.nav-btn:hover{border-color:var(--accent);color:var(--text);background:rgba(124,92,252,0.08);}
+.lang-toggle-btn{padding:7px 16px;border:1px solid rgba(124,92,252,0.4);border-radius:8px;background:rgba(124,92,252,0.1);color:var(--accent);font-family:'Space Mono',monospace;font-size:0.8rem;font-weight:700;cursor:pointer;transition:all 0.25s ease;letter-spacing:0.08em;}
+.lang-toggle-btn:hover{background:rgba(124,92,252,0.22);box-shadow:0 0 20px var(--glow);}
+
+/* MAIN */
+main{position:relative;z-index:1;max-width:1280px;margin:0 auto;padding:48px 40px 80px;}
+.section-label{font-family:'Space Mono',monospace;font-size:0.65rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--accent);margin-bottom:28px;display:flex;align-items:center;gap:14px;}
+.section-label::after{content:'';flex:1;height:1px;background:linear-gradient(to right,rgba(124,92,252,0.4),transparent);}
+
+/* ══ COMMUNITY ══ */
+.community-section{margin-bottom:52px;}
+.community-top{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.community-bottom{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+
+.comm-card{display:flex;align-items:center;gap:15px;padding:17px 20px;border-radius:14px;text-decoration:none;color:var(--text);border:1px solid var(--border);background:var(--surface);transition:all 0.35s cubic-bezier(0.34,1.56,0.64,1);position:relative;overflow:hidden;}
+.comm-card:hover{transform:translateY(-5px);}
+
+.comm-forum{border-color:rgba(124,92,252,0.25);background:linear-gradient(135deg,rgba(124,92,252,0.1),rgba(124,92,252,0.02));}
+.comm-forum:hover{border-color:rgba(124,92,252,0.5);box-shadow:0 14px 44px rgba(124,92,252,0.18);}
+.comm-discord{border-color:rgba(88,101,242,0.25);background:linear-gradient(135deg,rgba(88,101,242,0.1),rgba(88,101,242,0.02));}
+.comm-discord:hover{border-color:rgba(88,101,242,0.5);box-shadow:0 14px 44px rgba(88,101,242,0.18);}
+.comm-yt{border-color:rgba(255,0,0,0.2);background:linear-gradient(135deg,rgba(255,0,0,0.08),rgba(200,0,0,0.02));}
+.comm-yt:hover{border-color:rgba(255,0,0,0.45);box-shadow:0 14px 44px rgba(255,0,0,0.14);}
+.comm-stoat-i{border-color:rgba(0,200,140,0.2);background:linear-gradient(135deg,rgba(0,200,140,0.08),transparent);}
+.comm-stoat-i:hover{border-color:rgba(0,200,140,0.45);box-shadow:0 14px 44px rgba(0,200,140,0.14);}
+.comm-stoat-p{border-color:rgba(0,212,255,0.2);background:linear-gradient(135deg,rgba(0,212,255,0.08),transparent);}
+.comm-stoat-p:hover{border-color:rgba(0,212,255,0.45);box-shadow:0 14px 44px rgba(0,212,255,0.14);}
+
+.comm-icon{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1);}
+.comm-card:hover .comm-icon{transform:scale(1.18) rotate(-6deg);}
+.comm-forum   .comm-icon{background:rgba(124,92,252,0.22);box-shadow:0 0 16px rgba(124,92,252,0.3);}
+.comm-discord .comm-icon{background:rgba(88,101,242,0.22);box-shadow:0 0 16px rgba(88,101,242,0.3);}
+.comm-yt      .comm-icon{background:#ff0000;box-shadow:0 0 14px rgba(255,0,0,0.4);}
+.comm-stoat-i .comm-icon{background:rgba(0,200,140,0.2);box-shadow:0 0 14px rgba(0,200,140,0.3);}
+.comm-stoat-p .comm-icon{background:rgba(0,212,255,0.15);box-shadow:0 0 14px rgba(0,212,255,0.3);}
+
+.comm-text{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.comm-label{font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;opacity:0.5;font-family:'Space Mono',monospace;}
+.comm-name{font-family:'Space Mono',monospace;font-size:0.78rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.comm-sub{font-size:0.7rem;color:var(--text-muted);line-height:1.3;}
+
+/* ══ GRID (accordion) ══ */
+.hub-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:52px;}
+.accordion-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:border-color 0.3s,box-shadow 0.3s,transform 0.2s;}
+.accordion-card:hover{border-color:rgba(124,92,252,0.25);box-shadow:0 4px 40px rgba(124,92,252,0.08);transform:translateY(-2px);}
+.accordion-trigger{width:100%;padding:22px 28px;background:transparent;border:none;display:flex;align-items:center;justify-content:space-between;cursor:pointer;color:var(--text);text-align:left;transition:background 0.2s;}
+.accordion-trigger:hover{background:rgba(255,255,255,0.025);}
+.accordion-title{display:flex;align-items:center;gap:14px;}
+.accordion-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);}
+.accordion-trigger:hover .accordion-icon{transform:scale(1.15) rotate(5deg);}
+.acc-games  .accordion-icon{background:rgba(124,92,252,0.15);}
+.acc-python .accordion-icon{background:rgba(0,212,255,0.12);}
+.acc-nature .accordion-icon{background:rgba(0,200,100,0.12);}
+.acc-quiz   .accordion-icon{background:rgba(255,180,0,0.12);}
+.accordion-title h3{font-family:'Space Mono',monospace;font-size:0.9rem;font-weight:700;color:var(--text);}
+.accordion-arrow{width:28px;height:28px;border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:1.1rem;transition:all 0.35s cubic-bezier(0.34,1.56,0.64,1);flex-shrink:0;}
+.accordion-card.open .accordion-arrow{transform:rotate(45deg);border-color:var(--accent);color:var(--accent);background:rgba(124,92,252,0.1);box-shadow:0 0 12px var(--glow);}
+.accordion-body{max-height:0;overflow:hidden;transition:max-height 0.45s cubic-bezier(0.4,0,0.2,1);}
+.accordion-body-inner{padding:4px 28px 24px;display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--border);}
+.acc-item{display:flex;align-items:flex-start;gap:14px;padding:14px 16px;border-radius:var(--radius-sm);background:var(--surface2);border:1px solid transparent;text-decoration:none;color:inherit;transition:all 0.25s cubic-bezier(0.34,1.56,0.64,1);position:relative;overflow:hidden;}
+.acc-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);transform:scaleY(0);transition:transform 0.25s;border-radius:0 2px 2px 0;}
+.acc-item:hover{border-color:rgba(124,92,252,0.25);background:rgba(124,92,252,0.07);transform:translateX(6px);}
+.acc-item:hover::before{transform:scaleY(1);}
+.acc-item-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);margin-top:7px;flex-shrink:0;opacity:0.5;transition:opacity 0.25s,box-shadow 0.25s;}
+.acc-item:hover .acc-item-dot{opacity:1;box-shadow:0 0 8px var(--accent);}
+.acc-item-text strong{display:block;font-size:0.88rem;font-weight:600;color:var(--text);margin-bottom:2px;}
+.acc-item-text span{font-size:0.78rem;color:var(--text-muted);line-height:1.5;}
+
+/* ══ FEATURED ══ */
+.featured-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-bottom:16px;transition:opacity 0.4s ease;}
+.feature-card{border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1);text-decoration:none;color:inherit;display:block;}
+.feature-card:hover{transform:translateY(-8px);}
+.feature-card-inner{padding:28px 24px;height:100%;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);position:relative;overflow:hidden;transition:border-color 0.3s,box-shadow 0.3s;}
+.card-green:hover .feature-card-inner{border-color:rgba(0,200,80,0.3);box-shadow:0 20px 60px rgba(0,200,80,0.1);}
+.card-purple:hover .feature-card-inner{border-color:rgba(124,92,252,0.3);box-shadow:0 20px 60px rgba(124,92,252,0.1);}
+.card-red:hover .feature-card-inner{border-color:rgba(255,107,107,0.3);box-shadow:0 20px 60px rgba(255,107,107,0.1);}
+.card-cyan:hover .feature-card-inner{border-color:rgba(0,212,255,0.3);box-shadow:0 20px 60px rgba(0,212,255,0.1);}
+.card-yellow:hover .feature-card-inner{border-color:rgba(255,200,0,0.3);box-shadow:0 20px 60px rgba(255,200,0,0.08);}
+.feature-card-glow{position:absolute;width:200px;height:200px;border-radius:50%;filter:blur(70px);top:-60px;right:-60px;pointer-events:none;opacity:0.3;transition:opacity 0.4s,transform 0.4s;}
+.feature-card:hover .feature-card-glow{opacity:0.7;transform:scale(1.2);}
+.card-green  .feature-card-glow{background:rgba(0,200,80,0.6);}
+.card-purple .feature-card-glow{background:rgba(124,92,252,0.6);}
+.card-red    .feature-card-glow{background:rgba(255,107,107,0.6);}
+.card-cyan   .feature-card-glow{background:rgba(0,212,255,0.6);}
+.card-yellow .feature-card-glow{background:rgba(255,200,0,0.5);}
+.feature-card-emoji{font-size:2.4rem;margin-bottom:14px;display:block;transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);}
+.feature-card:hover .feature-card-emoji{transform:scale(1.2) rotate(-8deg);}
+.feature-card-label{font-family:'Space Mono',monospace;font-size:0.6rem;letter-spacing:0.22em;text-transform:uppercase;margin-bottom:6px;}
+.card-green  .feature-card-label{color:#00c850;}
+.card-purple .feature-card-label{color:var(--accent);}
+.card-red    .feature-card-label{color:var(--accent3);}
+.card-cyan   .feature-card-label{color:var(--accent2);}
+.card-yellow .feature-card-label{color:#ffc800;}
+.feature-card h3{font-family:'Space Mono',monospace;font-size:1.05rem;font-weight:700;color:var(--text);margin-bottom:7px;}
+.feature-card p{font-size:0.82rem;color:var(--text-muted);line-height:1.6;margin-bottom:16px;}
+.feature-card-btn{display:inline-flex;align-items:center;gap:8px;padding:9px 15px;border-radius:8px;font-size:0.8rem;font-weight:600;border:none;cursor:pointer;transition:all 0.25s;font-family:'DM Sans',sans-serif;}
+.card-green  .feature-card-btn{background:rgba(0,200,80,0.12);color:#00c850;border:1px solid rgba(0,200,80,0.25);}
+.card-purple .feature-card-btn{background:rgba(124,92,252,0.12);color:var(--accent);border:1px solid rgba(124,92,252,0.25);}
+.card-red    .feature-card-btn{background:rgba(255,107,107,0.12);color:var(--accent3);border:1px solid rgba(255,107,107,0.25);}
+.card-cyan   .feature-card-btn{background:rgba(0,212,255,0.12);color:var(--accent2);border:1px solid rgba(0,212,255,0.25);}
+.card-yellow .feature-card-btn{background:rgba(255,200,0,0.1);color:#ffc800;border:1px solid rgba(255,200,0,0.2);}
+.feature-card:hover .feature-card-btn{filter:brightness(1.3);transform:translateX(5px);}
+
+/* hl dots */
+.hl-dots{display:flex;gap:8px;margin-bottom:24px;align-items:center;}
+.hl-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.12);cursor:pointer;transition:all 0.3s;}
+.hl-dot.active{background:var(--accent);box-shadow:0 0 10px var(--accent);width:22px;border-radius:4px;}
+
+/* Film standalone */
+.film-standalone{margin-bottom:52px;}
+.film-standalone .feature-card-inner{display:flex;align-items:center;gap:24px;padding:22px 28px;}
+.film-standalone .feature-card-emoji{margin-bottom:0;font-size:2rem;}
+.film-standalone h3{margin-bottom:0;font-size:1rem;}
+
+/* PARTNER */
+.partner-card{background:var(--surface);border:1px solid rgba(0,200,80,0.2);border-radius:var(--radius);margin-bottom:52px;overflow:hidden;transition:border-color 0.3s,box-shadow 0.3s;text-decoration:none;display:block;color:inherit;}
+.partner-card:hover{border-color:rgba(0,200,80,0.4);box-shadow:0 8px 48px rgba(0,200,80,0.1);transform:translateY(-3px);}
+.partner-inner{display:flex;align-items:center;gap:26px;padding:26px 30px;}
+.partner-badge{width:68px;height:68px;border-radius:14px;background:linear-gradient(135deg,rgba(0,200,80,0.2),rgba(0,150,60,0.08));border:1px solid rgba(0,200,80,0.25);display:flex;align-items:center;justify-content:center;font-size:1.9rem;flex-shrink:0;transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1);}
+.partner-card:hover .partner-badge{transform:scale(1.1) rotate(-5deg);}
+.partner-body{flex:1;}
+.partner-tag{font-family:'Space Mono',monospace;font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;color:#00c850;opacity:0.75;margin-bottom:5px;}
+.partner-body h3{font-family:'Space Mono',monospace;font-size:1rem;font-weight:700;color:var(--text);margin-bottom:5px;}
+.partner-body p{font-size:0.82rem;color:var(--text-muted);line-height:1.6;max-width:480px;}
+.partner-cta{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:10px;background:rgba(0,200,80,0.12);border:1px solid rgba(0,200,80,0.3);color:#00c850;font-family:'Space Mono',monospace;font-size:0.75rem;font-weight:700;white-space:nowrap;flex-shrink:0;transition:all 0.3s;}
+.partner-card:hover .partner-cta{background:rgba(0,200,80,0.22);box-shadow:0 0 28px rgba(0,200,80,0.25);}
+
+/* LEGACY */
+.legacy-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:26px 28px;margin-bottom:52px;}
+.legacy-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px;}
+.legacy-item{padding:14px 18px;border-radius:var(--radius-sm);background:var(--surface2);border:1px solid var(--border);text-decoration:none;color:var(--text-muted);font-size:0.85rem;font-weight:500;transition:all 0.25s;display:flex;align-items:center;gap:10px;}
+.legacy-item:hover{color:var(--text);border-color:rgba(124,92,252,0.2);background:var(--surface3);transform:translateY(-2px);}
+.legacy-item::before{content:'↗';font-size:0.75rem;opacity:0.4;}
+
+/* RIPPLE */
+.ripple{position:absolute;border-radius:50%;background:rgba(124,92,252,0.2);pointer-events:none;transform:scale(0);animation:rip 0.65s ease-out forwards;}
+@keyframes rip{to{transform:scale(4);opacity:0;}}
+
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding:32px 40px;display:flex;justify-content:space-between;align-items:center;max-width:1280px;margin:0 auto;position:relative;z-index:1;}
+.footer-copy{font-size:0.78rem;color:var(--text-dim);font-family:'Space Mono',monospace;}
+
+/* ANIMS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
+.community-section{animation:fadeUp 0.6s ease both 0.05s;}
+.hub-grid{animation:fadeUp 0.6s ease both 0.14s;}
+.hl-dots,.featured-row{animation:fadeUp 0.6s ease both 0.22s;}
+.film-standalone{animation:fadeUp 0.6s ease both 0.26s;}
+.partner-card{animation:fadeUp 0.6s ease both 0.3s;}
+.legacy-section{animation:fadeUp 0.6s ease both 0.34s;}
+
+/* RESPONSIVE */
+@media(max-width:1050px){.community-bottom{grid-template-columns:1fr 1fr;}.featured-row{grid-template-columns:1fr 1fr;}}
+@media(max-width:760px){main{padding:32px 18px 60px;}header{padding:0 18px;}.hub-grid{grid-template-columns:1fr;}.featured-row{grid-template-columns:1fr;}.community-top{grid-template-columns:1fr;}.community-bottom{grid-template-columns:1fr 1fr;}.partner-inner{flex-direction:column;gap:18px;}.legacy-grid{grid-template-columns:1fr 1fr;}footer{flex-direction:column;gap:12px;text-align:center;padding:22px 18px;}}
+@media(max-width:480px){.community-bottom{grid-template-columns:1fr;}.legacy-grid{grid-template-columns:1fr;}.lang-modal{padding:36px 26px;}.lang-modal h2{font-size:1.5rem;}}
 </style>
 </head>
 <body>
 
-<!-- ══ LANGUAGE SELECTION OVERLAY ══ -->
+<canvas id="galaxy-canvas"></canvas>
+
+<!-- LANG -->
 <div id="lang-overlay">
   <div class="lang-modal">
     <div class="lang-modal-logo">Ingwerperium Hub</div>
-    <h2 id="lm-title">Sprache / Language</h2>
-    <p id="lm-sub">Bitte wähle deine bevorzugte Sprache.<br>Please select your preferred language.</p>
+    <h2>Sprache / Language</h2>
+    <p>Bitte wähle deine bevorzugte Sprache.<br>Please select your preferred language.</p>
     <div class="lang-buttons">
-      <button class="lang-btn de" onclick="setLang('de')">
-        <span class="flag">🇩🇪</span>
-        Deutsch
-      </button>
-      <button class="lang-btn en" onclick="setLang('en')">
-        <span class="flag">🇬🇧</span>
-        English
-      </button>
+      <button class="lang-btn de" onclick="setLang('de')"><span class="flag">🇩🇪</span>Deutsch</button>
+      <button class="lang-btn en" onclick="setLang('en')"><span class="flag">🇬🇧</span>English</button>
     </div>
   </div>
 </div>
 
-<!-- ══ HEADER ══ -->
+<!-- HEADER -->
 <header>
-  <div class="header-logo">
-    <span></span>
-    Ingwerperium Hub
-  </div>
+  <div class="header-logo"><span class="logo-dot"></span>Ingwerperium Hub</div>
   <nav class="header-nav">
     <a href="info1.html" class="nav-btn" data-i="nav-info">Info</a>
     <a href="datenschutz.html" class="nav-btn" data-i="nav-privacy">Datenschutz</a>
@@ -741,221 +229,160 @@ footer {
   </nav>
 </header>
 
-<!-- ══ MAIN ══ -->
 <main>
 
+  <!-- ══ COMMUNITY ══ -->
+  <div class="community-section">
+    <div class="section-label" data-i="sec-community">Community &amp; Links</div>
 
-  <!-- Grid: Accordion Cards -->
+    <div class="community-top">
+      <a href="fire.html" class="comm-card comm-forum">
+        <div class="comm-icon">💬</div>
+        <div class="comm-text">
+          <span class="comm-label">Community</span>
+          <span class="comm-name" data-i="comm-forum-name">Ingwerperium Forum</span>
+          <span class="comm-sub" data-i="comm-forum-sub">Diskutiere &amp; tausche dich aus</span>
+        </div>
+      </a>
+      <a href="https://discord.gg/RRaJgHa7Bq" target="_blank" class="comm-card comm-discord">
+        <div class="comm-icon">🎮</div>
+        <div class="comm-text">
+          <span class="comm-label">Discord</span>
+          <span class="comm-name">Ingwerperium Discord</span>
+          <span class="comm-sub">discord.gg/RRaJgHa7Bq</span>
+        </div>
+      </a>
+    </div>
+
+    <div class="community-bottom">
+      <a href="https://www.youtube.com/@IngwerperiumYT/about" target="_blank" class="comm-card comm-yt">
+        <div class="comm-icon">▶</div>
+        <div class="comm-text">
+          <span class="comm-label">YouTube</span>
+          <span class="comm-name" data-i="yt-int-name">Ingwerperium INT</span>
+          <span class="comm-sub" data-i="yt-int-sub">International Channel</span>
+        </div>
+      </a>
+      <a href="https://www.youtube.com/@IngwerperiumDE/about" target="_blank" class="comm-card comm-yt">
+        <div class="comm-icon">▶</div>
+        <div class="comm-text">
+          <span class="comm-label">YouTube 🇩🇪</span>
+          <span class="comm-name" data-i="yt-de-name">Ingwerperium DE</span>
+          <span class="comm-sub" data-i="yt-de-sub">Deutscher Kanal</span>
+        </div>
+      </a>
+      <a href="https://stt.gg/5h9780W0" target="_blank" class="comm-card comm-stoat-i">
+        <div class="comm-icon">🦦</div>
+        <div class="comm-text">
+          <span class="comm-label">Stoat</span>
+          <span class="comm-name">Ingwerperium</span>
+          <span class="comm-sub">stt.gg/5h9780W0</span>
+        </div>
+      </a>
+      <a href="https://stt.gg/VqndbrBG" target="_blank" class="comm-card comm-stoat-p">
+        <div class="comm-icon">🐍</div>
+        <div class="comm-text">
+          <span class="comm-label">Stoat</span>
+          <span class="comm-name" data-i="stoat-py-name">Python Server</span>
+          <span class="comm-sub">stt.gg/VqndbrBG</span>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ══ LEARN GRID ══ -->
+  <div class="section-label" data-i="sec-learn">Lernbereich</div>
   <div class="hub-grid">
 
+    <div class="accordion-card acc-python" id="acc-python">
+      <button class="accordion-trigger" onclick="toggleAcc('acc-python')">
+        <div class="accordion-title"><div class="accordion-icon">🐍</div><h3 data-i="cat-python">Python</h3></div>
+        <div class="accordion-arrow">+</div>
+      </button>
+      <div class="accordion-body"><div class="accordion-body-inner">
+        <a href="grundlagenpython.html" class="acc-item"><div class="acc-item-dot"></div><div class="acc-item-text"><strong data-i="p1-title">Python Grundlagen</strong><span data-i="p1-desc">Handbuch &amp; Quizzes.</span></div></a>
+        <a href="fortgeschrittenesPython.html" class="acc-item"><div class="acc-item-dot"></div><div class="acc-item-text"><strong data-i="p2-title">Fortgeschrittenes Python</strong><span data-i="p2-desc">Über 1000 mögliche Fragen!</span></div></a>
+        <a href="pythongame1.1.html" class="acc-item"><div class="acc-item-dot"></div><div class="acc-item-text"><strong data-i="p3-title">GAME V.1.1 VOLLVERSION</strong><span data-i="p3-desc">Für Nutzer mit abgeschlossenen Grundlagen.</span></div></a>
+      </div></div>
+    </div>
 
+    <div class="accordion-card acc-nature" id="acc-nature">
+      <button class="accordion-trigger" onclick="toggleAcc('acc-nature')">
+        <div class="accordion-title"><div class="accordion-icon">🌿</div><h3 data-i="cat-nature">Naturspiele</h3></div>
+        <div class="accordion-arrow">+</div>
+      </button>
+      <div class="accordion-body"><div class="accordion-body-inner">
+        <a href="Chronos-Eiszeit-Update-3.0.html" class="acc-item"><div class="acc-item-dot"></div><div class="acc-item-text"><strong data-i="n1-title">Chronos 3.0</strong><span data-i="n1-desc">Baue ein Biotop – Eiszeit Update.</span></div></a>
+        <a href="Blümchengame.html" class="acc-item"><div class="acc-item-dot"></div><div class="acc-item-text"><strong data-i="n2-title">Blümchen</strong><span data-i="n2-desc">Sei ein Gärtner.</span></div></a>
+      </div></div>
+    </div>
 
-  </div><!-- /hub-grid -->
+    <div class="accordion-card acc-quiz" id="acc-quiz">
+      <button class="accordion-trigger" onclick="toggleAcc('acc-quiz')">
+        <div class="accordion-title"><div class="accordion-icon">🧠</div><h3 data-i="cat-quiz">Allgemeinwissen</h3></div>
+        <div class="accordion-arrow">+</div>
+      </button>
+      <div class="accordion-body"><div class="accordion-body-inner">
+        <a href="Quiz.html" class="acc-item"><div class="acc-item-dot"></div><div class="acc-item-text"><strong data-i="q2-title">Quiz</strong><span data-i="q2-desc">❓❓❓</span></div></a>
+      </div></div>
+    </div>
 
-  <!-- Featured Section -->
-  <div class="section-label" data-i="sec-featured">Highlights</div>
-
-  <div class="featured-row">
-
-    <!-- CACTI -->
-    <a href="CACTI.html" class="feature-card card-cacti">
-      <div class="feature-card-inner">
-        <div class="feature-card-glow"></div>
-        <span class="feature-card-emoji">🌵</span>
-        <div class="feature-card-label">Game</div>
-        <h3>CACTI</h3>
-        <p data-i="fc-cacti">Das lustigste Kaktus-Spiel aller Zeiten!</p>
-        <button class="feature-card-btn" data-i="fc-btn-play">Spielen →</button>
-      </div>
-    </a>
-
-    <!-- InfoSphäre -->
-    <a href="infosphäre.html" class="feature-card card-info">
-      <div class="feature-card-inner">
-        <div class="feature-card-glow"></div>
-        <span class="feature-card-emoji">🌐</span>
-        <div class="feature-card-label" data-i="fc-info-label">Wissen</div>
-        <h3>InfoSphäre</h3>
-        <p data-i="fc-info">Spannende Inhalte, besser erklärt als Wikipedia – ohne Ablenkungen.</p>
-        <button class="feature-card-btn" data-i="fc-btn-explore">Eintauchen →</button>
-      </div>
-    </a> 
-
-    <a href="watercreaturesquiz.html" class="feature-card card-films">
-      <div class="feature-card-inner">
-        <div class="feature-card-glow"></div>
-        <span class="feature-card-emoji">🌊</span>
-        <div class="feature-card-label" data-i="fc-quiz-label">Quiz</div>
-        <h3 data-i="fc-quiz-title">Wasserkreaturen</h3>
-        <p data-i="fc-films">🐬</p>
-        <button class="feature-card-btn" data-i="fc-btn-play">Spielen →</button>
-      </div>
-    </a>
-
-
+    <div class="accordion-card acc-games" id="acc-games">
+      <button class="accordion-trigger" onclick="toggleAcc('acc-games')">
+        <div class="accordion-title"><div class="accordion-icon">🎮</div><h3 data-i="cat-games">Lern Apps</h3></div>
+        <div class="accordion-arrow">+</div>
+      </button>
+      <div class="accordion-body"><div class="accordion-body-inner">
+        <a href="vokabeltrainer.html" class="acc-item"><div class="acc-item-dot"></div><div class="acc-item-text"><strong data-i="g1-title">Spaßiger Vokabeltrainer</strong><span data-i="g1-desc">Trainiere neue und alte Vokabeln.</span></div></a>
+      </div></div>
+    </div>
 
   </div>
 
+  <!-- ══ HIGHLIGHTS ══ -->
+  <div class="section-label" data-i="sec-featured">Highlights</div>
+  <div class="hl-dots" id="hl-dots"></div>
+  <div class="featured-row" id="featured-row"></div>
 
-
-  
-
-    <!-- Python -->
-    <div class="accordion-card acc-python" id="acc-python">
-      <button class="accordion-trigger" onclick="toggleAcc('acc-python')">
-        <div class="accordion-title">
-          <div class="accordion-icon">🐍</div>
-          <h3 data-i="cat-python">Python</h3>
-        </div>
-        <div class="accordion-arrow">+</div>
-      </button>
-      <div class="accordion-body">
-        <div class="accordion-body-inner">
-          <a href="grundlagenpython.html" class="acc-item">
-            <div class="acc-item-dot"></div>
-            <div class="acc-item-text">
-              <strong data-i="p1-title">Python Grundlagen</strong>
-              <span data-i="p1-desc">Handbuch & Quizzes.</span>
-            </div>
-          </a>
-          <a href="fortgeschrittenesPython.html" class="acc-item">
-            <div class="acc-item-dot"></div>
-            <div class="acc-item-text">
-              <strong data-i="p2-title">Fortgeschrittenes Python</strong>
-              <span data-i="p2-desc">Über 1000 mögliche Fragen!</span>
-            </div>
-          </a>
-          <a href="pythongame1.1.html" class="acc-item">
-            <div class="acc-item-dot"></div>
-            <div class="acc-item-text">
-              <strong data-i="p3-title">GAME V.1.1 VOLLVERSION</strong>
-              <span data-i="p3-desc">Für Nutzer mit abgeschlossenen Grundlagen.</span>
-            </div>
-          </a>
-        </div>
-      </div>
-    </div>
-
-    <!-- Nature -->
-    <div class="accordion-card acc-nature" id="acc-nature">
-      <button class="accordion-trigger" onclick="toggleAcc('acc-nature')">
-        <div class="accordion-title">
-          <div class="accordion-icon">🌿</div>
-          <h3 data-i="cat-nature">Naturspiele</h3>
-        </div>
-        <div class="accordion-arrow">+</div>
-      </button>
-      <div class="accordion-body">
-        <div class="accordion-body-inner">
-          <a href="Chronos-Eiszeit-Update-3.0.html" class="acc-item">
-            <div class="acc-item-dot"></div>
-            <div class="acc-item-text">
-              <strong data-i="n1-title">Chronos 3.0</strong>
-              <span data-i="n1-desc">Baue ein Biotop – Eiszeit Update.</span>
-            </div>
-          </a>
-          <a href="Blümchengame.html" class="acc-item">
-            <div class="acc-item-dot"></div>
-            <div class="acc-item-text">
-              <strong data-i="n2-title">Blümchen</strong>
-              <span data-i="n2-desc">Sei ein Gärtner.</span>
-            </div>
-          </a>
-        </div>
-      </div>
-    </div>
-
-    <!-- Quiz -->
-    <div class="accordion-card acc-quiz" id="acc-quiz">
-      <button class="accordion-trigger" onclick="toggleAcc('acc-quiz')">
-        <div class="accordion-title">
-          <div class="accordion-icon">🧠</div>
-          <h3 data-i="cat-quiz">Allgemeinwissen</h3>
-        </div>
-        <div class="accordion-arrow">+</div>
-      </button>
-      <div class="accordion-body">
-        <div class="accordion-body-inner">
-          <a href="Quiz.html" class="acc-item">
-            <div class="acc-item-dot"></div>
-            <div class="acc-item-text">
-              <strong data-i="q2-title">Quiz</strong>
-              <span data-i="q2-desc">❓❓❓</span>
-            </div>
-          </a>
-        </div>
-      </div>
-    </div>
-  
-  
-      <!-- Games -->
-    <div class="accordion-card acc-games" id="acc-games">
-      <button class="accordion-trigger" onclick="toggleAcc('acc-games')">
-        <div class="accordion-title">
-          <div class="accordion-icon">🎮</div>
-          <h3 data-i="cat-games">Lern Apps</h3>
-        </div>
-        <div class="accordion-arrow">+</div>
-      </button>
-      <div class="accordion-body">
-        <div class="accordion-body-inner">
-          <a href="vokabeltrainer.html" class="acc-item">
-            <div class="acc-item-dot"></div>
-            <div class="acc-item-text">
-              <strong data-i="g1-title">Spaßiger Vokabeltrainer</strong>
-              <span data-i="g1-desc">Trainiere neue und alte Vokabeln.</span>
-            </div>
-          </a>
-        </div>
-      </div>
-    </div>
-
-      <!-- Filme -->
-    <a href="movies.html" class="feature-card card-films">
-      <div class="feature-card-inner">
+  <!-- Filme -->
+  <div class="film-standalone">
+    <a href="movies.html" class="feature-card card-red">
+      <div class="feature-card-inner" style="display:flex;align-items:center;gap:24px;padding:22px 28px;">
         <div class="feature-card-glow"></div>
-        <span class="feature-card-emoji">🎬</span>
-        
-        <h3 data-i="fc-films-title">Filme</h3>
-        
+        <span class="feature-card-emoji" style="margin-bottom:0;font-size:2rem;">🎬</span>
+        <div style="flex:1;">
+          <div class="feature-card-label" data-i="fc-films-label">Film</div>
+          <h3 data-i="fc-films-title" style="font-size:1rem;margin-bottom:0;">Filme</h3>
+        </div>
         <button class="feature-card-btn" data-i="fc-btn-watch">Ansehen →</button>
       </div>
     </a>
-
-  <div class="forum-section">
-    <a href="fire.html" class="forum-link">
-      <div class="forum-icon">💬</div>
-      <span data-i="nav-privacy-fy">Forum betreten</span>
-    </a>
   </div>
 
-    <!-- YouTube -->
-  <div class="yt-section">
-    <a href="https://www.youtube.com/@IngwerperiumYT/about" target="_blank" class="yt-link">
-      <div class="yt-icon">▶</div>
-      <span data-i="yt-btn">Mein YouTube Kanal</span>
-    </a>
-  </div>
-  
-
-  
-  <!-- Legacy Section -->
+  <!-- ══ PARTNER ══ -->
   <div class="section-label" data-i="sec-legacy">Partnerschaften</div>
 
+  <a href="https://www.spectrum48.com/grow-wild/" target="_blank" class="partner-card">
+    <div class="partner-inner">
+      <div class="partner-badge">🌿</div>
+      <div class="partner-body">
+        <div class="partner-tag" data-i="partner-tag">Featured Partner · Nature Game</div>
+        <h3>Grow Wild</h3>
+        <p data-i="partner-desc">Ein gemütliches, entspannendes Naturspiel, in dem du echte Pflanzen und Bäume anbaust, um Wildtiere anzulocken. Perfekt für alle Naturliebhaber!</p>
+      </div>
+      <div class="partner-cta" data-i="partner-btn">Entdecken →</div>
+    </div>
+  </a>
+
   <div class="legacy-section">
-    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom: 0;" data-i="">
-    </p>
     <div class="legacy-grid">
-      <a href="leer.html" class="legacy-item" data-i="legg1"> 1 </a>
-      <a href="leer.html" class="legacy-item" data-i="leggg2"> 2 </a>
-      <a href="leer.html" class="legacy-item" data-i="legggg3"> 3 </a>
-      <a href="leer.html" class="legacy-item" data-i="leggggg4"> 4 </a>
-      <a href="leer.html" class="legacy-item" data-i="leggggggg5"> 5 </a>
-      <a href="leer.html" class="legacy-item" data-i="leggggggggg6"> 6  </a>
+      <a href="leer.html" class="legacy-item">2</a>
+      <a href="leer.html" class="legacy-item">3</a>
+      <a href="leer.html" class="legacy-item">4</a>
+      <a href="leer.html" class="legacy-item">5</a>
+      <a href="leer.html" class="legacy-item">6</a>
     </div>
   </div>
-
-
 
 </main>
 
@@ -965,179 +392,180 @@ footer {
 </footer>
 
 <script>
-// ─── TRANSLATIONS ───────────────────────────────────────────────
-const i18n = {
-  de: {
-    "nav-privacy-fy": "Forum betreten",
-    'nav-info':        'Info',
-    'nav-privacy':     'Datenschutz',
-    'nav-privacy-f':   'FORUM',
-    'sec-learn':       'Lernbereich',
-    'sec-featured':    'Highlights',
-    'sec-legacy':      'Partnerschaften',
-    'cat-games':       'Lern Apps',
-    'cat-python':      'Python',
-    'cat-nature':      'Naturspiele',
-    'cat-quiz':        'Allgemeinwissen',
-    'g1-title':        'Spaßiger Vokabeltrainer',
-    'g1-desc':         'Trainiere neue und alte Vokabeln.',
-    'g2-title':        'Pure Vokabelabfrage',
-    'g2-desc':         'Einfaches Lernspiel mit Import/Export.',
-    'p1-title':        'Python Grundlagen',
-    'p1-desc':         'Handbuch & Quizzes.',
-    'p2-title':        'Fortgeschrittenes Python',
-    'p2-desc':         'Über 1000 mögliche Fragen!',
-    'p3-title':        'GAME V.1.1 VOLLVERSION',
-    'p3-desc':         'Für Nutzer mit abgeschlossenen Grundlagen.',
-    'n1-title':        'Chronos 3.0',
-    'n1-desc':         'Baue ein Biotop – Eiszeit Update.',
-    'n2-title':        'Blümchen',
-    'n2-desc':         'Sei ein Gärtner.',
-    'q1-title':        'Das große Quiz',
-    'q1-desc':         'DEMO Version',
-    'q2-title':        'Mehrspieler Quiz',
-    'q2-desc':         '❓❓❓ Spiele alleine oder mit Freunden!',
-    'fc-cacti':        'Das lustigste Kaktus-Spiel aller Zeiten!',
-    'fc-btn-play':     'Spielen →',
-    'fc-info-label':   'Wissen',
-    'fc-info':         'Spannende Inhalte über die Natur.',
-    'fc-btn-explore':  'Eintauchen →',
-    "fc-quiz-title": "Wasserkreaturen",
-    'fc-films-label':  'Film',
-    'fc-films-title':  'Filme',
-    'fc-films':        '',
-    'fc-btn-watch':    'Ansehen →',
-    'leg-pg':          'Python Game V.1.0',
-    'leg-ch':          'Chronos Fungus V.1.2',
-    'leg-bl':          'Blümsche 1.0',
-    'yt-btn':          'Mein YouTube Kanal',
+/* ═══ GALAXY ═══ */
+(function(){
+  const c=document.getElementById('galaxy-canvas'),ctx=c.getContext('2d');
+  let W,H,stars=[],neb=[];
+  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;}
+  function mkStar(){return{x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.4+0.2,a:Math.random(),sp:Math.random()*0.003+0.001,ph:Math.random()*Math.PI*2,col:Math.random()<0.12?(Math.random()<0.5?'124,92,252':'0,212,255'):'255,255,255'};}
+  function mkNeb(){return{x:Math.random()*W,y:Math.random()*H,r:Math.random()*200+80,a:Math.random()*0.04+0.01,col:Math.random()<0.5?'124,92,252':'0,212,255',d:(Math.random()-.5)*0.04,ph:Math.random()*Math.PI*2};}
+  function init(){resize();stars=Array.from({length:280},mkStar);neb=Array.from({length:6},mkNeb);}
+  let t=0;
+  function draw(){
+    ctx.clearRect(0,0,W,H);t+=0.008;
+    neb.forEach(n=>{
+      const a=n.a*(0.7+0.3*Math.sin(t*0.4+n.ph));
+      const g=ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,n.r);
+      g.addColorStop(0,`rgba(${n.col},${a})`);g.addColorStop(1,`rgba(${n.col},0)`);
+      ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
+      n.x+=n.d;if(n.x<-n.r)n.x=W+n.r;if(n.x>W+n.r)n.x=-n.r;
+    });
+    stars.forEach(s=>{
+      const a=s.a*(0.4+0.6*(0.5+0.5*Math.sin(t*s.sp*300+s.ph)));
+      ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${s.col},${a})`;ctx.fill();
+      if(s.r>1&&a>0.6){ctx.beginPath();ctx.moveTo(s.x-s.r*2.5,s.y);ctx.lineTo(s.x+s.r*2.5,s.y);ctx.moveTo(s.x,s.y-s.r*2.5);ctx.lineTo(s.x,s.y+s.r*2.5);ctx.strokeStyle=`rgba(255,255,255,${a*0.22})`;ctx.lineWidth=0.5;ctx.stroke();}
+    });
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize',()=>{resize();neb=Array.from({length:6},mkNeb);});
+  init();draw();
+})();
+
+/* ═══ RIPPLE ═══ */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('a,button,.comm-card,.acc-item,.feature-card');
+  if(!t)return;
+  const r=t.getBoundingClientRect(),el=document.createElement('div');
+  el.className='ripple';el.style.cssText=`width:60px;height:60px;left:${e.clientX-r.left-30}px;top:${e.clientY-r.top-30}px;`;
+  if(getComputedStyle(t).position==='static')t.style.position='relative';
+  t.appendChild(el);setTimeout(()=>el.remove(),700);
+});
+
+/* ═══ HIGHLIGHTS DATA ═══ */
+const HIGHLIGHTS=[
+  {href:'CACTI.html',cls:'card-green',e:'🌵',lbl:{de:'Game',en:'Game'},title:{de:'CACTI',en:'CACTI'},desc:{de:'Das lustigste Kaktus-Spiel aller Zeiten!',en:'The funniest cactus game ever!'},btn:'play'},
+  {href:'infosphäre.html',cls:'card-purple',e:'🌐',lbl:{de:'Wissen',en:'Knowledge'},title:{de:'InfoSphäre',en:'InfoSphere'},desc:{de:'Spannende Inhalte, besser erklärt als Wikipedia.',en:'Fascinating content, better explained than Wikipedia.'},btn:'explore'},
+  {href:'watercreaturesquiz.html',cls:'card-cyan',e:'🌊',lbl:{de:'Quiz',en:'Quiz'},title:{de:'Wasserkreaturen',en:'Water Creatures'},desc:{de:'Teste dein Wissen über Meerestiere! 🐬',en:'Test your knowledge of sea creatures! 🐬'},btn:'play'},
+  {href:'grundlagenpython.html',cls:'card-purple',e:'🐍',lbl:{de:'Python',en:'Python'},title:{de:'Python Grundlagen',en:'Python Basics'},desc:{de:'Lerne Python von Grund auf – Handbuch & Quiz.',en:'Learn Python from scratch – handbook & quiz.'},btn:'start'},
+  {href:'Chronos-Eiszeit-Update-3.0.html',cls:'card-cyan',e:'🧊',lbl:{de:'Game',en:'Game'},title:{de:'Chronos 3.0',en:'Chronos 3.0'},desc:{de:'Baue ein Biotop – jetzt mit Eiszeit-Update!',en:'Build a biotope – now with Ice Age Update!'},btn:'play'},
+  {href:'vokabeltrainer.html',cls:'card-yellow',e:'📚',lbl:{de:'App',en:'App'},title:{de:'Vokabeltrainer',en:'Vocab Trainer'},desc:{de:'Trainiere Vokabeln auf spaßige Art!',en:'Train vocabulary in a fun way!'},btn:'start'},
+  {href:'Quiz.html',cls:'card-red',e:'🧠',lbl:{de:'Quiz',en:'Quiz'},title:{de:'Allgemeinwissen',en:'General Knowledge'},desc:{de:'Teste dein Allgemeinwissen! ❓❓❓',en:'Test your general knowledge! ❓❓❓'},btn:'play'},
+  {href:'Blümchengame.html',cls:'card-green',e:'🌸',lbl:{de:'Game',en:'Game'},title:{de:'Blümchen',en:'Little Flower'},desc:{de:'Sei ein Gärtner und pflege deine Blumen.',en:'Be a gardener and tend to your flowers.'},btn:'play'},
+];
+
+const BTNS={de:{play:'Spielen →',explore:'Eintauchen →',start:'Starten →',watch:'Ansehen →'},en:{play:'Play →',explore:'Explore →',start:'Start →',watch:'Watch →'}};
+const PER=3;
+let page=0;
+const pages=Math.ceil(HIGHLIGHTS.length/PER);
+
+function renderHL(lang){
+  const row=document.getElementById('featured-row');
+  const dots=document.getElementById('hl-dots');
+  const slice=HIGHLIGHTS.slice(page*PER,page*PER+PER);
+
+  row.style.opacity='0';
+  setTimeout(()=>{
+    row.innerHTML='';
+    slice.forEach(h=>{
+      const a=document.createElement('a');
+      a.href=h.href;a.className=`feature-card ${h.cls}`;
+      a.innerHTML=`<div class="feature-card-inner"><div class="feature-card-glow"></div><span class="feature-card-emoji">${h.e}</span><div class="feature-card-label">${h.lbl[lang]||h.lbl.de}</div><h3>${h.title[lang]||h.title.de}</h3><p>${h.desc[lang]||h.desc.de}</p><button class="feature-card-btn">${BTNS[lang][h.btn]||'→'}</button></div>`;
+      row.appendChild(a);
+    });
+    row.style.opacity='1';
+  },200);
+
+  dots.innerHTML='';
+  for(let i=0;i<pages;i++){
+    const d=document.createElement('div');
+    d.className='hl-dot'+(i===page?' active':'');
+    d.onclick=()=>{page=i;renderHL(currentLang);};
+    dots.appendChild(d);
+  }
+}
+
+setInterval(()=>{page=(page+1)%pages;renderHL(currentLang);},8000);
+
+/* ═══ TRANSLATIONS ═══ */
+const i18n={
+  de:{
+    'nav-info':'Info','nav-privacy':'Datenschutz','nav-privacy-f':'FORUM',
+    'sec-community':'Community & Links','sec-learn':'Lernbereich','sec-featured':'Highlights','sec-legacy':'Partnerschaften',
+    'cat-games':'Lern Apps','cat-python':'Python','cat-nature':'Naturspiele','cat-quiz':'Allgemeinwissen',
+    'g1-title':'Spaßiger Vokabeltrainer','g1-desc':'Trainiere neue und alte Vokabeln.',
+    'p1-title':'Python Grundlagen','p1-desc':'Handbuch & Quizzes.',
+    'p2-title':'Fortgeschrittenes Python','p2-desc':'Über 1000 mögliche Fragen!',
+    'p3-title':'GAME V.1.1 VOLLVERSION','p3-desc':'Für Nutzer mit abgeschlossenen Grundlagen.',
+    'n1-title':'Chronos 3.0','n1-desc':'Baue ein Biotop – Eiszeit Update.',
+    'n2-title':'Blümchen','n2-desc':'Sei ein Gärtner.',
+    'q2-title':'Quiz','q2-desc':'❓❓❓',
+    'fc-btn-watch':'Ansehen →','fc-films-label':'Film','fc-films-title':'Filme',
+    'comm-forum-name':'Ingwerperium Forum','comm-forum-sub':'Diskutiere & tausche dich aus',
+    'yt-int-name':'Ingwerperium INT','yt-int-sub':'International Channel',
+    'yt-de-name':'Ingwerperium DE','yt-de-sub':'Deutscher Kanal',
+    'stoat-py-name':'Python Server',
+    'partner-tag':'Featured Partner · Nature Game',
+    'partner-desc':'Ein gemütliches, entspannendes Naturspiel, in dem du echte Pflanzen und Bäume anbaust, um Wildtiere anzulocken. Perfekt für alle Naturliebhaber!',
+    'partner-btn':'Entdecken →',
   },
-  en: {
-    "nav-privacy-fy": "Enter forum",
-    "fc-quiz-title": "Water creatures",
-    'nav-info':        'Info',
-    'nav-privacy':     'Privacy',
-    'nav-privacy-f':   'FORUM',
-    'sec-learn':       'Learning Area',
-    'sec-featured':    'Highlights',
-    'sec-legacy':      'Partnerships',
-    'cat-games':       'Learning Apps',
-    'cat-python':      'Python',
-    'cat-nature':      'Nature Games',
-    'cat-quiz':        'General Knowledge',
-    'g1-title':        'Fun Vocabulary Trainer',
-    'g1-desc':         'Practice new and old vocabulary.',
-    'g2-title':        'Pure Vocabulary Quiz',
-    'g2-desc':         'Simple learning game with import/export.',
-    'p1-title':        'Python Basics',
-    'p1-desc':         'Handbook & quizzes.',
-    'p2-title':        'Advanced Python',
-    'p2-desc':         'Over 1000 possible questions!',
-    'p3-title':        'GAME V.1.1 FULL VERSION',
-    'p3-desc':         'For users who have finished the basics.',
-    'n1-title':        'Chronos 3.0',
-    'n1-desc':         'Build a biotope – Ice Age Update.',
-    'n2-title':        'Little Flower',
-    'n2-desc':         'Be a gardener.',
-    'q1-title':        'The Big Quiz',
-    'q1-desc':         'DEMO Version',
-    'q2-title':        'Multiplayer Quiz',
-    'q2-desc':         '❓❓❓ Play alone or with friends!',
-    'fc-cacti':        'The funniest cactus game ever!',
-    'fc-btn-play':     'Play →',
-    'fc-info-label':   'Knowledge',
-    'fc-info':         'Fascinating content about nature!',
-    'fc-btn-explore':  'Explore →',
-    'fc-films-label':  'Film',
-    'fc-films-title':  'Films',
-    'fc-films':        '',
-    'fc-btn-watch':    'Watch →',
-    'leg-pg':          'Python Game V.1.0',
-    'leg-ch':          'Chronos Fungus V.1.2',
-    'leg-bl':          'Little Flower',
-    'yt-btn':          'My YouTube Channel',
+  en:{
+    'nav-info':'Info','nav-privacy':'Privacy','nav-privacy-f':'FORUM',
+    'sec-community':'Community & Links','sec-learn':'Learning Area','sec-featured':'Highlights','sec-legacy':'Partnerships',
+    'cat-games':'Learning Apps','cat-python':'Python','cat-nature':'Nature Games','cat-quiz':'General Knowledge',
+    'g1-title':'Fun Vocabulary Trainer','g1-desc':'Practice new and old vocabulary.',
+    'p1-title':'Python Basics','p1-desc':'Handbook & quizzes.',
+    'p2-title':'Advanced Python','p2-desc':'Over 1000 possible questions!',
+    'p3-title':'GAME V.1.1 FULL VERSION','p3-desc':'For users who finished the basics.',
+    'n1-title':'Chronos 3.0','n1-desc':'Build a biotope – Ice Age Update.',
+    'n2-title':'Little Flower','n2-desc':'Be a gardener.',
+    'q2-title':'Quiz','q2-desc':'❓❓❓',
+    'fc-btn-watch':'Watch →','fc-films-label':'Film','fc-films-title':'Films',
+    'comm-forum-name':'Ingwerperium Forum','comm-forum-sub':'Discuss & connect',
+    'yt-int-name':'Ingwerperium INT','yt-int-sub':'International Channel',
+    'yt-de-name':'Ingwerperium DE','yt-de-sub':'German Channel',
+    'stoat-py-name':'Python Server',
+    'partner-tag':'Featured Partner · Nature Game',
+    'partner-desc':'A cosy, relaxing nature game where you grow real-world plants and trees to attract wildlife. Perfect for nature lovers!',
+    'partner-btn':'Discover →',
   }
 };
 
-let currentLang = 'de';
+let currentLang='de';
 
-// ─── INJECT LANG PARAM INTO ALL INTERNAL LINKS ──────────────────
-function updateAllLinks(lang) {
-  document.querySelectorAll('a[href]').forEach(a => {
-    const href = a.getAttribute('href');
-    // Only internal links (not starting with http/https/# or external)
-    if (!href || href.startsWith('http') || href.startsWith('//') || href.startsWith('#') || href.startsWith('mailto')) return;
-    try {
-      // Strip existing lang param and re-add
-      const [path, query] = href.split('?');
-      const params = new URLSearchParams(query || '');
-      params.set('lang', lang);
-      a.setAttribute('href', path + '?' + params.toString());
-    } catch(e) {}
+function updateAllLinks(lang){
+  document.querySelectorAll('a[href]').forEach(a=>{
+    const h=a.getAttribute('href');
+    if(!h||h.startsWith('http')||h.startsWith('//')||h.startsWith('#')||h.startsWith('mailto'))return;
+    try{const[p,q]=h.split('?');const ps=new URLSearchParams(q||'');ps.set('lang',lang);a.setAttribute('href',p+'?'+ps.toString());}catch(e){}
   });
 }
 
-function applyLang(lang) {
-  currentLang = lang;
-  document.documentElement.lang = lang;
-  const dict = i18n[lang];
-  document.querySelectorAll('[data-i]').forEach(el => {
-    const key = el.getAttribute('data-i');
-    if (dict[key]) el.textContent = dict[key];
-  });
-  document.getElementById('lang-toggle-btn').textContent = lang === 'de' ? 'EN' : 'DE';
-  updateAllLinks(lang);
+function applyLang(lang){
+  currentLang=lang;document.documentElement.lang=lang;
+  const d=i18n[lang];
+  document.querySelectorAll('[data-i]').forEach(el=>{const k=el.getAttribute('data-i');if(d[k]!==undefined)el.textContent=d[k];});
+  document.getElementById('lang-toggle-btn').textContent=lang==='de'?'EN':'DE';
+  updateAllLinks(lang);renderHL(lang);
 }
 
-function setLang(lang, save = true) {
-  if (save) localStorage.setItem('ingw-lang', lang);
+function setLang(lang,save=true){
+  if(save)localStorage.setItem('ingw-lang',lang);
   applyLang(lang);
-  const overlay = document.getElementById('lang-overlay');
-  overlay.classList.add('exit');
-  setTimeout(() => overlay.style.display = 'none', 400);
+  const o=document.getElementById('lang-overlay');
+  o.classList.add('exit');setTimeout(()=>o.style.display='none',400);
 }
 
-function toggleLang() {
-  const next = currentLang === 'de' ? 'en' : 'de';
-  localStorage.setItem('ingw-lang', next);
-  applyLang(next);
-}
+function toggleLang(){const n=currentLang==='de'?'en':'de';localStorage.setItem('ingw-lang',n);applyLang(n);}
 
-// ─── ON PAGE LOAD: check saved lang or URL param ─────────────────
-(function() {
-  const saved = localStorage.getItem('ingw-lang');
-  const urlParam = new URLSearchParams(window.location.search).get('lang');
-  const detected = urlParam || saved;
-
-  if (detected === 'en' || detected === 'de') {
-    // Language already known – skip modal
-    setLang(detected, true);
-  }
-  // else: show modal (default behavior)
+(function(){
+  const saved=localStorage.getItem('ingw-lang');
+  const url=new URLSearchParams(window.location.search).get('lang');
+  const det=url||saved;
+  if(det==='en'||det==='de'){setLang(det,true);}
+  else{renderHL('de');}
 })();
 
-// ─── ACCORDION ──────────────────────────────────────────────────
-function toggleAcc(id) {
-  const clickedCard = document.getElementById(id);
-  const allCards = clickedCard.parentElement.querySelectorAll('.accordion-card');
-
-  allCards.forEach(card => {
-    if (card !== clickedCard) {
-      card.classList.remove('open');
-      card.querySelector('.accordion-body').style.maxHeight = null;
-    }
+/* ═══ ACCORDION ═══ */
+function toggleAcc(id){
+  const el=document.getElementById(id);
+  el.parentElement.querySelectorAll('.accordion-card').forEach(c=>{
+    if(c!==el){c.classList.remove('open');c.querySelector('.accordion-body').style.maxHeight=null;}
   });
-
-  // Toggle die angeklickte Karte
-  clickedCard.classList.toggle('open');
-  const body = clickedCard.querySelector('.accordion-body');
-  if (clickedCard.classList.contains('open')) {
-    body.style.maxHeight = body.scrollHeight + "px";
-  } else {
-    body.style.maxHeight = null;
-  }
+  el.classList.toggle('open');
+  const b=el.querySelector('.accordion-body');
+  b.style.maxHeight=el.classList.contains('open')?b.scrollHeight+'px':null;
 }
 </script>
-
 </body>
 </html>
