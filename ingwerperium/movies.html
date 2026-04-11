@@ -7,326 +7,175 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #0a0a0f;
-  --surface: #111118;
-  --surface2: #17171f;
-  --surface3: #1e1e2a;
-  --border: rgba(255,255,255,0.07);
-  --accent: #7c5cfc;
-  --accent2: #00d4ff;
-  --red: #ff4444;
-  --text: #e8e8f0;
-  --text-muted: #888898;
-  --text-dim: #555566;
-  --glow: rgba(124,92,252,0.3);
-  --radius: 16px;
-  --radius-sm: 10px;
+  --bg:#0a0a0f;--surface:#111118;--surface2:#17171f;--surface3:#1e1e2a;
+  --border:rgba(255,255,255,0.07);--accent:#7c5cfc;--accent2:#00d4ff;
+  --red:#ff4444;--green:#00c850;--text:#e8e8f0;--text-muted:#888898;--text-dim:#555566;
+  --glow:rgba(124,92,252,0.3);--radius:16px;--radius-sm:10px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
-body{
-  background:var(--bg);color:var(--text);
-  font-family:'DM Sans',sans-serif;
-  min-height:100vh;display:flex;flex-direction:column;
-}
-body::before{
-  content:'';position:fixed;inset:0;
-  background:
-    radial-gradient(ellipse 80% 50% at 20% 0%,rgba(124,92,252,0.07) 0%,transparent 55%),
-    radial-gradient(ellipse 60% 40% at 80% 90%,rgba(255,68,68,0.05) 0%,transparent 55%);
-  pointer-events:none;z-index:0;
-}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;flex-direction:column;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 20% 0%,rgba(124,92,252,0.07) 0%,transparent 55%),radial-gradient(ellipse 60% 40% at 80% 90%,rgba(255,68,68,0.05) 0%,transparent 55%);pointer-events:none;z-index:0;}
 
-/* ─── HEADER ─── */
-header{
-  position:sticky;top:0;z-index:100;
-  padding:0 32px;height:64px;
-  display:flex;align-items:center;justify-content:space-between;
-  background:rgba(10,10,15,0.92);backdrop-filter:blur(20px);
-  border-bottom:1px solid var(--border);flex-shrink:0;
-}
-.header-logo{
-  font-family:'Space Mono',monospace;font-size:0.85rem;font-weight:700;
-  color:var(--text-muted);letter-spacing:0.05em;
-  text-decoration:none;display:flex;align-items:center;gap:8px;transition:color 0.2s;
-}
+/* GALAXY */
+#galaxy-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+
+/* HEADER */
+header{position:sticky;top:0;z-index:100;padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;background:rgba(10,10,15,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);flex-shrink:0;}
+.header-logo{font-family:'Space Mono',monospace;font-size:0.85rem;font-weight:700;color:var(--text-muted);letter-spacing:0.05em;text-decoration:none;display:flex;align-items:center;gap:8px;transition:color 0.2s;}
 .header-logo:hover{color:var(--text);}
-.logo-dot{
-  width:7px;height:7px;border-radius:50%;
-  background:var(--accent);box-shadow:0 0 10px var(--accent);animation:pulse 2s infinite;
-}
+.logo-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);animation:pulse 2s infinite;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
-.header-title{
-  font-family:'Space Mono',monospace;font-size:0.95rem;font-weight:700;
-  color:var(--text);padding-left:20px;border-left:1px solid var(--border);
-}
+.header-title{font-family:'Space Mono',monospace;font-size:0.95rem;font-weight:700;color:var(--text);padding-left:20px;border-left:1px solid var(--border);}
 .header-nav{display:flex;align-items:center;gap:8px;}
-.lang-btn{
-  padding:6px 12px;border:1px solid var(--accent);border-radius:8px;
-  background:rgba(124,92,252,0.12);color:var(--accent);
-  font-family:'Space Mono',monospace;font-size:0.75rem;font-weight:700;
-  cursor:pointer;transition:all 0.2s;
-}
+.lang-btn{padding:6px 12px;border:1px solid var(--accent);border-radius:8px;background:rgba(124,92,252,0.12);color:var(--accent);font-family:'Space Mono',monospace;font-size:0.75rem;font-weight:700;cursor:pointer;transition:all 0.2s;}
 .lang-btn:hover{background:rgba(124,92,252,0.25);box-shadow:0 0 14px var(--glow);}
 
-/* ─── MAIN ─── */
+/* MAIN */
 main{position:relative;z-index:1;flex:1;padding:52px 40px 80px;max-width:1280px;margin:0 auto;width:100%;}
 
-/* ─── PAGE HERO ─── */
+/* HERO */
 .page-hero{margin-bottom:48px;}
-.page-label{
-  font-family:'Space Mono',monospace;font-size:0.68rem;
-  letter-spacing:0.2em;text-transform:uppercase;color:var(--red);
-  margin-bottom:14px;display:flex;align-items:center;gap:10px;
-}
+.page-label{font-family:'Space Mono',monospace;font-size:0.68rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--red);margin-bottom:14px;display:flex;align-items:center;gap:10px;}
 .page-label::before{content:'';width:20px;height:1px;background:var(--red);}
-.page-hero h1{
-  font-family:'Space Mono',monospace;font-size:2.2rem;font-weight:700;
-  color:var(--text);letter-spacing:-0.02em;margin-bottom:12px;line-height:1.2;
-}
+.page-hero h1{font-family:'Space Mono',monospace;font-size:2.2rem;font-weight:700;color:var(--text);letter-spacing:-0.02em;margin-bottom:12px;line-height:1.2;}
 .page-hero p{color:var(--text-muted);font-size:0.95rem;line-height:1.7;max-width:560px;}
 
-/* ─── SEARCH + FILTER ─── */
+/* SEARCH */
 .search-section{margin-bottom:36px;}
-.search-wrap{
-  position:relative;margin-bottom:16px;
-}
-.search-icon{
-  position:absolute;left:16px;top:50%;transform:translateY(-50%);
-  color:var(--text-dim);font-size:1rem;pointer-events:none;
-}
-#searchInput{
-  width:100%;padding:14px 16px 14px 44px;
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--radius-sm);color:var(--text);
-  font-family:'DM Sans',sans-serif;font-size:0.95rem;outline:none;
-  transition:border-color 0.2s,box-shadow 0.2s;
-}
+.search-wrap{position:relative;margin-bottom:16px;}
+.search-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--text-dim);font-size:1rem;pointer-events:none;}
+#searchInput{width:100%;padding:14px 16px 14px 44px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.95rem;outline:none;transition:border-color 0.2s,box-shadow 0.2s;}
 #searchInput:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,92,252,0.1);}
 #searchInput::placeholder{color:var(--text-dim);}
-
 .filters{display:flex;gap:8px;flex-wrap:wrap;}
-.filter-btn{
-  padding:7px 16px;border:1px solid var(--border);border-radius:20px;
-  background:transparent;color:var(--text-muted);
-  font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:500;
-  cursor:pointer;transition:all 0.2s;
-}
+.filter-btn{padding:7px 16px;border:1px solid var(--border);border-radius:20px;background:transparent;color:var(--text-muted);font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:500;cursor:pointer;transition:all 0.2s;}
 .filter-btn:hover{border-color:var(--accent);color:var(--text);}
-.filter-btn.active{
-  border-color:var(--accent);color:var(--accent);
-  background:rgba(124,92,252,0.12);
-}
+.filter-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(124,92,252,0.12);}
 
-/* ─── RESULTS INFO ─── */
-.results-info{
-  font-family:'Space Mono',monospace;font-size:0.7rem;
-  letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);
-  margin-bottom:20px;display:flex;align-items:center;gap:12px;
-}
-.results-info::after{content:'';flex:1;height:1px;background:var(--border);}
+/* SORT + SHUFFLE */
+.toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap;}
+.results-info{font-family:'Space Mono',monospace;font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);display:flex;align-items:center;gap:10px;}
+.results-info::after{content:'';flex:1;height:1px;background:var(--border);min-width:30px;}
+.toolbar-right{display:flex;gap:8px;}
+.tool-btn{padding:7px 14px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--text-muted);font-family:'Space Mono',monospace;font-size:0.7rem;cursor:pointer;transition:all 0.2s;letter-spacing:0.05em;}
+.tool-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(124,92,252,0.08);}
 
-/* ─── VIDEO GRID ─── */
-.video-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
-  gap:20px;
-}
+/* GRID */
+.video-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;}
 
-/* ─── VIDEO CARD ─── */
-.video-card{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--radius);overflow:hidden;
-  transition:transform 0.25s ease,border-color 0.25s ease,box-shadow 0.25s ease;
-  cursor:pointer;text-decoration:none;color:inherit;display:flex;flex-direction:column;
-}
-.video-card:hover{
-  transform:translateY(-5px);
-  border-color:rgba(255,68,68,0.35);
-  box-shadow:0 12px 40px rgba(255,68,68,0.1);
-}
+/* CARD */
+.video-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:transform 0.25s ease,border-color 0.25s,box-shadow 0.25s;cursor:pointer;text-decoration:none;color:inherit;display:flex;flex-direction:column;}
+.video-card:hover{transform:translateY(-5px);border-color:rgba(255,68,68,0.3);box-shadow:0 12px 40px rgba(255,68,68,0.08);}
+.video-card.odysee-card:hover{border-color:rgba(0,200,80,0.3);box-shadow:0 12px 40px rgba(0,200,80,0.08);}
 
-.video-thumb{
-  position:relative;aspect-ratio:16/9;overflow:hidden;
-  background:var(--surface2);flex-shrink:0;
-}
-.video-thumb img{
-  width:100%;height:100%;object-fit:cover;
-  transition:transform 0.4s ease;
-}
+.video-thumb{position:relative;aspect-ratio:16/9;overflow:hidden;background:var(--surface2);flex-shrink:0;}
+.video-thumb img{width:100%;height:100%;object-fit:cover;transition:transform 0.4s ease;}
 .video-card:hover .video-thumb img{transform:scale(1.05);}
-
-.thumb-overlay{
-  position:absolute;inset:0;
-  background:rgba(0,0,0,0.4);
-  display:flex;align-items:center;justify-content:center;
-  opacity:0;transition:opacity 0.25s;
-}
+.thumb-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.25s;}
 .video-card:hover .thumb-overlay{opacity:1;}
-.play-icon{
-  width:52px;height:52px;border-radius:50%;
-  background:rgba(255,68,68,0.9);
-  display:flex;align-items:center;justify-content:center;
-  font-size:1.2rem;padding-left:4px;
-  box-shadow:0 0 30px rgba(255,68,68,0.5);
-}
+.play-icon{width:52px;height:52px;border-radius:50%;background:rgba(255,68,68,0.9);display:flex;align-items:center;justify-content:center;font-size:1.2rem;padding-left:4px;box-shadow:0 0 30px rgba(255,68,68,0.5);}
+.odysee-card .play-icon{background:rgba(0,200,80,0.9);box-shadow:0 0 30px rgba(0,200,80,0.5);}
+.video-duration{position:absolute;bottom:8px;right:8px;padding:3px 8px;border-radius:5px;background:rgba(0,0,0,0.8);font-family:'Space Mono',monospace;font-size:0.7rem;color:#fff;}
 
-.video-duration{
-  position:absolute;bottom:8px;right:8px;
-  padding:3px 8px;border-radius:5px;
-  background:rgba(0,0,0,0.8);
-  font-family:'Space Mono',monospace;font-size:0.7rem;color:#fff;
-}
+.platform-badge-thumb{position:absolute;top:8px;left:8px;padding:3px 8px;border-radius:5px;font-family:'Space Mono',monospace;font-size:0.65rem;font-weight:700;}
+.yt-badge-thumb{background:rgba(255,0,0,0.85);color:#fff;}
+.od-badge-thumb{background:rgba(0,180,80,0.85);color:#fff;}
 
-.video-info{padding:18px;flex:1;display:flex;flex-direction:column;}
-.video-category{
-  font-family:'Space Mono',monospace;font-size:0.6rem;
-  letter-spacing:0.18em;text-transform:uppercase;
-  color:var(--accent);margin-bottom:6px;
-}
-.video-title{
-  font-weight:600;font-size:0.95rem;color:var(--text);
-  line-height:1.4;margin-bottom:8px;flex:1;
-}
-.video-desc{
-  font-size:0.8rem;color:var(--text-muted);line-height:1.5;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
-  margin-bottom:12px;
-}
-.video-meta{
-  display:flex;align-items:center;gap:8px;
-  font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--text-dim);
-}
-.yt-badge{
-  display:inline-flex;align-items:center;gap:5px;
-  padding:4px 10px;border-radius:6px;
-  background:rgba(255,68,68,0.1);border:1px solid rgba(255,68,68,0.2);
-  color:var(--red);font-size:0.68rem;font-family:'Space Mono',monospace;
-}
+.video-info{padding:16px;flex:1;display:flex;flex-direction:column;}
+.video-category{font-family:'Space Mono',monospace;font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;}
+.video-title{font-weight:600;font-size:0.93rem;color:var(--text);line-height:1.4;margin-bottom:8px;flex:1;}
+.video-desc{font-size:0.78rem;color:var(--text-muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:10px;}
+.video-meta{display:flex;align-items:center;gap:8px;font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--text-dim);}
+.platform-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:5px;font-size:0.65rem;font-family:'Space Mono',monospace;}
+.yt-pill{background:rgba(255,68,68,0.1);border:1px solid rgba(255,68,68,0.2);color:var(--red);}
+.od-pill{background:rgba(0,200,80,0.1);border:1px solid rgba(0,200,80,0.2);color:var(--green);}
 
-/* ─── EMPTY ─── */
-.empty-state{
-  grid-column:1/-1;text-align:center;padding:80px 20px;color:var(--text-dim);
-}
+/* EMPTY */
+.empty-state{grid-column:1/-1;text-align:center;padding:80px 20px;color:var(--text-dim);}
 .empty-icon{font-size:3rem;margin-bottom:16px;display:block;opacity:0.4;}
 
-/* ─── MODAL ─── */
-#videoModal{
-  display:none;position:fixed;inset:0;z-index:500;
-  background:rgba(5,5,10,0.9);backdrop-filter:blur(16px);
-  align-items:center;justify-content:center;padding:20px;
-}
+/* PAGINATION */
+.pagination{display:flex;justify-content:center;gap:8px;margin-top:32px;flex-wrap:wrap;}
+.page-btn{padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--text-muted);font-family:'Space Mono',monospace;font-size:0.75rem;cursor:pointer;transition:all 0.2s;}
+.page-btn:hover,.page-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(124,92,252,0.1);}
+.page-btn.active{font-weight:700;}
+
+/* MODAL */
+#videoModal{display:none;position:fixed;inset:0;z-index:500;background:rgba(5,5,10,0.92);backdrop-filter:blur(16px);align-items:center;justify-content:center;padding:20px;}
 #videoModal.open{display:flex;}
-.modal-card{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--radius);width:100%;max-width:860px;
-  box-shadow:0 0 100px rgba(0,0,0,0.8);overflow:hidden;
-  animation:modalIn 0.3s cubic-bezier(0.34,1.4,0.64,1);
-}
+.modal-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);width:100%;max-width:860px;box-shadow:0 0 100px rgba(0,0,0,0.8);overflow:hidden;animation:modalIn 0.3s cubic-bezier(0.34,1.4,0.64,1);}
 @keyframes modalIn{from{transform:scale(0.92);opacity:0}to{transform:scale(1);opacity:1}}
 .modal-video{position:relative;aspect-ratio:16/9;background:#000;}
 .modal-video iframe{width:100%;height:100%;border:none;}
-.modal-info{padding:24px 28px;}
-.modal-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:10px;}
-.modal-title{font-family:'Space Mono',monospace;font-size:1.1rem;font-weight:700;color:var(--text);line-height:1.4;}
-.modal-close{
-  width:36px;height:36px;border:1px solid var(--border);border-radius:8px;
-  background:var(--surface2);color:var(--text-muted);
-  font-size:1rem;cursor:pointer;transition:all 0.2s;flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;
-}
+.modal-info{padding:22px 26px;}
+.modal-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:8px;}
+.modal-title{font-family:'Space Mono',monospace;font-size:1.05rem;font-weight:700;color:var(--text);line-height:1.4;}
+.modal-close{width:34px;height:34px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--text-muted);font-size:1rem;cursor:pointer;transition:all 0.2s;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
 .modal-close:hover{border-color:var(--red);color:var(--red);}
-.modal-desc{color:var(--text-muted);font-size:0.875rem;line-height:1.6;margin-bottom:16px;}
+.modal-desc{color:var(--text-muted);font-size:0.85rem;line-height:1.6;margin-bottom:14px;}
 .modal-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
-.open-yt{
-  display:inline-flex;align-items:center;gap:8px;
-  padding:10px 20px;border-radius:8px;
-  background:var(--red);border:none;color:#fff;
-  font-family:'Space Mono',monospace;font-size:0.8rem;font-weight:700;
-  cursor:pointer;transition:all 0.2s;text-decoration:none;
-}
+.open-yt{display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:8px;background:var(--red);border:none;color:#fff;font-family:'Space Mono',monospace;font-size:0.78rem;font-weight:700;cursor:pointer;transition:all 0.2s;text-decoration:none;}
 .open-yt:hover{background:#cc0000;transform:translateY(-1px);}
+.open-od{display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:8px;background:var(--green);border:none;color:#000;font-family:'Space Mono',monospace;font-size:0.78rem;font-weight:700;cursor:pointer;transition:all 0.2s;text-decoration:none;}
+.open-od:hover{background:#00a040;transform:translateY(-1px);}
 
-/* ─── FOOTER ─── */
-footer{
-  border-top:1px solid var(--border);padding:24px 40px;
-  display:flex;justify-content:space-between;align-items:center;
-  max-width:1280px;margin:0 auto;width:100%;position:relative;z-index:1;
-}
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding:24px 40px;display:flex;justify-content:space-between;align-items:center;max-width:1280px;margin:0 auto;width:100%;position:relative;z-index:1;}
 .footer-copy{font-size:0.78rem;color:var(--text-dim);font-family:'Space Mono',monospace;}
 
-@media(max-width:900px){
-  main{padding:36px 20px 60px;}
-  header{padding:0 16px;}
-  .header-title{display:none;}
-  .page-hero h1{font-size:1.6rem;}
-  footer{padding:20px;}
-}
-@media(max-width:600px){
-  .video-grid{grid-template-columns:1fr;}
-}
+@media(max-width:900px){main{padding:36px 20px 60px;}header{padding:0 16px;}.header-title{display:none;}footer{padding:20px;}}
+@media(max-width:600px){.video-grid{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
 
+<canvas id="galaxy-canvas"></canvas>
+
 <header>
   <a href="index.html" class="header-logo">
     <div class="logo-dot"></div>
-    <span data-de="← Hub" data-en="← Hub">← Hub</span>
+    <span>← Hub</span>
   </a>
-  <div class="header-title" data-de="Filme & Videos" data-en="Films & Videos">Filme & Videos</div>
+  <div class="header-title" id="hdr-title">Filme &amp; Videos</div>
   <nav class="header-nav">
     <button class="lang-btn" id="lang-toggle-btn" onclick="switchLang(LANG==='de'?'en':'de')">EN</button>
   </nav>
 </header>
 
 <main>
-
   <div class="page-hero">
-    <div class="page-label" data-de="Mediathek" data-en="Media Library">Mediathek</div>
-    <h1>
-      <span data-de="Filme" data-en="Films">Filme</span>
-      <br><span data-de="" data-en=""></span>
-    </h1>
-    <p data-de="Suche und filtere nach Themen."
-       data-en="Discover fascinating videos. Search and filter by topic.">
-      Entdecke spannende Videos.
-    </p>
+    <div class="page-label" id="lbl-lib">Mediathek</div>
+    <h1 id="lbl-h1">Filme &amp; Videos</h1>
+    <p id="lbl-sub">Entdecke spannende Videos von YouTube und Odysee. Suche und filtere nach Themen.</p>
   </div>
 
   <div class="search-section">
     <div class="search-wrap">
       <span class="search-icon">⌕</span>
-      <input type="text" id="searchInput"
-             data-placeholder-de="Videos suchen …"
-             data-placeholder-en="Search videos …"
-             placeholder="Videos suchen …"
-             oninput="renderVideos()">
+      <input type="text" id="searchInput" placeholder="Videos suchen …" oninput="doSearch()">
     </div>
-    <div class="filters" id="filterRow">
-      <!-- rendered by JS -->
+    <div class="filters" id="filterRow"></div>
+  </div>
+
+  <div class="toolbar">
+    <div class="results-info"><span id="resultsCount">0</span>&nbsp;<span id="lbl-videos">Videos</span></div>
+    <div class="toolbar-right">
+      <button class="tool-btn" onclick="shuffleAndRender()" id="btn-shuffle">🔀 Shuffle</button>
     </div>
   </div>
 
-  <div class="results-info" id="resultsInfo">
-    <span id="resultsCount">0</span>&nbsp;<span data-de="Videos" data-en="Videos">Videos</span>
-  </div>
-
-  <div class="video-grid" id="videoGrid">
-    <!-- rendered by JS -->
-  </div>
-
+  <div class="video-grid" id="videoGrid"></div>
+  <div class="pagination" id="pagination"></div>
 </main>
 
 <footer>
   <div class="footer-copy">© Ingwerperium Hub</div>
-  <a href="datenschutz.html" style="font-size:0.78rem;color:var(--text-dim);text-decoration:none;"
-     data-de="Datenschutz" data-en="Privacy">Datenschutz</a>
+  <a href="datenschutz.html" style="font-size:0.78rem;color:var(--text-dim);text-decoration:none;" id="lbl-privacy">Datenschutz</a>
 </footer>
 
-<!-- ── MODAL ── -->
 <div id="videoModal">
-  <div class="modal-card" id="modalCard">
+  <div class="modal-card">
     <div class="modal-video">
       <iframe id="modalIframe" allowfullscreen allow="autoplay; encrypted-media"></iframe>
     </div>
@@ -337,276 +186,353 @@ footer{
       </div>
       <p class="modal-desc" id="modalDesc"></p>
       <div class="modal-footer">
-        <div class="yt-badge">▶ YouTube</div>
-        <a class="open-yt" id="modalYtLink" href="#" target="_blank"
-           data-de="↗ Auf YouTube öffnen" data-en="↗ Open on YouTube">↗ Auf YouTube öffnen</a>
+        <div id="modalPlatformBadge" class="platform-pill yt-pill">▶ YouTube</div>
+        <a class="open-yt" id="modalExtLink" href="#" target="_blank">↗ Öffnen</a>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-/* ─── LANG ─── */
-let LANG = 'de';
+/* ══ GALAXY ══ */
+(function(){
+  const c=document.getElementById('galaxy-canvas'),ctx=c.getContext('2d');
+  let W,H,stars=[],neb=[];
+  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;}
+  function mkStar(){return{x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.3+0.2,a:Math.random(),sp:Math.random()*0.003+0.001,ph:Math.random()*Math.PI*2,col:Math.random()<0.12?(Math.random()<0.5?'124,92,252':'0,212,255'):'255,255,255'};}
+  function mkNeb(){return{x:Math.random()*W,y:Math.random()*H,r:Math.random()*180+80,a:Math.random()*0.035+0.008,col:Math.random()<0.5?'124,92,252':'255,68,68',d:(Math.random()-.5)*0.04,ph:Math.random()*Math.PI*2};}
+  function init(){resize();stars=Array.from({length:260},mkStar);neb=Array.from({length:5},mkNeb);}
+  let t=0;
+  function draw(){
+    ctx.clearRect(0,0,W,H);t+=0.008;
+    neb.forEach(n=>{const a=n.a*(0.7+0.3*Math.sin(t*0.4+n.ph));const g=ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,n.r);g.addColorStop(0,`rgba(${n.col},${a})`);g.addColorStop(1,`rgba(${n.col},0)`);ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();n.x+=n.d;if(n.x<-n.r)n.x=W+n.r;if(n.x>W+n.r)n.x=-n.r;});
+    stars.forEach(s=>{const a=s.a*(0.4+0.6*(0.5+0.5*Math.sin(t*s.sp*300+s.ph)));ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle=`rgba(${s.col},${a})`;ctx.fill();if(s.r>1&&a>0.65){ctx.beginPath();ctx.moveTo(s.x-s.r*2.5,s.y);ctx.lineTo(s.x+s.r*2.5,s.y);ctx.moveTo(s.x,s.y-s.r*2.5);ctx.lineTo(s.x,s.y+s.r*2.5);ctx.strokeStyle=`rgba(255,255,255,${a*0.2})`;ctx.lineWidth=0.5;ctx.stroke();}});
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize',()=>{resize();neb=Array.from({length:5},mkNeb);});
+  init();draw();
+})();
+
+/* ══ LANG ══ */
+let LANG='de';
 (function(){
   const u=new URLSearchParams(window.location.search).get('lang');
   const s=localStorage.getItem('ingw-lang');
   const l=(u==='en'||u==='de')?u:(s==='en'||s==='de')?s:'de';
-  if(u) localStorage.setItem('ingw-lang',u);
+  if(u)localStorage.setItem('ingw-lang',u);
   LANG=l;window.LANG=l;document.documentElement.lang=l;
 })();
 
+const T={
+  de:{lib:'Mediathek',h1:'Filme & Videos',sub:'Entdecke spannende Videos von YouTube und Odysee. Suche und filtere nach Themen.',videos:'Videos',privacy:'Datenschutz',noResult:'Keine Videos gefunden.',hdr:'Filme & Videos',shuffle:'🔀 Mischen',search:'Videos suchen …',openYT:'↗ Auf YouTube öffnen',openOD:'↗ Auf Odysee öffnen'},
+  en:{lib:'Media Library',h1:'Films & Videos',sub:'Discover fascinating videos from YouTube and Odysee. Search and filter by topic.',videos:'Videos',privacy:'Privacy',noResult:'No videos found.',hdr:'Films & Videos',shuffle:'🔀 Shuffle',search:'Search videos …',openYT:'↗ Open on YouTube',openOD:'↗ Open on Odysee'}
+};
+
 function applyLang(lang){
-  LANG=lang;window.LANG=lang;
-  document.documentElement.lang=lang;
+  LANG=lang;window.LANG=lang;document.documentElement.lang=lang;
   localStorage.setItem('ingw-lang',lang);
-  document.querySelectorAll('[data-de],[data-en]').forEach(el=>{
-    const t=el.getAttribute('data-'+lang);
-    if(t!==null) el.textContent=t;
-  });
-  document.querySelectorAll('[data-placeholder-de],[data-placeholder-en]').forEach(el=>{
-    const p=el.getAttribute('data-placeholder-'+lang);
-    if(p!==null) el.placeholder=p;
-  });
-  const btn=document.getElementById('lang-toggle-btn');
-  if(btn) btn.textContent=lang==='de'?'EN':'DE';
+  const t=T[lang]||T.de;
+  document.getElementById('lbl-lib').textContent=t.lib;
+  document.getElementById('lbl-h1').innerHTML=t.h1;
+  document.getElementById('lbl-sub').textContent=t.sub;
+  document.getElementById('lbl-videos').textContent=t.videos;
+  document.getElementById('lbl-privacy').textContent=t.privacy;
+  document.getElementById('hdr-title').textContent=t.hdr;
+  document.getElementById('btn-shuffle').textContent=t.shuffle;
+  document.getElementById('searchInput').placeholder=t.search;
+  document.getElementById('lang-toggle-btn').textContent=lang==='de'?'EN':'DE';
   document.querySelectorAll('a[href]').forEach(a=>{
     const h=a.getAttribute('href');
-    if(!h||h.startsWith('http')||h.startsWith('//')||h.startsWith('#')) return;
-    const [p,q]=h.split('?');
-    const params=new URLSearchParams(q||'');
-    params.set('lang',lang);
-    a.setAttribute('href',p+'?'+params.toString());
+    if(!h||h.startsWith('http')||h.startsWith('//')||h.startsWith('#'))return;
+    try{const[p,q]=h.split('?');const ps=new URLSearchParams(q||'');ps.set('lang',lang);a.setAttribute('href',p+'?'+ps.toString());}catch(e){}
   });
-  renderFilters();
-  renderVideos();
+  renderFilters();renderPage();
 }
 window.switchLang=function(l){applyLang(l);};
 
-/* ════════════════════════════════════════
-   VIDEO DATABASE
-   Füge hier deine Videos hinzu!
-   Format:
-   {
-     id: 'youtube-video-id',         ← die ID aus dem YouTube-Link
-     title_de: 'Titel auf Deutsch',
-     title_en: 'Title in English',
-     desc_de: 'Beschreibung',
-     desc_en: 'Description',
-     category: 'universum',          ← für den Filter
-     duration: '12:34',              ← optional
-     thumb: ''                       ← leer lassen = YouTube-Thumbnail
-   }
-════════════════════════════════════════ */
-const videos = [
-  {
-    id: 'wr0XuFjnDj0',
-    title_de: 'Wie groß ist das Universum?',
-    title_en: 'How Big is the Universe?',
-    desc_de: 'Eine faszinierende Reise durch die Dimensionen des Universums – von der Erde bis zu den Grenzen des Beobachtbaren.',
-    desc_en: 'A fascinating journey through the dimensions of the universe – from Earth to the edges of the observable cosmos.',
-    category: 'universum',
-    duration: '6:33',
-  },
-  {
-    id: '0FH9cgRhQ-k',
-    title_de: 'Schwarze Löcher erklärt',
-    title_en: 'Black Holes Explained',
-    desc_de: 'Was sind schwarze Löcher, wie entstehen sie, und was passiert, wenn man hineingerät?',
-    desc_en: 'What are black holes, how do they form, and what happens if you fall in?',
-    category: 'universum',
-    duration: '6:22',
-  },
-  {
-    id: 'cZH0YnFpjwU',
-    title_de: 'Die Entstehung des Lebens',
-    title_en: 'The Origin of Life',
-    desc_de: 'Wie entstand das erste Leben auf der Erde? Eine Reise zu den Anfängen der Biologie.',
-    desc_en: 'How did the first life arise on Earth? A journey to the beginnings of biology.',
-    category: 'natur',
-    duration: '5:38',
-  },
-  {
-    id: 'ThDYazipjSI',
-    title_de: 'Quantenphysik einfach erklärt',
-    title_en: 'Quantum Physics Simply Explained',
-    desc_de: 'Die seltsamen Regeln der Quantenwelt – Superposition, Verschränkung und die Unschärferelation.',
-    desc_en: 'The strange rules of the quantum world – superposition, entanglement and the uncertainty principle.',
-    category: 'physik',
-    duration: '7:48',
-  },
-  {
-    id: 'HneiEA1B8ks',
-    title_de: 'Die Zukunft der Menschheit',
-    title_en: 'The Future of Humanity',
-    desc_de: 'Wohin geht die Menschheit? KI, Raumfahrt und das Leben in 100 Jahren.',
-    desc_en: 'Where is humanity heading? AI, space travel and life in 100 years.',
-    category: 'zukunft',
-    duration: '8:01',
-  },
-  {
-    id: 'zSgiXGELjbc',
-    title_de: 'Das Sonnensystem – alle Planeten',
-    title_en: 'The Solar System – All Planets',
-    desc_de: 'Ein Überblick über alle Planeten unseres Sonnensystems mit faszinierenden Fakten.',
-    desc_en: 'An overview of all planets in our solar system with fascinating facts.',
-    category: 'universum',
-    duration: '9:15',
-  },
-  {
-    id: '3xHNcOsSNhA',
-    title_de: 'Bärlauch? Begehe nicht diesen Fehler!',
-    title_en: 'Wild Garlic? Don’t Make This Mistake!',
-    desc_de: 'Erstellt von Ingwerperium.',
-    desc_en: 'Made by Ingwerperium.',
-    category: 'natur',
-    duration: '7:22',
-  },
-  {
-    id: 'yYmDCRbJhgs',
-    title_de: 'Künstliche Intelligenz – Wie funktioniert sie?',
-    title_en: 'Artificial Intelligence – How Does It Work?',
-    desc_de: 'Ein einfacher Einstieg in die Welt der KI – neuronale Netze, maschinelles Lernen und mehr.',
-    desc_en: 'A simple introduction to the world of AI – neural networks, machine learning and more.',
-    category: 'technologie',
-    duration: '8:45',
-  },
-  {
-    id: 'S4yfPuX_BPU',
-    title_de: 'Klimawandel verstehen',
-    title_en: 'Understanding Climate Change',
-    desc_de: 'Was ist der Klimawandel, welche Ursachen hat er, und was können wir dagegen tun?',
-    desc_en: 'What is climate change, what causes it, and what can we do about it?',
-    category: 'natur',
-    duration: '5:54',
-  },
-  {
-    id: 'L0iAaHuDOac',
-    title_de: 'Die Geschichte der Zeit',
-    title_en: 'A Brief History of Time',
-    desc_de: 'Was ist Zeit? Einsteins Relativitätstheorie, Zeitdilatation und die Natur der Zeit.',
-    desc_en: 'What is time? Einstein\'s relativity, time dilation and the nature of time.',
-    category: 'physik',
-    duration: '6:11',
-  },
-  {
-    id: 'oFtG0IFv-0c',
-    title_de: 'Raumfahrt – die nächsten 50 Jahre',
-    title_en: 'Space Travel – The Next 50 Years',
-    desc_de: 'Mondbasen, Mars-Missionen und interstellare Raumfahrt – was erwartet uns?',
-    desc_en: 'Moon bases, Mars missions and interstellar travel – what awaits us?',
-    category: 'zukunft',
-    duration: '10:02',
-  },
-  {
-    id: 'pVbLlnmxIbY',
-    title_de: 'Das menschliche Gehirn',
-    title_en: 'The Human Brain',
-    desc_de: 'Das komplexeste Objekt im bekannten Universum – wie funktioniert unser Gehirn?',
-    desc_en: 'The most complex object in the known universe – how does our brain work?',
-    category: 'natur',
-    duration: '7:30',
-  },
+/* ══ VIDEO DATABASE ══ */
+/* platform: 'yt' | 'od'
+   For YouTube: id = YouTube video ID
+   For Odysee:  id = claim URL slug (e.g. "@Channel:x/VideoTitle:y")
+                thumb = direct thumbnail URL (optional)
+*/
+const VIDEOS=[
+  /* ── INGWERPERIUM EIGENE (Odysee) ── */
+  {platform:'od',id:'@Ingwerknolle_03:d/Oregano:a',thumb:'https://thumbnails.lbry.com/UA_YtpISVmo',title_de:'Oregano – Alles was du wissen musst',title_en:'Oregano – Everything You Need to Know',desc_de:'Ein umfassender Guide über Oregano von Ingwerperium.',desc_en:'A comprehensive guide about oregano by Ingwerperium.',category:'natur',duration:''},
+  {platform:'od',id:'@Ingwerknolle_03:d',thumb:'',title_de:'Ingwerperium Odysee Kanal',title_en:'Ingwerperium Odysee Channel',desc_de:'Alle Videos des Ingwerperium Kanals auf Odysee.',desc_en:'All Ingwerperium videos on Odysee.',category:'ingwerperium',duration:''},
+  {platform:'yt',id:'3xHNcOsSNhA',title_de:'Bärlauch? Begehe nicht diesen Fehler!',title_en:"Wild Garlic? Don't Make This Mistake!",desc_de:'Erstellt von Ingwerperium.',desc_en:'Made by Ingwerperium.',category:'ingwerperium',duration:'7:22'},
+
+  /* ── UNIVERSUM ── */
+  {platform:'yt',id:'wr0XuFjnDj0',title_de:'Wie groß ist das Universum?',title_en:'How Big is the Universe?',desc_de:'Eine faszinierende Reise durch die Dimensionen des Universums.',desc_en:'A fascinating journey through the dimensions of the universe.',category:'universum',duration:'6:33'},
+  {platform:'yt',id:'0FH9cgRhQ-k',title_de:'Schwarze Löcher erklärt',title_en:'Black Holes Explained',desc_de:'Was sind schwarze Löcher, wie entstehen sie?',desc_en:'What are black holes and how do they form?',category:'universum',duration:'6:22'},
+  {platform:'yt',id:'zSgiXGELjbc',title_de:'Das Sonnensystem – alle Planeten',title_en:'The Solar System – All Planets',desc_de:'Alle Planeten unseres Sonnensystems mit faszinierenden Fakten.',desc_en:'All planets in our solar system with fascinating facts.',category:'universum',duration:'9:15'},
+  {platform:'yt',id:'MTY1Kje0yLg',title_de:'Was ist hinter einem Schwarzen Loch?',title_en:'What Is Beyond a Black Hole?',desc_de:'Ein Blick auf das, was jenseits des Ereignishorizonts liegt.',desc_en:'A look at what lies beyond the event horizon.',category:'universum',duration:'7:12'},
+  {platform:'yt',id:'4Ixj0HVW0mQ',title_de:'Die größten Sterne im Universum',title_en:'The Largest Stars in the Universe',desc_de:'Von unserer Sonne bis zu den gigantischsten Sternen.',desc_en:'From our Sun to the most gigantic stars.',category:'universum',duration:'8:02'},
+  {platform:'yt',id:'5FkMIEBBgY8',title_de:'Der Große Knall – Der Urknall erklärt',title_en:'The Big Bang – Explained',desc_de:'Wie entstand das Universum aus dem Nichts?',desc_en:'How did the universe arise from nothing?',category:'universum',duration:'10:14'},
+  {platform:'yt',id:'mvmuCPvRoWQ',title_de:'Dunkle Materie und dunkle Energie',title_en:'Dark Matter and Dark Energy',desc_de:'Was ist der unsichtbare Großteil des Universums?',desc_en:'What is the invisible majority of the universe?',category:'universum',duration:'11:02'},
+  {platform:'yt',id:'bSMZ5GExd58',title_de:'Neutronensterne und Pulsare',title_en:'Neutron Stars and Pulsars',desc_de:'Die extremsten Objekte im Universum.',desc_en:'The most extreme objects in the universe.',category:'universum',duration:'9:45'},
+  {platform:'yt',id:'v=Pj-h6MEgE7Y',title_de:'Wie weit ist der nächste Stern?',title_en:'How Far Is the Nearest Star?',desc_de:'Proxima Centauri und die enormen Distanzen im All.',desc_en:'Proxima Centauri and the enormous distances in space.',category:'universum',duration:'6:55'},
+  {platform:'yt',id:'S0lvSZYFCBY',title_de:'Können wir das Universum verlassen?',title_en:'Can We Leave the Universe?',desc_de:'Eine Frage, die Physiker fasziniert und beunruhigt.',desc_en:'A question that fascinates and unsettles physicists.',category:'universum',duration:'8:34'},
+  {platform:'yt',id:'e-P5IFTqB98',title_de:'Galaxien – Inseln im Universum',title_en:'Galaxies – Islands in the Universe',desc_de:'Milchstraße, Andromeda und Milliarden anderer Galaxien.',desc_en:'Milky Way, Andromeda and billions of other galaxies.',category:'universum',duration:'7:28'},
+  {platform:'yt',id:'e-8C-3wX_yg',title_de:'Die Expansion des Universums',title_en:'The Expansion of the Universe',desc_de:'Warum entfernen sich Galaxien immer schneller?',desc_en:'Why are galaxies moving apart faster and faster?',category:'universum',duration:'9:11'},
+  {platform:'yt',id:'oqCvUJ5bY7U',title_de:'Exoplaneten – Welten außerhalb unseres Systems',title_en:'Exoplanets – Worlds Beyond Our System',desc_de:'Auf der Suche nach erdähnlichen Planeten.',desc_en:'Searching for Earth-like planets.',category:'universum',duration:'8:22'},
+
+  /* ── NATUR ── */
+  {platform:'yt',id:'cZH0YnFpjwU',title_de:'Die Entstehung des Lebens',title_en:'The Origin of Life',desc_de:'Wie entstand das erste Leben auf der Erde?',desc_en:'How did the first life arise on Earth?',category:'natur',duration:'5:38'},
+  {platform:'yt',id:'S4yfPuX_BPU',title_de:'Klimawandel verstehen',title_en:'Understanding Climate Change',desc_de:'Was ist der Klimawandel und was können wir dagegen tun?',desc_en:'What is climate change and what can we do?',category:'natur',duration:'5:54'},
+  {platform:'yt',id:'pVbLlnmxIbY',title_de:'Das menschliche Gehirn',title_en:'The Human Brain',desc_de:'Das komplexeste Objekt im bekannten Universum.',desc_en:'The most complex object in the known universe.',category:'natur',duration:'7:30'},
+  {platform:'yt',id:'Zi-SpRDoiNc',title_de:'Wie tief ist der Ozean wirklich?',title_en:'How Deep Is the Ocean Really?',desc_de:'Von der Sonnenzone bis zur Hadal-Zone.',desc_en:'From the sunlight zone to the hadal zone.',category:'natur',duration:'6:04'},
+  {platform:'yt',id:'e-P5IFTqB98',title_de:'Die größten Tiere der Welt',title_en:'The Largest Animals in the World',desc_de:'Vom Blauwal bis zu riesigen Pilznetzwerken.',desc_en:'From blue whales to giant fungal networks.',category:'natur',duration:'7:19'},
+  {platform:'yt',id:'dN3O1gABkN0',title_de:'Wie Pilze die Welt retten könnten',title_en:'How Fungi Could Save the World',desc_de:'Das verborgene Netzwerk unter unseren Füßen.',desc_en:'The hidden network beneath our feet.',category:'natur',duration:'8:45'},
+  {platform:'yt',id:'oUSDpDSHBuE',title_de:'Evolution – Wie der Mensch entstand',title_en:'Evolution – How Humans Arose',desc_de:'Millionen Jahre menschlicher Entwicklung.',desc_en:'Millions of years of human development.',category:'natur',duration:'11:02'},
+  {platform:'yt',id:'QSLT9-OJFMk',title_de:'Korallenriffe – Verschwinden sie?',title_en:'Coral Reefs – Are They Disappearing?',desc_de:'Die Regenwälder des Meeres unter Druck.',desc_en:'The rainforests of the sea under pressure.',category:'natur',duration:'6:58'},
+  {platform:'yt',id:'D7DQhp3_Plo',title_de:'Vulkane – Feuer aus der Tiefe',title_en:'Volcanoes – Fire from the Deep',desc_de:'Wie entstehen Vulkane und was passiert beim Ausbruch?',desc_en:'How do volcanoes form and what happens during an eruption?',category:'natur',duration:'7:44'},
+  {platform:'yt',id:'yIluxaHL0v0',title_de:'Die Erde in 100 Jahren',title_en:'Earth in 100 Years',desc_de:'Wie sieht unser Planet in einem Jahrhundert aus?',desc_en:'What will our planet look like in a century?',category:'natur',duration:'9:22'},
+  {platform:'yt',id:'EpSy0Lk5Kzg',title_de:'Photosynthese – Das Geheimnis des Lebens',title_en:'Photosynthesis – The Secret of Life',desc_de:'Wie Pflanzen aus Licht Energie machen.',desc_en:'How plants turn light into energy.',category:'natur',duration:'5:12'},
+  {platform:'yt',id:'BdHFLfv-ThQ',title_de:'Warum schlafen wir?',title_en:'Why Do We Sleep?',desc_de:'Die Wissenschaft hinter Schlaf und Träumen.',desc_en:'The science behind sleep and dreams.',category:'natur',duration:'8:32'},
+  {platform:'yt',id:'S0lYRvnm4Ao',title_de:'Bienen – Unverzichtbare Bestäuber',title_en:'Bees – Indispensable Pollinators',desc_de:'Warum Bienen für das Ökosystem überlebenswichtig sind.',desc_en:'Why bees are vital for the ecosystem.',category:'natur',duration:'6:18'},
+  {platform:'yt',id:'2cJJdivvQ4M',title_de:'Die Anatomie eines Baumes',title_en:'The Anatomy of a Tree',desc_de:'Was passiert im Inneren eines Baumes?',desc_en:'What happens inside a tree?',category:'natur',duration:'5:44'},
+  {platform:'yt',id:'fZJNnpFwYjI',title_de:'Raubtiere – Meister der Jagd',title_en:'Predators – Masters of the Hunt',desc_de:'Löwen, Adler, Wölfe – wie sie jagen.',desc_en:'Lions, eagles, wolves – how they hunt.',category:'natur',duration:'8:02'},
+  {platform:'yt',id:'K_GlmkdMZms',title_de:'Die Entstehung der Erde',title_en:'The Formation of Earth',desc_de:'Wie unser Planet vor 4,5 Milliarden Jahren entstand.',desc_en:'How our planet formed 4.5 billion years ago.',category:'natur',duration:'7:55'},
+
+  /* ── PHYSIK ── */
+  {platform:'yt',id:'ThDYazipjSI',title_de:'Quantenphysik einfach erklärt',title_en:'Quantum Physics Simply Explained',desc_de:'Superposition, Verschränkung und die Unschärferelation.',desc_en:'Superposition, entanglement and the uncertainty principle.',category:'physik',duration:'7:48'},
+  {platform:'yt',id:'L0iAaHuDOac',title_de:'Die Geschichte der Zeit',title_en:'A Brief History of Time',desc_de:'Was ist Zeit? Einsteins Relativitätstheorie und Zeitdilatation.',desc_en:'What is time? Einstein\'s relativity and time dilation.',category:'physik',duration:'6:11'},
+  {platform:'yt',id:'p4Gotl9vRGs',title_de:'Das Doppelspaltexperiment',title_en:'The Double Slit Experiment',desc_de:'Das merkwürdigste Experiment der Physikgeschichte.',desc_en:'The strangest experiment in the history of physics.',category:'physik',duration:'5:30'},
+  {platform:'yt',id:'hOfROqkbhkl',title_de:'Relativitätstheorie einfach erklärt',title_en:'Theory of Relativity Simply Explained',desc_de:'Spezielle und allgemeine Relativitätstheorie kompakt.',desc_en:'Special and general relativity explained compactly.',category:'physik',duration:'9:02'},
+  {platform:'yt',id:'ACUuFn_GMkQ',title_de:'Was ist Energie?',title_en:'What Is Energy?',desc_de:'Kinetisch, potentiell, thermisch – was steckt dahinter?',desc_en:'Kinetic, potential, thermal – what\'s behind it?',category:'physik',duration:'6:47'},
+  {platform:'yt',id:'jvO0RFOGmC4',title_de:'Thermodynamik – die Gesetze der Wärme',title_en:'Thermodynamics – The Laws of Heat',desc_de:'Entropie, Energie und die Richtung der Zeit.',desc_en:'Entropy, energy and the direction of time.',category:'physik',duration:'8:14'},
+  {platform:'yt',id:'FWCN_uI5ygY',title_de:'Elektromagnetismus kompakt',title_en:'Electromagnetism Compact',desc_de:'Elektrische Felder, Magnetismus und Licht.',desc_en:'Electric fields, magnetism and light.',category:'physik',duration:'7:33'},
+  {platform:'yt',id:'Zx9RyiOLyoo',title_de:'Kernfusion – Energie der Sterne',title_en:'Nuclear Fusion – Energy of Stars',desc_de:'Wie Sterne und Bomben auf gleiche Prinzipien beruhen.',desc_en:'How stars and bombs rely on the same principles.',category:'physik',duration:'8:59'},
+  {platform:'yt',id:'kYAdwS5MFjQ',title_de:'Was sind Teilchen wirklich?',title_en:'What Are Particles Really?',desc_de:'Quarks, Leptonen und das Standardmodell.',desc_en:'Quarks, leptons and the standard model.',category:'physik',duration:'10:21'},
+  {platform:'yt',id:'Nq8ub4EUUPs',title_de:'Stringtheorie – alles verbunden?',title_en:'String Theory – Everything Connected?',desc_de:'Die Theorie, die alles erklären soll.',desc_en:'The theory that is supposed to explain everything.',category:'physik',duration:'9:44'},
+  {platform:'yt',id:'MO_Q_f1WgQI',title_de:'Schwerkraft – was hält uns am Boden?',title_en:'Gravity – What Keeps Us Grounded?',desc_de:'Von Newton zu Einstein: die Geschichte der Gravitation.',desc_en:'From Newton to Einstein: the history of gravity.',category:'physik',duration:'7:05'},
+  {platform:'yt',id:'6jQ7y_qQYUA',title_de:'Schrödingers Katze erklärt',title_en:'Schrödinger\'s Cat Explained',desc_de:'Das berühmteste Gedankenexperiment der Quantenmechanik.',desc_en:'The most famous thought experiment in quantum mechanics.',category:'physik',duration:'5:48'},
+
+  /* ── TECHNOLOGIE ── */
+  {platform:'yt',id:'yYmDCRbJhgs',title_de:'Künstliche Intelligenz – Wie funktioniert sie?',title_en:'Artificial Intelligence – How Does It Work?',desc_de:'Neuronale Netze, maschinelles Lernen und mehr.',desc_en:'Neural networks, machine learning and more.',category:'technologie',duration:'8:45'},
+  {platform:'yt',id:'aircAruvnKk',title_de:'Neuronale Netzwerke erklärt',title_en:'Neural Networks Explained',desc_de:'Wie Computer das Denken lernen.',desc_en:'How computers learn to think.',category:'technologie',duration:'19:13'},
+  {platform:'yt',id:'GNzA4Njol1c',title_de:'Wie funktioniert das Internet?',title_en:'How Does the Internet Work?',desc_de:'TCP/IP, DNS, Router und die unsichtbare Infrastruktur.',desc_en:'TCP/IP, DNS, routers and the invisible infrastructure.',category:'technologie',duration:'7:04'},
+  {platform:'yt',id:'FtGbAonbSe8',title_de:'Kryptographie – Sicher kommunizieren',title_en:'Cryptography – Communicating Securely',desc_de:'RSA, AES und wie Verschlüsselung funktioniert.',desc_en:'RSA, AES and how encryption works.',category:'technologie',duration:'8:30'},
+  {platform:'yt',id:'kfVsfOSbJY0',title_de:'Blockchain einfach erklärt',title_en:'Blockchain Simply Explained',desc_de:'Wie dezentrale Datenbanken funktionieren.',desc_en:'How decentralized databases work.',category:'technologie',duration:'6:20'},
+  {platform:'yt',id:'o8NPllzkFhE',title_de:'Quantencomputer – die Zukunft des Rechnens',title_en:'Quantum Computers – The Future of Computing',desc_de:'Wie Quantenbits Probleme lösen, die klassische Computer nicht können.',desc_en:'How qubits solve problems classical computers cannot.',category:'technologie',duration:'9:01'},
+  {platform:'yt',id:'Gi8LUnhP5yU',title_de:'CRISPR – Genveränderung erklärt',title_en:'CRISPR – Gene Editing Explained',desc_de:'Die Genschere, die Biologie revolutioniert.',desc_en:'The gene scissors revolutionizing biology.',category:'technologie',duration:'7:56'},
+  {platform:'yt',id:'Yo84eqYjPcY',title_de:'Wie GPUs die Welt verändert haben',title_en:'How GPUs Changed the World',desc_de:'Von Grafikkarten zu KI-Beschleunigern.',desc_en:'From graphics cards to AI accelerators.',category:'technologie',duration:'8:14'},
+  {platform:'yt',id:'TDLn9FbF1gs',title_de:'Computer Vision – Sehen lernen',title_en:'Computer Vision – Learning to See',desc_de:'Wie Maschinen Bilder verstehen.',desc_en:'How machines understand images.',category:'technologie',duration:'7:33'},
+  {platform:'yt',id:'UwsrzCVZAb8',title_de:'5G – Was bringt es wirklich?',title_en:'5G – What Does It Really Bring?',desc_de:'Millimeterwellen, Latenz und die vernetzte Zukunft.',desc_en:'Millimeter waves, latency and the connected future.',category:'technologie',duration:'6:48'},
+  {platform:'yt',id:'bSKPCmSP5k4',title_de:'Wie Bildschirme funktionieren',title_en:'How Screens Work',desc_de:'OLED, LCD, Pixel und Bildwiederholraten.',desc_en:'OLED, LCD, pixels and refresh rates.',category:'technologie',duration:'5:58'},
+  {platform:'yt',id:'LnxhAQ2JY78',title_de:'Das GPS-System erklärt',title_en:'The GPS System Explained',desc_de:'Wie Satelliten wissen, wo du bist.',desc_en:'How satellites know where you are.',category:'technologie',duration:'6:12'},
+  {platform:'yt',id:'cKzP61G4Y_o',title_de:'Robotik – Maschinen bewegen sich',title_en:'Robotics – Machines in Motion',desc_de:'Von einfachen Armen zu humanoiden Robotern.',desc_en:'From simple arms to humanoid robots.',category:'technologie',duration:'8:44'},
+  {platform:'yt',id:'TnUYcTuZJpM',title_de:'Datenbanken erklärt',title_en:'Databases Explained',desc_de:'SQL, NoSQL und wie Daten gespeichert werden.',desc_en:'SQL, NoSQL and how data is stored.',category:'technologie',duration:'7:01'},
+
+  /* ── ZUKUNFT ── */
+  {platform:'yt',id:'HneiEA1B8ks',title_de:'Die Zukunft der Menschheit',title_en:'The Future of Humanity',desc_de:'KI, Raumfahrt und das Leben in 100 Jahren.',desc_en:'AI, space travel and life in 100 years.',category:'zukunft',duration:'8:01'},
+  {platform:'yt',id:'oFtG0IFv-0c',title_de:'Raumfahrt – die nächsten 50 Jahre',title_en:'Space Travel – The Next 50 Years',desc_de:'Mondbasen, Mars-Missionen und interstellare Raumfahrt.',desc_en:'Moon bases, Mars missions and interstellar travel.',category:'zukunft',duration:'10:02'},
+  {platform:'yt',id:'ReVdSaR0WOA',title_de:'Leben auf dem Mars – wie realistisch?',title_en:'Life on Mars – How Realistic?',desc_de:'Terraforming, Strahlung und Lebenserhaltungssysteme.',desc_en:'Terraforming, radiation and life support systems.',category:'zukunft',duration:'9:28'},
+  {platform:'yt',id:'c-Ot1MaYCHk',title_de:'Ewiges Leben – wird es möglich?',title_en:'Eternal Life – Will It Be Possible?',desc_de:'Biotechnologie, Teleomere und Anti-Aging.',desc_en:'Biotechnology, telomeres and anti-aging.',category:'zukunft',duration:'8:53'},
+  {platform:'yt',id:'SAiFPaKhSJk',title_de:'Smart Cities – die Städte von morgen',title_en:'Smart Cities – The Cities of Tomorrow',desc_de:'Wie Daten, Sensoren und KI Städte effizienter machen.',desc_en:'How data, sensors and AI make cities more efficient.',category:'zukunft',duration:'7:14'},
+  {platform:'yt',id:'GkHJPiABT5Q',title_de:'Virtuelle Realität – wo geht die Reise hin?',title_en:'Virtual Reality – Where Is It Heading?',desc_de:'VR, AR, Mixed Reality und das Metaverse.',desc_en:'VR, AR, Mixed Reality and the Metaverse.',category:'zukunft',duration:'8:07'},
+  {platform:'yt',id:'lMm0lJX_Aqk',title_de:'Klonen von Menschen – ethische Grenzen',title_en:'Human Cloning – Ethical Boundaries',desc_de:'Technisch möglich, ethisch fragwürdig.',desc_en:'Technically possible, ethically questionable.',category:'zukunft',duration:'6:41'},
+  {platform:'yt',id:'ZMSbDwpIyF4',title_de:'Energie der Zukunft',title_en:'Energy of the Future',desc_de:'Solar, Wind, Fusion und neue Technologien.',desc_en:'Solar, wind, fusion and new technologies.',category:'zukunft',duration:'9:32'},
+  {platform:'yt',id:'Kbk9BiPhm7o',title_de:'Post-Knappheit – eine Welt ohne Mangel',title_en:'Post-Scarcity – A World Without Lack',desc_de:'Was passiert, wenn Ressourcen für alle reichen?',desc_en:'What happens when resources are sufficient for all?',category:'zukunft',duration:'7:55'},
+  {platform:'yt',id:'hc-CtDONDYA',title_de:'Asteroiden abwehren – Plan B für die Erde',title_en:'Deflecting Asteroids – Plan B for Earth',desc_de:'Planetenverteidigung und warum sie wichtig ist.',desc_en:'Planetary defense and why it matters.',category:'zukunft',duration:'8:18'},
+
+  /* ── MATHEMATIK ── */
+  {platform:'yt',id:'WsRy05XQNRY',title_de:'Was ist Unendlichkeit wirklich?',title_en:'What Is Infinity Really?',desc_de:'Cantors Mengenlehre und verschiedene Unendlichkeiten.',desc_en:'Cantor\'s set theory and different infinities.',category:'mathematik',duration:'7:22'},
+  {platform:'yt',id:'SrU9YDoXE88',title_de:'Die Schönheit der Primzahlen',title_en:'The Beauty of Prime Numbers',desc_de:'Riemann-Hypothese und das Geheimnis der Primzahlen.',desc_en:'The Riemann hypothesis and the mystery of primes.',category:'mathematik',duration:'8:45'},
+  {platform:'yt',id:'9xUBhhM4vbk',title_de:'Die Goldene Zahl Phi',title_en:'The Golden Ratio Phi',desc_de:'Fibonacci, Phi und Schönheit in der Natur.',desc_en:'Fibonacci, Phi and beauty in nature.',category:'mathematik',duration:'6:12'},
+  {platform:'yt',id:'spUNpyF58BY',title_de:'Das Chaos – Schmetterlingseffekt erklärt',title_en:'Chaos – The Butterfly Effect Explained',desc_de:'Wie kleine Ursachen große Wirkungen haben können.',desc_en:'How small causes can have large effects.',category:'mathematik',duration:'7:04'},
+  {platform:'yt',id:'9Ml4WObKzEo',title_de:'Fraktale – Unendliche Komplexität',title_en:'Fractals – Infinite Complexity',desc_de:'Mandelbrot, Koch-Schneeflocke und Selbstähnlichkeit.',desc_en:'Mandelbrot, Koch snowflake and self-similarity.',category:'mathematik',duration:'8:28'},
+  {platform:'yt',id:'cTyPd29NR84',title_de:'Spieltheorie einfach erklärt',title_en:'Game Theory Simply Explained',desc_de:'Das Gefangenendilemma und strategisches Denken.',desc_en:'The prisoner\'s dilemma and strategic thinking.',category:'mathematik',duration:'7:44'},
+  {platform:'yt',id:'8FvayL01sXk',title_de:'Was ist Pi?',title_en:'What Is Pi?',desc_de:'Die unendliche Zahl hinter Kreisen und Wellen.',desc_en:'The infinite number behind circles and waves.',category:'mathematik',duration:'5:50'},
+  {platform:'yt',id:'HeQX2HjkcNo',title_de:'Statistik – Lügen mit Zahlen?',title_en:'Statistics – Lying with Numbers?',desc_de:'Wie man Statistiken richtig liest und falsche erkennt.',desc_en:'How to read statistics correctly and spot false ones.',category:'mathematik',duration:'8:02'},
+  {platform:'yt',id:'NjBFXzqP3GM',title_de:'Topologie – die verrückte Mathematik der Formen',title_en:'Topology – The Crazy Mathematics of Shapes',desc_de:'Donuts, Tassen und Möbius-Bänder.',desc_en:'Donuts, cups and Möbius strips.',category:'mathematik',duration:'9:11'},
+  {platform:'yt',id:'UqmFdZQCFVs',title_de:'Kryptische Codes – von Caesar bis RSA',title_en:'Cryptic Codes – From Caesar to RSA',desc_de:'Die Geschichte der Verschlüsselung.',desc_en:'The history of encryption.',category:'mathematik',duration:'7:33'},
+
+  /* ── GESCHICHTE & GESELLSCHAFT ── */
+  {platform:'yt',id:'NOjuBNsFuQA',title_de:'Der Zweite Weltkrieg – kurz erklärt',title_en:'World War II – Briefly Explained',desc_de:'Ursachen, Verlauf und Folgen des größten Konflikts.',desc_en:'Causes, course and consequences of the biggest conflict.',category:'geschichte',duration:'10:02'},
+  {platform:'yt',id:'_GzVNFw6RMc',title_de:'Die Französische Revolution',title_en:'The French Revolution',desc_de:'Freiheit, Gleichheit, Brüderlichkeit – und Terror.',desc_en:'Liberty, equality, fraternity – and terror.',category:'geschichte',duration:'9:14'},
+  {platform:'yt',id:'L2h2xGVvqh4',title_de:'Das alte Ägypten – Pyramiden und Pharaonen',title_en:'Ancient Egypt – Pyramids and Pharaohs',desc_de:'5000 Jahre Hochkultur am Nil.',desc_en:'5000 years of high civilisation on the Nile.',category:'geschichte',duration:'8:44'},
+  {platform:'yt',id:'oHg5SJYRHA0',title_de:'Die Römer – Weltmacht der Antike',title_en:'The Romans – Superpower of Antiquity',desc_de:'Aufstieg und Fall des römischen Reiches.',desc_en:'Rise and fall of the Roman Empire.',category:'geschichte',duration:'11:02'},
+  {platform:'yt',id:'p1FJmhfYT0M',title_de:'Der Kalte Krieg erklärt',title_en:'The Cold War Explained',desc_de:'USA vs. Sowjetunion – ein Konflikt ohne Waffen.',desc_en:'USA vs. Soviet Union – a conflict without weapons.',category:'geschichte',duration:'9:55'},
+  {platform:'yt',id:'mA0IC0cGBow',title_de:'Die Weimarer Republik',title_en:'The Weimar Republic',desc_de:'Demokratie zwischen Krieg und Diktatur.',desc_en:'Democracy between war and dictatorship.',category:'geschichte',duration:'8:33'},
+  {platform:'yt',id:'BzAXBQkDgRc',title_de:'Wie Demokratien sterben',title_en:'How Democracies Die',desc_de:'Die schleichende Aushöhlung demokratischer Systeme.',desc_en:'The creeping erosion of democratic systems.',category:'geschichte',duration:'7:58'},
+  {platform:'yt',id:'xuCn8ux2gbs',title_de:'Die Pest – Wie eine Seuche Europa veränderte',title_en:'The Plague – How a Disease Changed Europe',desc_de:'Der schwarze Tod und seine Folgen.',desc_en:'The black death and its consequences.',category:'geschichte',duration:'8:22'},
+  {platform:'yt',id:'PIb6AZdTr-A',title_de:'Die Entdeckung Amerikas',title_en:'The Discovery of America',desc_de:'Columbus, Cortez und die Konsequenzen.',desc_en:'Columbus, Cortez and the consequences.',category:'geschichte',duration:'9:01'},
+  {platform:'yt',id:'wOmjnioNulo',title_de:'Das japanische Kaiserreich',title_en:'The Japanese Empire',desc_de:'Meiji-Restauration bis zur Niederlage 1945.',desc_en:'Meiji restoration to defeat in 1945.',category:'geschichte',duration:'10:17'},
+
+  /* ── PSYCHOLOGIE ── */
+  {platform:'yt',id:'v=1rOxQHhPohQ',title_de:'Warum träumen wir?',title_en:'Why Do We Dream?',desc_de:'REM-Schlaf, Verarbeitung und die Theorien der Träume.',desc_en:'REM sleep, processing and theories of dreams.',category:'psychologie',duration:'7:18'},
+  {platform:'yt',id:'YDe-A0BMOQA',title_de:'Kognitive Verzerrungen – Denkfehler des Gehirns',title_en:'Cognitive Biases – Mental Errors',desc_de:'Confirmation Bias, Dunning-Kruger und mehr.',desc_en:'Confirmation bias, Dunning-Kruger and more.',category:'psychologie',duration:'8:52'},
+  {platform:'yt',id:'k-rVSPwf5cE',title_de:'Introversion vs. Extraversion',title_en:'Introversion vs. Extraversion',desc_de:'Was Persönlichkeit bedeutet und wie sie entsteht.',desc_en:'What personality means and how it develops.',category:'psychologie',duration:'6:44'},
+  {platform:'yt',id:'9m9JMNtGCRc',title_de:'Das Marshmallow-Experiment',title_en:'The Marshmallow Experiment',desc_de:'Selbstkontrolle, Willenskraft und Erfolg.',desc_en:'Self-control, willpower and success.',category:'psychologie',duration:'5:33'},
+  {platform:'yt',id:'nOs3UHG-YF4',title_de:'Wie funktioniert Motivation?',title_en:'How Does Motivation Work?',desc_de:'Intrinsisch, extrinsisch und das Flow-Erlebnis.',desc_en:'Intrinsic, extrinsic and the flow experience.',category:'psychologie',duration:'7:02'},
+  {platform:'yt',id:'DARhmOzfATE',title_de:'Einsamkeit – eine moderne Epidemie?',title_en:'Loneliness – A Modern Epidemic?',desc_de:'Soziale Isolation und ihre Auswirkungen auf die Gesundheit.',desc_en:'Social isolation and its effects on health.',category:'psychologie',duration:'8:14'},
+  {platform:'yt',id:'lmyZMtPVodo',title_de:'Das Placebo-Paradox',title_en:'The Placebo Paradox',desc_de:'Warum Scheinbehandlungen manchmal funktionieren.',desc_en:'Why sham treatments sometimes work.',category:'psychologie',duration:'6:55'},
+  {platform:'yt',id:'GFimZnVWRQQ',title_de:'Soziale Medien und das Gehirn',title_en:'Social Media and the Brain',desc_de:'Dopamin, Vergleich und mentale Gesundheit.',desc_en:'Dopamine, comparison and mental health.',category:'psychologie',duration:'7:38'},
+  {platform:'yt',id:'CBKN_uj-9to',title_de:'Kreativität – wo kommen Ideen her?',title_en:'Creativity – Where Do Ideas Come From?',desc_de:'Wie das Gehirn kreativ denkt.',desc_en:'How the brain thinks creatively.',category:'psychologie',duration:'6:22'},
+  {platform:'yt',id:'ZizdB0TgAVM',title_de:'Angst – Freund oder Feind?',title_en:'Fear – Friend or Foe?',desc_de:'Wie Angst entsteht und warum sie sinnvoll ist.',desc_en:'How fear arises and why it is useful.',category:'psychologie',duration:'7:14'},
+
+  /* ── GEOGRAFIE ── */
+  {platform:'yt',id:'5qKdaOD_2ww',title_de:'Warum sind Karten immer falsch?',title_en:'Why Are Maps Always Wrong?',desc_de:'Projektionen und die Unmöglichkeit der flachen Erde.',desc_en:'Projections and the impossibility of a flat Earth.',category:'geografie',duration:'6:28'},
+  {platform:'yt',id:'TqU8Lfm1KVA',title_de:'Die größten Länder der Welt',title_en:'The Largest Countries in the World',desc_de:'Russland, Kanada, China – Größe und Bedeutung.',desc_en:'Russia, Canada, China – size and significance.',category:'geografie',duration:'7:02'},
+  {platform:'yt',id:'7gqRBVfsMGA',title_de:'Wie entstehen Gebirge?',title_en:'How Are Mountains Formed?',desc_de:'Plattentektonik, Kollisionen und die Alpen.',desc_en:'Plate tectonics, collisions and the Alps.',category:'geografie',duration:'6:54'},
+  {platform:'yt',id:'6sUMBl6R_zE',title_de:'Wüsten – Mehr als Sand',title_en:'Deserts – More Than Sand',desc_de:'Sahara, Gobi, Atacama und ihre Ökosysteme.',desc_en:'Sahara, Gobi, Atacama and their ecosystems.',category:'geografie',duration:'7:19'},
+  {platform:'yt',id:'6TFhvMaRYL8',title_de:'Die Tiefsee – unbekanntes Territorium',title_en:'The Deep Sea – Unknown Territory',desc_de:'Marianengraben und die Wesen der Dunkelheit.',desc_en:'Mariana Trench and the creatures of darkness.',category:'geografie',duration:'8:41'},
+  {platform:'yt',id:'yc6-9EJLCQY',title_de:'Wie entsteht ein Hurricane?',title_en:'How Does a Hurricane Form?',desc_de:'Warmes Wasser, Luftdruckzonen und Katrina.',desc_en:'Warm water, air pressure zones and Katrina.',category:'geografie',duration:'6:08'},
+  {platform:'yt',id:'kVpYvV0O7uI',title_de:'Permafrost – schlafende Zeitbombe?',title_en:'Permafrost – Sleeping Time Bomb?',desc_de:'Methan, Kohlenstoff und die arktische Bedrohung.',desc_en:'Methane, carbon and the Arctic threat.',category:'geografie',duration:'7:55'},
+  {platform:'yt',id:'6W-psDKEpM8',title_de:'Monsun – Lebensader Asiens',title_en:'Monsoon – Asia\'s Lifeline',desc_de:'Wie der Monsun Milliarden ernährt und bedroht.',desc_en:'How the monsoon feeds and threatens billions.',category:'geografie',duration:'6:33'},
 ];
 
-/* ─── CATEGORIES ─── */
-const categories = {
-  all:        {de:'Alle',       en:'All'},
-  universum:  {de:'Universum',  en:'Universe'},
-  natur:      {de:'Natur',      en:'Nature'},
-  physik:     {de:'Physik',     en:'Physics'},
+/* ══ CATEGORIES ══ */
+const CATS={
+  all:{de:'Alle',en:'All'},
+  ingwerperium:{de:'Ingwerperium',en:'Ingwerperium'},
+  universum:{de:'Universum',en:'Universe'},
+  natur:{de:'Natur',en:'Nature'},
+  physik:{de:'Physik',en:'Physics'},
   technologie:{de:'Technologie',en:'Technology'},
-  zukunft:    {de:'Zukunft',    en:'Future'},
+  zukunft:{de:'Zukunft',en:'Future'},
+  mathematik:{de:'Mathematik',en:'Mathematics'},
+  geschichte:{de:'Geschichte',en:'History'},
+  psychologie:{de:'Psychologie',en:'Psychology'},
+  geografie:{de:'Geografie',en:'Geography'},
 };
 
-let activeFilter = 'all';
+let activeFilter='all';
+let currentVideos=[...VIDEOS];
+let currentPage=0;
+const PER_PAGE=24;
 
+/* ══ SHUFFLE ══ */
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+
+function shuffleAndRender(){
+  currentVideos=shuffle(filtered());
+  currentPage=0;
+  renderPage();
+}
+
+/* ══ THUMB URLs ══ */
+function getThumb(v){
+  if(v.thumb)return v.thumb;
+  if(v.platform==='yt')return`https://img.youtube.com/vi/${v.id}/mqdefault.jpg`;
+  // Odysee thumbnails – use a placeholder with channel/title
+  return`https://thumbnails.odycdn.com/optimize/s:390:0/quality:85/plain/https://spee.ch/spaceman-512.png`;
+}
+function getEmbed(v){
+  if(v.platform==='yt')return`https://www.youtube-nocookie.com/embed/${v.id}?autoplay=1&rel=0`;
+  // Odysee embed: id is the claim path
+  return`https://odysee.com/$/embed/${v.id}?autoplay=1`;
+}
+function getExtURL(v){
+  if(v.platform==='yt')return`https://www.youtube.com/watch?v=${v.id}`;
+  return`https://odysee.com/${v.id}`;
+}
+
+/* ══ FILTER + SEARCH ══ */
+function filtered(){
+  const q=document.getElementById('searchInput').value.toLowerCase();
+  return VIDEOS.filter(v=>{
+    const matchCat=activeFilter==='all'||v.category===activeFilter;
+    const title=(v['title_'+LANG]||v.title_de).toLowerCase();
+    const desc=(v['desc_'+LANG]||v.desc_de).toLowerCase();
+    const matchQ=!q||title.includes(q)||desc.includes(q)||v.category.includes(q);
+    return matchCat&&matchQ;
+  });
+}
+
+function doSearch(){currentVideos=filtered();currentPage=0;renderPage();}
+
+/* ══ RENDER FILTERS ══ */
 function renderFilters(){
   const row=document.getElementById('filterRow');
   row.innerHTML='';
-  Object.entries(categories).forEach(([key,label])=>{
+  Object.entries(CATS).forEach(([key,lbl])=>{
     const btn=document.createElement('button');
     btn.className='filter-btn'+(activeFilter===key?' active':'');
-    btn.textContent=label[LANG]||label.de;
-    btn.onclick=()=>{activeFilter=key;renderFilters();renderVideos();};
+    btn.textContent=lbl[LANG]||lbl.de;
+    btn.onclick=()=>{activeFilter=key;currentVideos=filtered();currentPage=0;renderPage();renderFilters();};
     row.appendChild(btn);
   });
 }
 
-/* ─── RENDER VIDEOS ─── */
-function getYtThumb(id){
-  return `https://img.youtube.com/vi/${id}/mqdefault.jpg`;
-}
-function getYtEmbed(id){
-  return `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`;
-}
-function getYtUrl(id){
-  return `https://www.youtube.com/watch?v=${id}`;
-}
-
-function renderVideos(){
-  const q=document.getElementById('searchInput').value.toLowerCase();
+/* ══ RENDER PAGE ══ */
+function renderPage(){
   const grid=document.getElementById('videoGrid');
+  const pag=document.getElementById('pagination');
+  const total=currentVideos.length;
+  document.getElementById('resultsCount').textContent=total;
 
-  const filtered=videos.filter(v=>{
-    const matchCat=activeFilter==='all'||v.category===activeFilter;
-    const title=(v['title_'+LANG]||v.title_de).toLowerCase();
-    const desc=(v['desc_'+LANG]||v.desc_de).toLowerCase();
-    const matchSearch=!q||title.includes(q)||desc.includes(q)||v.category.includes(q);
-    return matchCat&&matchSearch;
-  });
-
-  document.getElementById('resultsCount').textContent=filtered.length;
-
-  if(filtered.length===0){
-    grid.innerHTML=`<div class="empty-state">
-      <span class="empty-icon">🎬</span>
-      <p>${LANG==='de'?'Keine Videos gefunden.':'No videos found.'}</p>
-    </div>`;
-    return;
+  if(total===0){
+    grid.innerHTML=`<div class="empty-state"><span class="empty-icon">🎬</span><p>${LANG==='de'?'Keine Videos gefunden.':'No videos found.'}</p></div>`;
+    pag.innerHTML='';return;
   }
 
+  const totalPages=Math.ceil(total/PER_PAGE);
+  if(currentPage>=totalPages)currentPage=0;
+  const slice=currentVideos.slice(currentPage*PER_PAGE,(currentPage+1)*PER_PAGE);
+
   grid.innerHTML='';
-  filtered.forEach(v=>{
+  slice.forEach(v=>{
     const title=v['title_'+LANG]||v.title_de;
     const desc=v['desc_'+LANG]||v.desc_de;
-    const catLabel=(categories[v.category]||{de:v.category,en:v.category})[LANG];
-    const thumb=v.thumb||getYtThumb(v.id);
+    const catLabel=(CATS[v.category]||{de:v.category,en:v.category})[LANG];
+    const isOd=v.platform==='od';
 
     const card=document.createElement('div');
-    card.className='video-card';
+    card.className='video-card'+(isOd?' odysee-card':'');
     card.innerHTML=`
       <div class="video-thumb">
-        <img src="${thumb}" alt="${title}" loading="lazy">
-        <div class="thumb-overlay">
-          <div class="play-icon">▶</div>
-        </div>
+        <img src="${getThumb(v)}" alt="${title}" loading="lazy" onerror="this.src='https://via.placeholder.com/480x270/111118/555566?text=Video'">
+        <div class="thumb-overlay"><div class="play-icon">▶</div></div>
         ${v.duration?`<div class="video-duration">${v.duration}</div>`:''}
+        <div class="platform-badge-thumb ${isOd?'od-badge-thumb':'yt-badge-thumb'}">${isOd?'Odysee':'YouTube'}</div>
       </div>
       <div class="video-info">
-        <div class="video-category">${catLabel}</div>
+        <div class="video-category">${catLabel||v.category}</div>
         <div class="video-title">${title}</div>
         <div class="video-desc">${desc}</div>
         <div class="video-meta">
-          <span class="yt-badge">▶ YouTube</span>
+          <span class="platform-pill ${isOd?'od-pill':'yt-pill'}">${isOd?'🟢 Odysee':'▶ YouTube'}</span>
         </div>
-      </div>
-    `;
+      </div>`;
     card.addEventListener('click',()=>openModal(v));
     grid.appendChild(card);
   });
+
+  // Pagination
+  pag.innerHTML='';
+  if(totalPages>1){
+    for(let i=0;i<totalPages;i++){
+      const btn=document.createElement('button');
+      btn.className='page-btn'+(i===currentPage?' active':'');
+      btn.textContent=i+1;
+      btn.onclick=()=>{currentPage=i;renderPage();window.scrollTo({top:0,behavior:'smooth'});};
+      pag.appendChild(btn);
+    }
+  }
 }
 
-/* ─── MODAL ─── */
+/* ══ MODAL ══ */
 function openModal(v){
+  const isOd=v.platform==='od';
   const title=v['title_'+LANG]||v.title_de;
   const desc=v['desc_'+LANG]||v.desc_de;
   document.getElementById('modalTitle').textContent=title;
   document.getElementById('modalDesc').textContent=desc;
-  document.getElementById('modalIframe').src=getYtEmbed(v.id);
-  document.getElementById('modalYtLink').href=getYtUrl(v.id);
-  document.getElementById('modalYtLink').textContent=
-    LANG==='de'?'↗ Auf YouTube öffnen':'↗ Open on YouTube';
+  document.getElementById('modalIframe').src=getEmbed(v);
+  const link=document.getElementById('modalExtLink');
+  link.href=getExtURL(v);
+  link.textContent=LANG==='de'?(isOd?'↗ Auf Odysee öffnen':'↗ Auf YouTube öffnen'):(isOd?'↗ Open on Odysee':'↗ Open on YouTube');
+  link.className=isOd?'open-od':'open-yt';
+  const badge=document.getElementById('modalPlatformBadge');
+  badge.textContent=isOd?'🟢 Odysee':'▶ YouTube';
+  badge.className='platform-pill '+(isOd?'od-pill':'yt-pill');
   document.getElementById('videoModal').classList.add('open');
   document.body.style.overflow='hidden';
 }
@@ -615,12 +541,12 @@ function closeModal(){
   document.getElementById('modalIframe').src='';
   document.body.style.overflow='';
 }
-document.getElementById('videoModal').addEventListener('click',function(e){
-  if(e.target===this) closeModal();
-});
-document.addEventListener('keydown',e=>{if(e.key==='Escape') closeModal();});
+document.getElementById('videoModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 
-/* ─── INIT ─── */
+/* ══ INIT ══ */
+currentVideos=shuffle(VIDEOS); // start shuffled
+renderFilters();
 applyLang(LANG);
 </script>
 </body>
