@@ -502,8 +502,8 @@ function doShare() {
   const ref = mode==='p' ? 11600 : 50000;
   const refLabel = mode==='p' ? (lang==='de'?'Dt. Haushalt':'German avg') : (lang==='de'?'KMU-Durchschnitt':'SME avg');
   const txt = lang==='de'
-    ? `Mein CO2-Fußabdruck: ${Math.round(total).toLocaleString()} kg/Jahr (${t.toFixed(1)} t). ${refLabel}: ${ref.toLocaleString()} kg. #CO2Rechner`
-    : `My CO2 footprint: ${Math.round(total).toLocaleString()} kg/year (${t.toFixed(1)} t). ${refLabel}: ${ref.toLocaleString()} kg. #CO2Calculator`;
+    ? `Mein CO2-Fußabdruck: ${Math.round(total).toLocaleString()} kg/Jahr (${t.toFixed(1)} t). ${refLabel}: ${ref.toLocaleString()} kg. #CO2Rechner   Link: https://ingwerknolle03-cell.github.io/ingwerperium/CO2.html`
+    : `My CO2 footprint: ${Math.round(total).toLocaleString()} kg/year (${t.toFixed(1)} t). ${refLabel}: ${ref.toLocaleString()} kg. #CO2Calculator   Link: https://ingwerknolle03-cell.github.io/ingwerperium/CO2.html`;
   try {
     navigator.clipboard.writeText(txt).then(()=>showToast(TR[lang].copied)).catch(()=>{fallbackCopy(txt)});
   } catch(e) { fallbackCopy(txt); }
