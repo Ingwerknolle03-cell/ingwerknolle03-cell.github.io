@@ -1,0 +1,529 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+:root{--bg:#2C1A0E;--bg2:#3D2410;--panel:#4A2E14;--bdr:#8B5E2A;--bdr2:#C4843A;--gold:#D4A843;--amber:#E8C060;--light:#F5DFA0;--cream:#F9EDD0;--grn:#5A9E3A;--grn2:#7DC44A;--red:#C03020;--red2:#E04030;--blu:#3A6A9E;--txt:#F5DFA0;--mut:#A0784A;--shd:#1A0E05}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg)}
+#app{font-family:'Press Start 2P','Courier New',monospace;background:var(--bg);color:var(--txt);min-height:100vh;font-size:10px}
+.hdr{background:var(--bg2);border-bottom:4px solid var(--bdr2);padding:14px 16px;text-align:center;position:relative}
+.hdr h1{font-size:clamp(7px,1.8vw,12px);color:var(--amber);text-shadow:3px 3px 0 var(--shd);margin-bottom:6px}
+.hdr p{font-size:clamp(4px,1vw,6px);color:var(--mut)}
+.lang{position:absolute;top:10px;right:10px;display:flex;gap:3px}
+.lbtn{font-family:'Press Start 2P',monospace;font-size:6px;padding:5px 9px;background:var(--panel);border:2px solid var(--bdr);color:var(--mut);cursor:pointer}
+.lbtn.on,.lbtn:hover{background:var(--gold);color:var(--bg);border-color:var(--amber)}
+.lbtn:active{transform:translate(1px,1px)}
+.modes{display:flex;justify-content:center;gap:0;background:var(--bg2);border-bottom:3px solid var(--bdr2);padding:10px 16px}
+.mbtn{font-family:'Press Start 2P',monospace;font-size:clamp(5px,1.1vw,7px);padding:9px 20px;background:var(--panel);border:2px solid var(--bdr);color:var(--mut);cursor:pointer;transition:all .1s}
+.mbtn:first-child{border-right:none}
+.mbtn.on{background:var(--grn);color:var(--cream);border-color:var(--grn2);box-shadow:3px 3px 0 var(--shd)}
+.mbtn:hover:not(.on){background:var(--bdr);color:var(--txt)}
+.mbtn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--shd)}
+.mode-desc{background:var(--bg2);border-bottom:2px solid var(--bdr);padding:6px 16px;font-size:clamp(4px,.9vw,5px);color:var(--mut);text-align:center}
+.tabs{display:flex;flex-wrap:wrap;gap:2px;padding:8px 12px 0;background:var(--bg2);border-bottom:4px solid var(--bdr2)}
+.tbtn{font-family:'Press Start 2P',monospace;font-size:clamp(4px,1vw,6px);padding:7px 10px;background:var(--panel);border:2px solid var(--bdr);border-bottom:none;color:var(--mut);cursor:pointer;transition:all .1s}
+.tbtn.on{background:var(--bg);color:var(--amber);border-color:var(--bdr2);position:relative;top:4px;z-index:1}
+.tbtn:hover:not(.on){background:var(--bdr);color:var(--txt)}
+.tbtn:active{transform:scale(.95)}
+.layout{display:grid;grid-template-columns:1fr 1fr;min-height:580px}
+@media(max-width:680px){.layout{grid-template-columns:1fr}}
+.left{padding:14px;border-right:4px solid var(--bdr2);background:var(--bg)}
+.right{padding:14px;background:var(--bg2)}
+.stitle{font-size:clamp(5px,1.1vw,8px);color:var(--gold);margin-bottom:14px;border-bottom:2px solid var(--bdr);padding-bottom:7px;text-shadow:2px 2px 0 var(--shd)}
+.fg{margin-bottom:18px}
+.fl{font-size:clamp(4px,.9vw,6px);color:var(--light);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
+.fv{font-size:clamp(5px,1vw,7px);color:var(--amber);background:var(--panel);padding:3px 7px;border:2px solid var(--bdr);min-width:75px;text-align:right}
+input[type=range]{-webkit-appearance:none;width:100%;height:8px;background:var(--panel);border:2px solid var(--bdr);outline:none;cursor:pointer;margin-top:2px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;background:var(--gold);border:2px solid var(--amber);cursor:pointer}
+input[type=range]::-webkit-slider-thumb:hover{background:var(--amber)}
+select{font-family:'Press Start 2P',monospace;font-size:clamp(4px,.9vw,6px);width:100%;padding:7px;background:var(--panel);border:2px solid var(--bdr);color:var(--txt);outline:none;cursor:pointer;margin-top:4px}
+select:focus{border-color:var(--bdr2)}
+.mbar{height:10px;background:var(--panel);border:2px solid var(--bdr);margin-top:5px;overflow:hidden}
+.mfill{height:100%;transition:width .35s;background:var(--grn)}
+.mfill.med{background:var(--gold)}
+.mfill.hi{background:var(--red)}
+.rbox{background:var(--panel);border:3px solid var(--bdr2);padding:14px;margin-bottom:14px;box-shadow:4px 4px 0 var(--shd)}
+.rnum{font-size:clamp(13px,2.8vw,22px);color:var(--amber);text-shadow:3px 3px 0 var(--shd);text-align:center;margin:8px 0}
+.rlbl{font-size:clamp(4px,.85vw,6px);color:var(--mut);text-align:center}
+.crow{display:flex;justify-content:space-between;align-items:center;font-size:clamp(4px,.85vw,6px);padding:5px 0;border-bottom:1px solid var(--bdr);color:var(--light)}
+.cval{color:var(--amber);font-size:clamp(4px,.9vw,7px)}
+.eqrow{display:flex;align-items:center;gap:8px;font-size:clamp(4px,.85vw,6px);padding:7px;background:var(--bg);border:2px solid var(--bdr);margin-bottom:5px;color:var(--light)}
+.eico{font-size:13px;flex-shrink:0}
+.pxbtn{font-family:'Press Start 2P',monospace;font-size:clamp(4px,.9vw,6px);padding:9px 14px;border:3px solid var(--bdr2);cursor:pointer;transition:all .1s;box-shadow:3px 3px 0 var(--shd)}
+.pxbtn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--shd)}
+.btn-rst{background:var(--red);color:var(--cream);border-color:var(--red2)}
+.btn-rst:hover{background:var(--red2)}
+.btn-shr{background:var(--blu);color:var(--cream);border-color:#4A8ABE}
+.btn-shr:hover{background:#4A8ABE}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.badge{display:inline-block;font-size:clamp(4px,.8vw,5px);padding:3px 7px;border:1px solid}
+.bgood{background:#1A3A10;color:var(--grn2);border-color:var(--grn)}
+.bok{background:#3A2A00;color:var(--amber);border-color:var(--gold)}
+.bbad{background:#3A0A00;color:#FF6040;border-color:var(--red)}
+.tip{background:var(--bg);border:2px solid var(--bdr);padding:9px;margin-top:10px;font-size:clamp(4px,.8vw,5px);color:var(--mut);line-height:1.8}
+.tipt{color:var(--gold);font-size:clamp(4px,.85vw,6px);margin-bottom:5px}
+.avgbar{position:relative;height:18px;background:var(--panel);border:2px solid var(--bdr);margin-top:5px;overflow:visible}
+.avgfill{height:100%;background:var(--blu);opacity:.45}
+.userfill{position:absolute;top:0;height:100%;border-right:3px solid var(--amber);background:repeating-linear-gradient(90deg,var(--gold) 0,var(--gold) 4px,transparent 4px,transparent 8px)}
+.avgmark{position:absolute;top:-5px;font-size:5px;color:var(--amber);transform:translateX(-50%);white-space:nowrap}
+.panel{display:none}
+.panel.on{display:block}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--grn);color:var(--cream);font-family:'Press Start 2P',monospace;font-size:7px;padding:10px 18px;border:2px solid var(--grn2);box-shadow:3px 3px 0 var(--shd);z-index:999;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+</style>
+
+<div id="app">
+<h2 class="sr-only">CO2 Rechner von INGWERPERIUM, Privat & Unternehmen</h2>
+
+<div class="hdr">
+  <div class="lang">
+    <button class="lbtn on" onclick="setLang('de')">DE</button>
+    <button class="lbtn" onclick="setLang('en')">EN</button>
+  </div>
+  <h1 id="htitle">CO2-FUßABDRUCK RECHNER</h1>
+  <p id="hsub">INGWERPERIUM</p>
+</div>
+
+<div class="modes">
+  <button class="mbtn on" id="mbtn-p" onclick="setMode('p')"><span id="mlbl-p">PRIVAT</span></button>
+  <button class="mbtn" id="mbtn-b" onclick="setMode('b')"><span id="mlbl-b">UNTERNEHMEN</span></button>
+</div>
+<div class="mode-desc" id="mdesc">Haushalt, Mobilität, Ernährung &amp; Lebensstil einer Einzelperson</div>
+
+<div class="tabs" id="tabbar"></div>
+
+<div class="layout">
+  <div class="left" id="leftpanel"></div>
+  <div class="right">
+    <div class="stitle" id="rtitle">ERGEBNISSE</div>
+    <div class="rbox">
+      <div class="rlbl" id="lbl-total">GESAMTEMISSIONEN PRO JAHR</div>
+      <div class="rnum" id="disp-total">— kg</div>
+      <div class="rlbl" id="disp-t">— t CO2e/Jahr</div>
+      <div style="text-align:center;margin-top:8px" id="disp-badge"></div>
+    </div>
+    <div class="rbox" style="padding:10px">
+      <div class="rlbl" style="margin-bottom:8px" id="lbl-breakdown">KATEGORIEN</div>
+      <div style="position:relative;width:100%;height:200px">
+        <canvas id="chart" role="img" aria-label="CO2 Emissionen nach Kategorie">CO2 Chart</canvas>
+      </div>
+    </div>
+    <div class="rbox" id="cmpbox">
+      <div class="rlbl" style="margin-bottom:8px" id="lbl-cmp">VERGLEICH</div>
+      <div class="avgbar">
+        <div class="avgfill" id="avgfill" style="width:100%"></div>
+        <div class="userfill" id="userfill" style="width:0%"></div>
+        <div class="avgmark" id="avgmark">Ø</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:4px;color:var(--mut)"><span>0</span><span id="cmpmax">15.000 kg</span></div>
+      <div id="cmprows"></div>
+    </div>
+    <div class="rbox">
+      <div class="rlbl" style="margin-bottom:8px" id="lbl-eq">ÄQUIVALENTE</div>
+      <div id="eqbox"></div>
+    </div>
+    <div class="rbox">
+      <div class="rlbl" style="margin-bottom:8px" id="lbl-tips">TOP-SPARTIPPS</div>
+      <div id="tipsbox" style="font-size:5px;color:var(--light);line-height:2.2"></div>
+    </div>
+    <div class="btnrow">
+      <button class="pxbtn btn-rst" id="btn-rst" onclick="doReset()">↺ <span id="lbl-rst">RESET</span></button>
+      <button class="pxbtn btn-shr" id="btn-shr" onclick="doShare()">↗ <span id="lbl-shr">TEILEN</span></button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+let lang = 'de';
+let mode = 'p';
+let myChart = null;
+
+const TR = {
+  de: {
+    htitle:'CO2-FUßABDRUCK RECHNER', hsub:'PIXEL EDITION — LIVE BERECHNUNG',
+    mlbl_p:'PRIVAT', mlbl_b:'UNTERNEHMEN',
+    mdesc_p:'Haushalt, Mobilität, Ernährung & Lebensstil einer Einzelperson',
+    mdesc_b:'Büroenergie, Geschäftsreisen, Fuhrpark & Betriebsabläufe eines Unternehmens',
+    rtitle:'ERGEBNISSE', lbl_total:'GESAMTEMISSIONEN PRO JAHR',
+    lbl_breakdown:'KATEGORIEN', lbl_cmp:'VERGLEICH', lbl_eq:'ÄQUIVALENTE',
+    lbl_tips:'TOP-SPARTIPPS', lbl_rst:'RESET', lbl_shr:'TEILEN',
+    copied:'In Zwischenablage kopiert!',
+    tabs_p:['ENERGIE','MOBILITÄT','ERNÄHRUNG','ABFALL','LIFESTYLE'],
+    tabs_b:['BÜROENERGIE','GESCHÄFTSREISEN','IT & GERÄTE','ABFALL','MITARBEITER'],
+    cmp_p:[['Ihr Fußabdruck','—'],['Dt. Durchschnitt','11.600 kg'],['EU Durchschnitt','8.200 kg'],['Welt Durchschnitt','4.800 kg'],['Paris-Ziel 2050','2.000 kg']],
+    cmp_b:[['Ihr Unternehmen','—'],['KMU Durchschnitt','50.000 kg'],['GmbH Durchschnitt','120.000 kg'],['Paris-konform/MA','5.000 kg']],
+    cmpref_p:11600, cmpref_b:50000, cmpmax_p:15000, cmpmax_b:200000,
+    rating:['VORBILDLICH — UNTER PARIS-ZIEL','GUT — UNTER WELT-DURCHSCHNITT','MITTEL — UNTER EU-SCHNITT','HOCH — ÜBER EU-SCHNITT','SEHR HOCH — ÜBER DT. DURCHSCHNITT'],
+    rating_b:['VORBILDLICH — NETTO-NULL NÄHERT SICH','GUT — UNTER KMU-SCHNITT','MITTEL','HOCH','SEHR HOCH — MAΒNAHMEN DRINGEND'],
+    eq_lbl:['Bäume/Jahr nötig','Kurzstreckenflüge äquivalent','km im Benzinauto','Rindfleisch-Burger','LED-Stunden','Smartphone-Ladungen'],
+    tips_p:{energy:'Ökostrom & bessere Dämmung',mobility:'Weniger fliegen, mehr Bahn & E-Auto',food:'Weniger Fleisch, mehr Regionales',waste:'Mehr recyceln & kompostieren',lifestyle:'Secondhand statt Fast Fashion'},
+    tips_b:{energy:'LED-Beleuchtung & Gebäudezertifizierung',travel:'Videokonferenzen statt Flugreisen',it:'Energiesparende Geräte & Cloud-Server',waste:'Büro-Recyclingprogramm einführen',staff:'Homeoffice & Fahrradpauschale'},
+    tip_p:['Ökostrom reduziert diese Kategorie bis 70%. Dt. Ø: ~3.500 kWh/Jahr.','1 Langstreckenflug = ~2,5 t CO2. E-Auto spart ~2 t/Jahr.','Vegan leben spart ~1,5 t CO2/Jahr. 1 kg Rind = 27 kg CO2.','Kompostierung spart ~80% Bio-Emissionen. Ø: 242 kg Müll/Jahr.','Fast Fashion: 0,3 kg/Teil. Secondhand spart 82% Emissionen.'],
+    tip_b:['LED + Bewegungsmelder: bis 60% Energieeinsparung.','Videokonferenzen statt 1 Flug spart bis 1,8 t CO2.','Laptop statt Desktop: 3× effizienter. Cloud-Server: -30%.','Null-Abfall-Politik: Mülleimer reduzieren zwingt zu Recycling.','1 Homeoffice-Tag/Woche spart ~0,5 t CO2/MA/Jahr.']
+  },
+  en: {
+    htitle:'CO2 FOOTPRINT CALCULATOR', hsub:'PIXEL EDITION — LIVE CALCULATION',
+    mlbl_p:'PERSONAL', mlbl_b:'BUSINESS',
+    mdesc_p:'Household energy, mobility, food & lifestyle of one person',
+    mdesc_b:'Office energy, business travel, fleet & operations of a company',
+    rtitle:'RESULTS', lbl_total:'TOTAL ANNUAL EMISSIONS',
+    lbl_breakdown:'CATEGORIES', lbl_cmp:'COMPARISON', lbl_eq:'EQUIVALENTS',
+    lbl_tips:'TOP REDUCTION TIPS', lbl_rst:'RESET', lbl_shr:'SHARE',
+    copied:'Copied to clipboard!',
+    tabs_p:['ENERGY','MOBILITY','FOOD','WASTE','LIFESTYLE'],
+    tabs_b:['OFFICE ENERGY','BUSINESS TRAVEL','IT & DEVICES','WASTE','STAFF'],
+    cmp_p:[['Your footprint','—'],['German avg','11,600 kg'],['EU avg','8,200 kg'],['World avg','4,800 kg'],['Paris target 2050','2,000 kg']],
+    cmp_b:[['Your company','—'],['SME average','50,000 kg'],['GmbH average','120,000 kg'],['Paris-aligned/FTE','5,000 kg']],
+    cmpref_p:11600, cmpref_b:50000, cmpmax_p:15000, cmpmax_b:200000,
+    rating:['EXCELLENT — BELOW PARIS TARGET','GOOD — BELOW WORLD AVG','AVERAGE — BELOW EU AVG','HIGH — ABOVE EU AVG','VERY HIGH — ABOVE GERMAN AVG'],
+    rating_b:['EXCELLENT — APPROACHING NET ZERO','GOOD — BELOW SME AVG','AVERAGE','HIGH','VERY HIGH — ACTION URGENTLY NEEDED'],
+    eq_lbl:['trees/year needed','short-haul flights equiv.','km in a petrol car','beef burgers','LED bulb hours','smartphone charges'],
+    tips_p:{energy:'Green electricity & better insulation',mobility:'Fly less, take the train, get an EV',food:'Reduce meat, buy local & seasonal',waste:'Recycle more, compost, save water',lifestyle:'Buy secondhand instead of fast fashion'},
+    tips_b:{energy:'LED lighting & building certification',travel:'Video calls instead of flights',it:'Energy-efficient devices & cloud servers',waste:'Introduce office recycling programme',staff:'Home office & cycling allowance'},
+    tip_p:['Green power cuts this category by up to 70%. German avg: ~3,500 kWh/year.','1 long-haul flight = ~2.5 t CO2. EV saves ~2 t/year.','Going vegan saves ~1.5 t CO2/year. 1 kg beef = 27 kg CO2.','Composting saves ~80% organic waste emissions. Avg: 242 kg/year.','Fast fashion: 0.3 kg/item. Secondhand cuts emissions by 82%.'],
+    tip_b:['LED + motion sensors: up to 60% energy savings.','Video calls instead of 1 flight saves up to 1.8 t CO2.','Laptop vs desktop: 3× more efficient. Cloud servers: -30%.','Zero-waste policy: remove bins to force recycling.','1 home-office day/week saves ~0.5 t CO2/employee/year.']
+  }
+};
+
+// SCHEMAS: inputs per mode+tab
+const SCHEMAS = {
+  p: [
+    // Energy
+    [{k:'elec',lbl_de:'Strom (kWh/Jahr)',lbl_en:'Electricity (kWh/year)',min:0,max:20000,step:50,def:3500},
+     {k:'oil',lbl_de:'Heizöl (L/Jahr)',lbl_en:'Heating oil (L/year)',min:0,max:5000,step:25,def:800},
+     {k:'gas',lbl_de:'Erdgas (m³/Jahr)',lbl_en:'Natural gas (m³/year)',min:0,max:5000,step:25,def:600},
+     {k:'heat',lbl_de:'Fernwärme (kWh/Jahr)',lbl_en:'District heating (kWh/year)',min:0,max:15000,step:100,def:0},
+     {k:'renew',lbl_de:'Erneuerbare Energie %',lbl_en:'Renewable energy %',min:0,max:100,step:5,def:20}],
+    // Mobility
+    [{k:'car',lbl_de:'Auto (km/Jahr)',lbl_en:'Car (km/year)',min:0,max:80000,step:500,def:15000},
+     {k:'cartype',lbl_de:'Fahrzeugtyp',lbl_en:'Car type',type:'sel',opts:[['petrol','Benzin (0.21)','Petrol (0.21)'],['diesel','Diesel (0.17)','Diesel (0.17)'],['hybrid','Hybrid (0.12)','Hybrid (0.12)'],['electric','Elektro (0.06)','Electric (0.06)'],['none','Kein Auto','No car']],def:'petrol'},
+     {k:'sf',lbl_de:'Kurzstreckenflüge (<3h)',lbl_en:'Short flights (<3h)',min:0,max:30,step:1,def:2},
+     {k:'lf',lbl_de:'Langstreckenflüge (>6h)',lbl_en:'Long-haul flights (>6h)',min:0,max:20,step:1,def:1},
+     {k:'transit',lbl_de:'ÖPNV (km/Jahr)',lbl_en:'Public transit (km/year)',min:0,max:30000,step:200,def:2000},
+     {k:'train',lbl_de:'Bahn (km/Jahr)',lbl_en:'Train (km/year)',min:0,max:50000,step:200,def:1000}],
+    // Food
+    [{k:'diet',lbl_de:'Ernährungsweise',lbl_en:'Diet type',type:'sel',opts:[['heavy','Viel Fleisch','Heavy meat-eater'],['meat','Durchschnittlich','Average meat-eater'],['low','Wenig Fleisch','Low meat'],['veg','Vegetarisch','Vegetarian'],['vegan','Vegan','Vegan']],def:'meat'},
+     {k:'beef',lbl_de:'Rindfleisch (kg/Woche)',lbl_en:'Beef (kg/week)',min:0,max:5,step:0.1,def:0.5},
+     {k:'local',lbl_de:'Regional & saisonal %',lbl_en:'Local & seasonal %',min:0,max:100,step:5,def:40},
+     {k:'fwaste',lbl_de:'Lebensmittelverschwendung %',lbl_en:'Food waste %',min:0,max:60,step:5,def:20}],
+    // Waste
+    [{k:'waste',lbl_de:'Hausmüll (kg/Jahr)',lbl_en:'General waste (kg/year)',min:0,max:1000,step:10,def:250},
+     {k:'recycle',lbl_de:'Recyclingquote %',lbl_en:'Recycling rate %',min:0,max:100,step:5,def:50},
+     {k:'compost',lbl_de:'Kompostierung',lbl_en:'Composting',type:'sel',opts:[['none','Kein Kompost','No composting'],['partial','Teilweise','Partial'],['full','Vollständig','Full composting']],def:'none'},
+     {k:'water',lbl_de:'Wasserverbrauch (m³/Jahr)',lbl_en:'Water usage (m³/year)',min:0,max:300,step:5,def:50}],
+    // Lifestyle
+    [{k:'clothes',lbl_de:'Neue Kleidung (Stück/Jahr)',lbl_en:'New clothes (items/year)',min:0,max:100,step:1,def:20},
+     {k:'electronics',lbl_de:'Elektronik-Käufe (€/Jahr)',lbl_en:'Electronics purchases (€/year)',min:0,max:5000,step:50,def:500},
+     {k:'stream',lbl_de:'Streaming (h/Tag)',lbl_en:'Streaming (h/day)',min:0,max:16,step:0.5,def:3},
+     {k:'holidays',lbl_de:'Auslandsurlaube (Anzahl)',lbl_en:'Holidays abroad (count)',min:0,max:10,step:1,def:2}]
+  ],
+  b: [
+    // Office Energy
+    [{k:'belec',lbl_de:'Bürostrom (kWh/Jahr)',lbl_en:'Office electricity (kWh/year)',min:0,max:200000,step:1000,def:40000},
+     {k:'bgas',lbl_de:'Heizgas Büro (m³/Jahr)',lbl_en:'Office gas heating (m³/year)',min:0,max:50000,step:500,def:8000},
+     {k:'brenew',lbl_de:'Erneuerbare Energie %',lbl_en:'Renewable energy %',min:0,max:100,step:5,def:15},
+     {k:'sqm',lbl_de:'Bürofläche (m²)',lbl_en:'Office space (m²)',min:0,max:5000,step:50,def:300}],
+    // Business Travel
+    [{k:'bsf',lbl_de:'Inlandsflüge/Jahr',lbl_en:'Domestic flights/year',min:0,max:200,step:1,def:20},
+     {k:'blf',lbl_de:'Interkontinentalflüge/Jahr',lbl_en:'Intercontinental flights/year',min:0,max:100,step:1,def:5},
+     {k:'bcar',lbl_de:'Dienstwagen km/Jahr',lbl_en:'Company car km/year',min:0,max:500000,step:5000,def:80000},
+     {k:'bcartype',lbl_de:'Fuhrpark-Typ',lbl_en:'Fleet type',type:'sel',opts:[['petrol','Benzin-Flotte','Petrol fleet'],['diesel','Diesel-Flotte','Diesel fleet'],['hybrid','Hybrid-Flotte','Hybrid fleet'],['electric','Elektro-Flotte','Electric fleet']],def:'diesel'},
+     {k:'btrain',lbl_de:'Bahn-Dienstreisen (km/Jahr)',lbl_en:'Business rail (km/year)',min:0,max:100000,step:1000,def:10000}],
+    // IT & Devices
+    [{k:'pcs',lbl_de:'PCs / Laptops (Anzahl)',lbl_en:'PCs / Laptops (count)',min:0,max:500,step:1,def:20},
+     {k:'servers',lbl_de:'Server (Anzahl)',lbl_en:'On-premise servers (count)',min:0,max:50,step:1,def:2},
+     {k:'cloud',lbl_de:'Cloud-Ausgaben (€/Monat)',lbl_en:'Cloud spending (€/month)',min:0,max:10000,step:100,def:500},
+     {k:'screens',lbl_de:'Monitore (Anzahl)',lbl_en:'Monitors (count)',min:0,max:500,step:1,def:30}],
+    // Waste
+    [{k:'bwaste',lbl_de:'Büromüll (kg/Jahr)',lbl_en:'Office waste (kg/year)',min:0,max:10000,step:100,def:1500},
+     {k:'brecycle',lbl_de:'Recyclingquote %',lbl_en:'Recycling rate %',min:0,max:100,step:5,def:40},
+     {k:'bpaper',lbl_de:'Papierverbrauch (Ries/Jahr)',lbl_en:'Paper usage (reams/year)',min:0,max:500,step:5,def:50}],
+    // Staff
+    [{k:'staff',lbl_de:'Mitarbeiter (Anzahl)',lbl_en:'Employees (headcount)',min:1,max:500,step:1,def:10},
+     {k:'homeoffice',lbl_de:'Homeoffice-Tage/Woche (Ø)',lbl_en:'Home-office days/week (avg)',min:0,max:5,step:0.5,def:1},
+     {k:'commute',lbl_de:'Pendelweg (km, Ø)',lbl_en:'Commute distance (km, avg)',min:0,max:100,step:1,def:25},
+     {k:'commutetype',lbl_de:'Pendel-Verkehrsmittel',lbl_en:'Commute mode',type:'sel',opts:[['car','Auto','Car'],['transit','ÖPNV','Public transit'],['bike','Fahrrad/Fuß','Bike/Walk']],def:'car'}]
+  ]
+};
+
+// State
+let vals = {};
+let activeTab = 0;
+
+function defaults() {
+  vals = {};
+  SCHEMAS[mode].forEach(tab => tab.forEach(f => { vals[f.k] = f.def; }));
+}
+
+function calcP() {
+  const rf = 1 - (vals.renew/100)*0.7;
+  const energy = (vals.elec*0.4*rf) + (vals.oil*2.68) + (vals.gas*2.0) + (vals.heat*0.2);
+  const cf = {petrol:0.21,diesel:0.17,hybrid:0.12,electric:0.06,none:0}[vals.cartype]||0.21;
+  const mobility = (vals.car*cf) + (vals.sf*180) + (vals.lf*2500) + (vals.transit*0.089) + (vals.train*0.032);
+  const db = {heavy:3500,meat:2500,low:1700,veg:1200,vegan:900}[vals.diet]||2500;
+  const food = Math.max(0, db + (vals.beef*52*27*0.3) - (vals.local/100*300) + (vals.fwaste/100*200));
+  const waste = Math.max(0, (vals.waste*0.5) + (vals.water*0.34) - (vals.recycle/100*100) - (vals.compost==='full'?50:vals.compost==='partial'?25:0));
+  const lifestyle = (vals.clothes*3.0) + (vals.electronics*0.3) + (vals.stream*0.036*365) + (vals.holidays*300);
+  return {energy:Math.round(energy),mobility:Math.round(mobility),food:Math.round(food),waste:Math.round(waste),lifestyle:Math.round(lifestyle)};
+}
+
+function calcB() {
+  const rf = 1 - (vals.brenew/100)*0.7;
+  const energy = (vals.belec*0.4*rf) + (vals.bgas*2.0) + (vals.sqm*15);
+  const cf = {petrol:0.21,diesel:0.17,hybrid:0.12,electric:0.06}[vals.bcartype]||0.17;
+  const travel = (vals.bsf*250) + (vals.blf*3500) + (vals.bcar*cf) + (vals.btrain*0.032);
+  const it = (vals.pcs*40) + (vals.servers*2000) + (vals.cloud*12*0.5) + (vals.screens*30);
+  const waste = Math.max(0, (vals.bwaste*0.5) - (vals.brecycle/100*200) + (vals.bpaper*4.5));
+  const workdays = 220;
+  const commuteEF = {car:0.21,transit:0.089,bike:0}[vals.commutetype]||0.21;
+  const activeDays = workdays * (1 - vals.homeoffice/5);
+  const staff = vals.staff * (vals.commute*2*commuteEF*activeDays);
+  return {energy:Math.round(energy),travel:Math.round(travel),it:Math.round(it),waste:Math.round(waste),staff:Math.round(staff)};
+}
+
+function getCategories() { return mode==='p' ? calcP() : calcB(); }
+
+function getCatLabels() {
+  return mode==='p'
+    ? (lang==='de'?['Energie','Mobilität','Ernährung','Abfall','Lifestyle']:['Energy','Mobility','Food','Waste','Lifestyle'])
+    : (lang==='de'?['Büroenergie','Geschäftsreisen','IT & Geräte','Abfall','Mitarbeiter']:['Office Energy','Business Travel','IT & Devices','Waste','Staff']);
+}
+
+function getCatTips() {
+  const T = TR[lang];
+  return mode==='p' ? Object.values(T.tips_p) : Object.values(T.tips_b);
+}
+
+// Build tabs
+function buildTabs() {
+  const bar = document.getElementById('tabbar');
+  bar.innerHTML = '';
+  const tabs = TR[lang][mode==='p'?'tabs_p':'tabs_b'];
+  tabs.forEach((lbl,i) => {
+    const b = document.createElement('button');
+    b.className = 'tbtn' + (i===activeTab?' on':'');
+    b.innerHTML = lbl;
+    b.onclick = () => { activeTab=i; buildTabs(); buildInputs(); };
+    bar.appendChild(b);
+  });
+}
+
+// Build inputs
+function buildInputs() {
+  const panel = document.getElementById('leftpanel');
+  const schema = SCHEMAS[mode][activeTab];
+  const T = TR[lang];
+  const tabTips = T[mode==='p'?'tip_p':'tip_b'];
+  let html = `<div class="stitle">${TR[lang][mode==='p'?'tabs_p':'tabs_b'][activeTab]}</div>`;
+  schema.forEach(f => {
+    const lbl = lang==='de' ? f.lbl_de : f.lbl_en;
+    if (f.type === 'sel') {
+      html += `<div class="fg"><div class="fl">${lbl}</div>
+        <select onchange="setVal('${f.k}',this.value)">`;
+      f.opts.forEach(([v,lde,len]) => {
+        const sel = vals[f.k]===v ? 'selected' : '';
+        html += `<option value="${v}" ${sel}>${lang==='de'?lde:len}</option>`;
+      });
+      html += `</select></div>`;
+    } else {
+      const v = vals[f.k];
+      const pct = Math.min(100, ((v-f.min)/(f.max-f.min))*100);
+      const cls = pct>75?'hi':pct>40?'med':'';
+      const disp = Number.isInteger(f.step) ? Math.round(v).toLocaleString() : parseFloat(v).toFixed(1);
+      html += `<div class="fg">
+        <div class="fl"><span>${lbl}</span><span class="fv" id="fv-${f.k}">${disp}</span></div>
+        <input type="range" min="${f.min}" max="${f.max}" step="${f.step}" value="${v}" oninput="setVal('${f.k}',this.value)">
+        <div class="mbar"><div class="mfill ${cls}" id="mb-${f.k}" style="width:${pct}%"></div></div>
+      </div>`;
+    }
+  });
+  html += `<div class="tip"><div class="tipt">${lang==='de'?' TIPP':' TIP'}</div>${tabTips[activeTab]||''}</div>`;
+  panel.innerHTML = html;
+}
+
+function setVal(k, v) {
+  vals[k] = isNaN(v) ? v : parseFloat(v);
+  const fv = document.getElementById('fv-'+k);
+  if (fv) {
+    const f = SCHEMAS[mode].flat().find(x=>x.k===k);
+    if (f) fv.textContent = Number.isInteger(f.step) ? Math.round(v).toLocaleString() : parseFloat(v).toFixed(1);
+  }
+  const mb = document.getElementById('mb-'+k);
+  if (mb) {
+    const f = SCHEMAS[mode].flat().find(x=>x.k===k);
+    if (f) {
+      const pct = Math.min(100, ((parseFloat(v)-f.min)/(f.max-f.min))*100);
+      mb.style.width = pct+'%';
+      mb.className = 'mfill'+(pct>75?' hi':pct>40?' med':'');
+    }
+  }
+  updateResults();
+}
+
+function updateResults() {
+  const T = TR[lang];
+  const cats = getCategories();
+  const total = Object.values(cats).reduce((a,b)=>a+b,0);
+  document.getElementById('disp-total').textContent = Math.round(total).toLocaleString() + ' kg';
+  document.getElementById('disp-t').textContent = (total/1000).toFixed(2) + ' t CO2e/' + (lang==='de'?'Jahr':'year');
+
+  // Rating
+  const ref = mode==='p' ? T.cmpref_p : T.cmpref_b;
+  const rlist = mode==='p' ? T.rating : T.rating_b;
+  let ri,rc;
+  if(mode==='p'){
+    if(total<2000){ri=0;rc='bgood'}else if(total<4800){ri=1;rc='bgood'}else if(total<8200){ri=2;rc='bok'}else if(total<11600){ri=3;rc='bok'}else{ri=4;rc='bbad'}
+  } else {
+    if(total<10000){ri=0;rc='bgood'}else if(total<50000){ri=1;rc='bgood'}else if(total<80000){ri=2;rc='bok'}else if(total<120000){ri=3;rc='bok'}else{ri=4;rc='bbad'}
+  }
+  document.getElementById('disp-badge').innerHTML = `<span class="badge ${rc}">${rlist[ri]}</span>`;
+
+  // Chart
+  const labels = getCatLabels();
+  const data = Object.values(cats);
+  const colors = ['#C4843A','#5A9E3A','#D4A843','#3A6A9E','#8B5E2A'];
+  if (myChart) {
+    myChart.data.labels = labels;
+    myChart.data.datasets[0].data = data;
+    myChart.update();
+  } else {
+    const ctx = document.getElementById('chart').getContext('2d');
+    myChart = new Chart(ctx, {
+      type:'bar',
+      data:{labels,datasets:[{label:'kg CO2e',data,backgroundColor:colors,borderColor:colors.map(c=>c+'CC'),borderWidth:2}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>Math.round(c.raw).toLocaleString()+' kg CO2e'}}},scales:{x:{ticks:{color:'#A0784A',font:{family:'Courier New',size:8}},grid:{color:'rgba(139,94,42,0.25)'}},y:{ticks:{color:'#A0784A',font:{family:'Courier New',size:8},callback:v=>v>=1000?(v/1000).toFixed(0)+'k':v},grid:{color:'rgba(139,94,42,0.25)'}}}}
+    });
+  }
+
+  // Compare bar
+  const cmax = mode==='p' ? T.cmpmax_p : T.cmpmax_b;
+  const cmpRef = mode==='p' ? T.cmpref_p : T.cmpref_b;
+  document.getElementById('cmpmax').textContent = lang==='de' ? cmax.toLocaleString('de')+' kg' : cmax.toLocaleString()+' kg';
+  const userPct = Math.min(100, (total/cmax)*100);
+  const avgPct = Math.min(100, (cmpRef/cmax)*100);
+  document.getElementById('userfill').style.width = userPct+'%';
+  document.getElementById('avgfill').style.width = avgPct+'%';
+  document.getElementById('avgmark').style.left = avgPct+'%';
+
+  // Compare rows
+  const cmpRows = mode==='p' ? T.cmp_p : T.cmp_b;
+  let rowsHtml = '';
+  cmpRows.forEach(([lbl, val], i) => {
+    const v = i===0 ? Math.round(total).toLocaleString()+(lang==='de'?' kg':' kg') : val;
+    const isUser = i===0;
+    rowsHtml += `<div class="crow"><span>${lbl}</span><span class="cval" style="${isUser?'color:var(--amber)':''}">${v}</span></div>`;
+  });
+  if (mode==='p') {
+    const diff = Math.round(total) - 11600;
+    rowsHtml += `<div class="crow"><span>${lang==='de'?'Differenz zum Ø':'Diff. to avg'}</span><span class="cval" style="color:${diff>0?'#FF6040':'#7DC44A'}">${diff>0?'+':''}${diff.toLocaleString()} kg</span></div>`;
+  } else {
+    const perFTE = vals.staff > 0 ? Math.round(total/vals.staff) : 0;
+    rowsHtml += `<div class="crow"><span>${lang==='de'?'Pro Mitarbeiter':'Per employee'}</span><span class="cval">${perFTE.toLocaleString()} kg</span></div>`;
+  }
+  document.getElementById('cmprows').innerHTML = rowsHtml;
+
+  // Equivalents
+  const eqLbls = T.eq_lbl;
+  const eqVals = [Math.round(total/22), Math.round(total/180), Math.round(total/0.21), Math.round(total/3.5), Math.round(total/0.01), Math.round(total/0.0084)];
+  const eqIcos = [];
+  let eqHtml = '';
+  eqIcos.forEach((ico,i) => {
+    eqHtml += `<div class="eqrow"><span class="eico">${ico}</span><span>${eqVals[i].toLocaleString()} ${eqLbls[i]}</span></div>`;
+  });
+  document.getElementById('eqbox').innerHTML = eqHtml;
+
+  // Tips
+  const catArr = Object.entries(cats).sort((a,b)=>b[1]-a[1]);
+  const tips = getCatTips();
+  const catKeys = Object.keys(cats);
+  document.getElementById('tipsbox').innerHTML = catArr.slice(0,3).map((c,i) => {
+    const idx = catKeys.indexOf(c[0]);
+    return `${i+1}. ${tips[idx]||''}`;
+  }).join('<br>');
+}
+
+function setLang(l) {
+  lang = l;
+  document.querySelectorAll('.lbtn').forEach(b => b.classList.remove('on'));
+  document.querySelector(`.lbtn[onclick="setLang('${l}')"]`).classList.add('on');
+  applyStaticTranslations();
+  buildTabs(); buildInputs(); updateResults();
+}
+
+function setMode(m) {
+  mode = m;
+  activeTab = 0;
+  document.querySelectorAll('.mbtn').forEach(b => b.classList.remove('on'));
+  document.getElementById('mbtn-'+m).classList.add('on');
+  if (myChart) { myChart.destroy(); myChart = null; }
+  defaults();
+  applyStaticTranslations();
+  buildTabs(); buildInputs(); updateResults();
+}
+
+function applyStaticTranslations() {
+  const T = TR[lang];
+  document.getElementById('htitle').textContent = T.htitle;
+  document.getElementById('hsub').textContent = T.hsub;
+  document.getElementById('mlbl-p').textContent = T.mlbl_p;
+  document.getElementById('mlbl-b').textContent = T.mlbl_b;
+  document.getElementById('mdesc').textContent = T[mode==='p'?'mdesc_p':'mdesc_b'];
+  document.getElementById('rtitle').textContent = T.rtitle;
+  document.getElementById('lbl-total').textContent = T.lbl_total;
+  document.getElementById('lbl-breakdown').textContent = T.lbl_breakdown;
+  document.getElementById('lbl-cmp').textContent = T.lbl_cmp;
+  document.getElementById('lbl-eq').textContent = T.lbl_eq;
+  document.getElementById('lbl-tips').textContent = T.lbl_tips;
+  document.getElementById('lbl-rst').textContent = T.lbl_rst;
+  document.getElementById('lbl-shr').textContent = T.lbl_shr;
+}
+
+function doReset() {
+  if (myChart) { myChart.destroy(); myChart = null; }
+  defaults();
+  buildTabs(); buildInputs(); updateResults();
+  const b = document.getElementById('btn-rst');
+  b.style.transform='translate(3px,3px)'; b.style.boxShadow='1px 1px 0 var(--shd)';
+  setTimeout(()=>{b.style.transform='';b.style.boxShadow='';},150);
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2000);
+}
+
+function doShare() {
+  const cats = getCategories();
+  const total = Object.values(cats).reduce((a,b)=>a+b,0);
+  const t = total/1000;
+  const ref = mode==='p' ? 11600 : 50000;
+  const refLabel = mode==='p' ? (lang==='de'?'Dt. Haushalt':'German avg') : (lang==='de'?'KMU-Durchschnitt':'SME avg');
+  const txt = lang==='de'
+    ? `Mein CO2-Fußabdruck: ${Math.round(total).toLocaleString()} kg/Jahr (${t.toFixed(1)} t). ${refLabel}: ${ref.toLocaleString()} kg. #CO2Rechner`
+    : `My CO2 footprint: ${Math.round(total).toLocaleString()} kg/year (${t.toFixed(1)} t). ${refLabel}: ${ref.toLocaleString()} kg. #CO2Calculator`;
+  try {
+    navigator.clipboard.writeText(txt).then(()=>showToast(TR[lang].copied)).catch(()=>{fallbackCopy(txt)});
+  } catch(e) { fallbackCopy(txt); }
+  const b = document.getElementById('btn-shr');
+  b.style.transform='translate(3px,3px)'; b.style.boxShadow='1px 1px 0 var(--shd)';
+  setTimeout(()=>{b.style.transform='';b.style.boxShadow='';},150);
+}
+
+function fallbackCopy(txt) {
+  const ta = document.createElement('textarea');
+  ta.value = txt; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); showToast(TR[lang].copied); } catch(e) { showToast('Error'); }
+  document.body.removeChild(ta);
+}
+
+// Init
+defaults();
+applyStaticTranslations();
+buildTabs();
+buildInputs();
+updateResults();
+</script>
