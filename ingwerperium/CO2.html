@@ -777,8 +777,8 @@ function doShare(){
   var ref = mode==='p' ? 11600 : 50000;
   var refLabel = mode==='p' ? (lang==='de'?'Dt. Haushalt':'German avg') : (lang==='de'?'KMU-Durchschnitt':'SME avg');
   var txt = lang==='de'
-    ? 'Mein CO2-Fussabdruck: '+Math.round(total).toLocaleString()+' kg/Jahr ('+t.toFixed(1)+' t). '+refLabel+': '+ref.toLocaleString()+' kg. #CO2Rechner   Link: https://ingwerknolle03-cell.github.io/ingwerperium/CO2.html'
-    : 'My CO2 footprint: '+Math.round(total).toLocaleString()+' kg/year ('+t.toFixed(1)+' t). '+refLabel+': '+ref.toLocaleString()+' kg. #CO2Calculator   Link: https://ingwerknolle03-cell.github.io/ingwerperium/CO2.html';
+    ? 'Mein CO2-Fussabdruck: '+Math.round(total).toLocaleString()+' kg/Jahr ('+t.toFixed(1)+' t). '+refLabel+': '+ref.toLocaleString()+' kg. Link: https://ingwerknolle03-cell.github.io/ingwerperium/CO2.html'
+    : 'My CO2 footprint: '+Math.round(total).toLocaleString()+' kg/year ('+t.toFixed(1)+' t). '+refLabel+': '+ref.toLocaleString()+' kg. Link: https://ingwerknolle03-cell.github.io/ingwerperium/CO2.html';
   try {
     navigator.clipboard.writeText(txt).then(function(){showToast(TR[lang].copied);}).catch(function(){fallbackCopy(txt);});
   } catch(e){ fallbackCopy(txt); }
