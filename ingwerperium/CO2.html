@@ -85,9 +85,35 @@ select:focus{border-color:var(--bdr2)}
 .toast.show{opacity:1}
 .info-btn{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;background:var(--bdr);border:1px solid var(--bdr2);color:var(--cream);font-size:7px;cursor:pointer;flex-shrink:0;position:relative;font-family:'Press Start 2P',monospace;line-height:1;user-select:none;vertical-align:middle}
 .info-btn:hover{background:var(--bdr2)}
-.tooltip{display:none;position:absolute;left:20px;top:-4px;z-index:300;background:#1A0E05;border:2px solid var(--bdr2);color:var(--light);font-size:clamp(4px,0.9vw,5px);font-family:'Press Start 2P',monospace;padding:8px 10px;width:200px;line-height:1.9;box-shadow:3px 3px 0 var(--shd);pointer-events:none}
-.info-btn:hover .tooltip,.info-btn:focus .tooltip{display:block}
-@media(max-width:720px){.tooltip{left:auto;right:0;top:20px;width:160px}}
+.tooltip{
+  display:none;
+  position:absolute;
+  left:20px;
+  top:-4px;
+
+  width:max-content;
+  max-width:calc(100vw - 40px);
+
+  background:#1A0E05;
+  border:2px solid var(--bdr2);
+  color:var(--light);
+  font-size:clamp(4px,0.9vw,5px);
+  font-family:'Press Start 2P',monospace;
+  padding:8px 10px;
+  line-height:1.9;
+  box-shadow:3px 3px 0 var(--shd);
+  pointer-events:none;
+
+  white-space:normal;
+  word-break:break-word;
+}
+@media(max-width:720px){
+  .tooltip{
+    left:50%;
+    transform:translateX(-50%);
+    top:20px;
+  }
+}
 </style>
 </head>
 <body>
