@@ -76,7 +76,7 @@ select:focus{border-color:var(--bdr2)}
 .avgbar{position:relative;height:22px;background:var(--panel);border:2px solid var(--bdr);margin-top:6px;overflow:visible}
 .avgfill{height:100%;background:var(--blu);opacity:.5;position:absolute;top:0;left:0}
 .userfill{position:absolute;top:0;left:0;height:100%;border-right:3px solid var(--amber);background:repeating-linear-gradient(90deg,rgba(212,168,67,.5) 0,rgba(212,168,67,.5) 4px,transparent 4px,transparent 8px)}
-.avgmark{position:absolute;top:-7px;font-size:5px;color:var(--amber);transform:translateX(-50%);white-space:nowrap;pointer-events:none}
+.avgmark{position:absolute;top:-7px;font-size:5px;color:var(--amber);transform:translateX(-50%);white-space:nowrap;pointer-events:auto}
 .bar-legend{display:flex;gap:10px;margin-top:6px;flex-wrap:wrap;font-size:clamp(4px,0.9vw,5px);color:var(--mut)}
 .bar-legend span{display:flex;align-items:center;gap:4px}
 .leg-you{width:14px;height:9px;background:repeating-linear-gradient(90deg,rgba(212,168,67,.5) 0,rgba(212,168,67,.5) 4px,transparent 4px,transparent 8px);border-right:3px solid var(--amber);flex-shrink:0;display:inline-block}
@@ -106,6 +106,10 @@ select:focus{border-color:var(--bdr2)}
 
   white-space:normal;
   word-break:break-word;
+}
+.info-btn:hover .tooltip,
+.info-btn:focus .tooltip {
+  display: block;
 }
 @media(max-width:720px){
   .tooltip{
