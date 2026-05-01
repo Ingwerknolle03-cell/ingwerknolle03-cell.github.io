@@ -789,7 +789,7 @@ function doShare(){
 
 function fallbackCopy(txt){
   var ta = document.createElement('textarea');
-  ta.value = txt; ta.style.position='fixed'; ta.style.opacity='0';
+  ta.value = txt; ta.style.position='fixed'; ta.style.opacity=' ';
   document.body.appendChild(ta); ta.select();
   try{ document.execCommand('copy'); showToast(TR[lang].copied); }catch(e){ showToast('Error'); }
   document.body.removeChild(ta);
