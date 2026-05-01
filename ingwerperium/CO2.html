@@ -72,51 +72,64 @@ select:focus{border-color:var(--bdr2)}
 .bbad{background:#3A0A00;color:#FF6040;border-color:var(--red)}
 .tip{background:var(--bg);border:2px solid var(--bdr);padding:9px;margin-top:10px;font-size:clamp(5px,1.1vw,6px);color:var(--mut);line-height:1.9}
 .tipt{color:var(--gold);font-size:clamp(5px,1.2vw,7px);margin-bottom:5px}
-/* Compare bar — 0 always left edge */
+/* Compare bar */
 .avgbar{position:relative;height:22px;background:var(--panel);border:2px solid var(--bdr);margin-top:6px;overflow:visible}
 .avgfill{height:100%;background:var(--blu);opacity:.5;position:absolute;top:0;left:0}
 .userfill{position:absolute;top:0;left:0;height:100%;border-right:3px solid var(--amber);background:repeating-linear-gradient(90deg,rgba(212,168,67,.5) 0,rgba(212,168,67,.5) 4px,transparent 4px,transparent 8px)}
-.avgmark{position:absolute;top:-7px;font-size:5px;color:var(--amber);transform:translateX(-50%);white-space:nowrap;pointer-events:auto}
+.avgmark{position:absolute;top:-7px;font-size:5px;color:var(--amber);transform:translateX(-50%);white-space:nowrap;pointer-events:none}
 .bar-legend{display:flex;gap:10px;margin-top:6px;flex-wrap:wrap;font-size:clamp(4px,0.9vw,5px);color:var(--mut)}
 .bar-legend span{display:flex;align-items:center;gap:4px}
 .leg-you{width:14px;height:9px;background:repeating-linear-gradient(90deg,rgba(212,168,67,.5) 0,rgba(212,168,67,.5) 4px,transparent 4px,transparent 8px);border-right:3px solid var(--amber);flex-shrink:0;display:inline-block}
 .leg-avg{width:14px;height:9px;background:var(--blu);opacity:.7;flex-shrink:0;display:inline-block}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--grn);color:var(--cream);font-family:'Press Start 2P',monospace;font-size:7px;padding:10px 18px;border:2px solid var(--grn2);box-shadow:3px 3px 0 var(--shd);z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1}
-.info-btn{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;background:var(--bdr);border:1px solid var(--bdr2);color:var(--cream);font-size:7px;cursor:pointer;flex-shrink:0;position:relative;font-family:'Press Start 2P',monospace;line-height:1;user-select:none;vertical-align:middle}
-.info-btn:hover{background:var(--bdr2)}
-.tooltip{
+
+/* ── INFO BUTTON ── */
+.info-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:16px;height:16px;border-radius:50%;
+  background:var(--bdr);border:1px solid var(--bdr2);
+  color:var(--cream);font-size:7px;
+  cursor:pointer;flex-shrink:0;
+  font-family:'Press Start 2P',monospace;line-height:1;
+  user-select:none;vertical-align:middle;
+  -webkit-tap-highlight-color:transparent;
+}
+.info-btn:hover,.info-btn:focus{background:var(--bdr2);outline:none}
+.info-btn.active{background:var(--amber);color:var(--bg)}
+
+/* ── GLOBAL TOOLTIP OVERLAY ── */
+#tooltip-overlay{
   display:none;
-  position:absolute;
-  left:20px;
-  top:-4px;
-
-  width:max-content;
-  max-width:calc(100vw - 40px);
-
+  position:fixed;
+  z-index:9000;
   background:#1A0E05;
   border:2px solid var(--bdr2);
   color:var(--light);
-  font-size:clamp(4px,0.9vw,5px);
+  font-size:clamp(5px,2.5vw,6px);
   font-family:'Press Start 2P',monospace;
-  padding:8px 10px;
-  line-height:1.9;
+  padding:10px 12px;
+  line-height:2;
   box-shadow:3px 3px 0 var(--shd);
   pointer-events:none;
-
   white-space:normal;
   word-break:break-word;
+  /* constrained width — never wider than viewport minus margin */
+  max-width:min(340px, calc(100vw - 24px));
+  width:max-content;
 }
-.info-btn:hover .tooltip,
-.info-btn:focus .tooltip {
-  display: block;
+#tooltip-overlay.visible{display:block}
+
+/* ── CLOSE HINT (mobile only) ── */
+#tooltip-close-hint{
+  display:none;
+  margin-top:7px;
+  font-size:5px;
+  color:var(--mut);
+  text-align:right;
 }
 @media(max-width:720px){
-  .tooltip{
-    left:50%;
-    transform:translateX(-50%);
-    top:20px;
-  }
+  #tooltip-close-hint{display:block}
 }
 </style>
 </head>
@@ -137,7 +150,7 @@ select:focus{border-color:var(--bdr2)}
   <button class="mbtn on" id="mbtn-p" onclick="setMode('p')"><span id="mlbl-p">PRIVAT</span></button>
   <button class="mbtn" id="mbtn-b" onclick="setMode('b')"><span id="mlbl-b">UNTERNEHMEN</span></button>
 </div>
-<div class="mode-desc" id="mdesc">Haushalt, Mobilit&#228;t, Ern&#228;hrung &amp; Lebensstil einer Einzelperson</div>
+<div class="mode-desc" id="mdesc">Haushalt, Mobilität, Ernährung &amp; Lebensstil einer Einzelperson</div>
 
 <div class="tabs" id="tabbar"></div>
 
@@ -188,6 +201,13 @@ select:focus{border-color:var(--bdr2)}
   </div>
 </div>
 <div class="toast" id="toast"></div>
+
+<!-- GLOBAL TOOLTIP OVERLAY (viewport-aware, always readable) -->
+<div id="tooltip-overlay" role="tooltip" aria-live="polite">
+  <span id="tooltip-text"></span>
+  <div id="tooltip-close-hint">[ tippen zum schließen ]</div>
+</div>
+
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
@@ -208,94 +228,202 @@ function loadFromStorage() {
   return false;
 }
 
+/* ═══════════════════════════════════════════════
+   TOOLTIP SYSTEM — viewport-aware global overlay
+   ═══════════════════════════════════════════════ */
+var _activeInfoBtn = null;
+
+function showTooltip(btn, text) {
+  var overlay = document.getElementById('tooltip-overlay');
+  var textEl  = document.getElementById('tooltip-text');
+
+  // Close if same button clicked again
+  if (_activeInfoBtn === btn) {
+    hideTooltip();
+    return;
+  }
+  if (_activeInfoBtn) {
+    _activeInfoBtn.classList.remove('active');
+  }
+  _activeInfoBtn = btn;
+  btn.classList.add('active');
+
+  textEl.textContent = text;
+  overlay.classList.add('visible');
+
+  // Position after making visible so we can measure its size
+  requestAnimationFrame(function() {
+    positionTooltip(btn, overlay);
+  });
+}
+
+function positionTooltip(btn, overlay) {
+  var MARGIN = 8; // px gap from viewport edges
+  var btnRect = btn.getBoundingClientRect();
+  var ow = overlay.offsetWidth;
+  var oh = overlay.offsetHeight;
+  var vw = window.innerWidth;
+  var vh = window.innerHeight;
+
+  // Preferred: right of button
+  var left = btnRect.right + 6;
+  var top  = btnRect.top;
+
+  // If overflows right → try left of button
+  if (left + ow > vw - MARGIN) {
+    left = btnRect.left - ow - 6;
+  }
+  // Still overflows left → centre horizontally in viewport
+  if (left < MARGIN) {
+    left = MARGIN;
+  }
+  // Clamp right edge
+  if (left + ow > vw - MARGIN) {
+    left = vw - ow - MARGIN;
+    if (left < MARGIN) left = MARGIN;
+  }
+
+  // Preferred: align top with button top
+  // If overflows bottom → shift up
+  if (top + oh > vh - MARGIN) {
+    top = vh - oh - MARGIN;
+  }
+  // Don't go above viewport
+  if (top < MARGIN) top = MARGIN;
+
+  overlay.style.left = Math.round(left) + 'px';
+  overlay.style.top  = Math.round(top)  + 'px';
+  // Hard-clamp width inside viewport
+  overlay.style.maxWidth = (vw - 2*MARGIN) + 'px';
+}
+
+function hideTooltip() {
+  var overlay = document.getElementById('tooltip-overlay');
+  overlay.classList.remove('visible');
+  if (_activeInfoBtn) {
+    _activeInfoBtn.classList.remove('active');
+    _activeInfoBtn = null;
+  }
+}
+
+// Close on outside click / tap
+document.addEventListener('click', function(e) {
+  if (_activeInfoBtn && !_activeInfoBtn.contains(e.target)) {
+    hideTooltip();
+  }
+});
+
+// Close on Escape
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') hideTooltip();
+});
+
+// Reposition on resize / scroll
+window.addEventListener('resize', function() {
+  if (_activeInfoBtn) {
+    positionTooltip(_activeInfoBtn, document.getElementById('tooltip-overlay'));
+  }
+});
+document.addEventListener('scroll', function() {
+  if (_activeInfoBtn) {
+    positionTooltip(_activeInfoBtn, document.getElementById('tooltip-overlay'));
+  }
+}, true);
+
+/* ═══════════════
+   TOOLTIP DATA
+   ═══════════════ */
 var TOOLTIPS = {
   elec:{de:'Jahresverbrauch Strom in kWh. Dt. Durchschnitt Haushalt: ~3.500 kWh. Quelle: BDEW 2023.',en:'Annual electricity use in kWh. German avg household: ~3,500 kWh. Source: BDEW 2023.'},
-  renew:{de:'Anteil Okostrom an deinem Stromtarif. Reduziert nur den Strom-CO2 um bis zu 70%. Quelle: UBA 2023.',en:'Share of green electricity in your tariff. Reduces only electricity CO2 by up to 70%. Source: UBA 2023.'},
-  oil:{de:'Liter Heizoil pro Jahr. 1 Liter Heizoil = 2,68 kg CO2. Quelle: IPCC 2021.',en:'Litres of heating oil per year. 1 litre = 2.68 kg CO2. Source: IPCC 2021.'},
-  gas:{de:'Kubikmeter Erdgas pro Jahr. 1 m3 = 2,0 kg CO2. Quelle: IPCC 2021.',en:'Cubic metres of natural gas per year. 1 m3 = 2.0 kg CO2. Source: IPCC 2021.'},
-  heat:{de:'Fernwarme kWh/Jahr. Emissionsfaktor ~0,2 kg CO2/kWh. Quelle: AGFW 2022.',en:'District heating kWh/year. Emission factor ~0.2 kg CO2/kWh. Source: AGFW 2022.'},
+  renew:{de:'Anteil Ökostrom an deinem Stromtarif. Reduziert nur den Strom-CO2 um bis zu 70%. Quelle: UBA 2023.',en:'Share of green electricity in your tariff. Reduces only electricity CO2 by up to 70%. Source: UBA 2023.'},
+  oil:{de:'Liter Heizöl pro Jahr. 1 Liter Heizöl = 2,68 kg CO2. Quelle: IPCC 2021.',en:'Litres of heating oil per year. 1 litre = 2.68 kg CO2. Source: IPCC 2021.'},
+  gas:{de:'Kubikmeter Erdgas pro Jahr. 1 m³ = 2,0 kg CO2. Quelle: IPCC 2021.',en:'Cubic metres of natural gas per year. 1 m³ = 2.0 kg CO2. Source: IPCC 2021.'},
+  heat:{de:'Fernwärme kWh/Jahr. Emissionsfaktor ~0,2 kg CO2/kWh. Quelle: AGFW 2022.',en:'District heating kWh/year. Emission factor ~0.2 kg CO2/kWh. Source: AGFW 2022.'},
   car:{de:'Kilometer pro Jahr mit dem eigenen PKW. Dt. Durchschnitt: ~14.000 km/Jahr. Quelle: KBA 2023.',en:'km per year by personal car. German avg: ~14,000 km/year. Source: KBA 2023.'},
   cartype:{de:'Benzin: 0,21 kg/km | Diesel: 0,17 | Hybrid: 0,12 | E-Auto: 0,06 | SUV: 0,25 + einmalig 8t Herstellung auf 15 Jahre verteilt. Quelle: ADAC 2023.',en:'Petrol: 0.21 kg/km | Diesel: 0.17 | Hybrid: 0.12 | EV: 0.06 | SUV: 0.25 + one-time 8t manufacturing over 15 years. Source: ADAC 2023.'},
-  sf:{de:'Kurzstreckenfluge bis ca. 3 Stunden Flugzeit (z.B. Deutschland-Spanien, ~1.500 km). Pro Hin- und Ruckflug je einen Flug zahlen. Ca. 180 kg CO2 pro Flug. Quelle: atmosfair 2023.',en:'Short-haul flights up to ~3 hours (e.g. Germany-Spain, ~1,500 km). Count each leg separately. ~180 kg CO2 per flight. Source: atmosfair 2023.'},
-  lf:{de:'Langstreckenfluge ab ca. 6 Stunden Flugzeit (z.B. Deutschland-USA). Pro Hin- und Ruckflug je einen Flug zahlen. Ca. 2.500 kg CO2 pro Flug inkl. Klimawirkung. Quelle: atmosfair 2023.',en:'Long-haul flights from ~6 hours (e.g. Germany-USA). Count each leg separately. ~2,500 kg CO2 per flight incl. climate effect. Source: atmosfair 2023.'},
-  transit:{de:'OPNV = Bus, U-Bahn, Tram, S-Bahn. Ca. 0,089 kg CO2/km. Quelle: UBA 2023.',en:'Public transit = bus, metro, tram, suburban rail. ~0.089 kg CO2/km. Source: UBA 2023.'},
-  train:{de:'Fernzuge wie ICE/IC. Ca. 0,032 kg CO2/km (Dt. Bahnnetz). Quelle: Deutsche Bahn 2023.',en:'Long-distance trains like ICE/IC. ~0.032 kg CO2/km (German rail). Source: Deutsche Bahn 2023.'},
+  sf:{de:'Kurzstreckenflüge bis ca. 3 Stunden Flugzeit (z.B. Deutschland-Spanien, ~1.500 km). Pro Hin- und Rückflug je einen Flug zählen. Ca. 180 kg CO2 pro Flug. Quelle: atmosfair 2023.',en:'Short-haul flights up to ~3 hours (e.g. Germany-Spain, ~1,500 km). Count each leg separately. ~180 kg CO2 per flight. Source: atmosfair 2023.'},
+  lf:{de:'Langstreckenflüge ab ca. 6 Stunden Flugzeit (z.B. Deutschland-USA). Pro Hin- und Rückflug je einen Flug zählen. Ca. 2.500 kg CO2 pro Flug inkl. Klimawirkung. Quelle: atmosfair 2023.',en:'Long-haul flights from ~6 hours (e.g. Germany-USA). Count each leg separately. ~2,500 kg CO2 per flight incl. climate effect. Source: atmosfair 2023.'},
+  transit:{de:'ÖPNV = Bus, U-Bahn, Tram, S-Bahn. Ca. 0,089 kg CO2/km. Quelle: UBA 2023.',en:'Public transit = bus, metro, tram, suburban rail. ~0.089 kg CO2/km. Source: UBA 2023.'},
+  train:{de:'Fernzüge wie ICE/IC. Ca. 0,032 kg CO2/km (Dt. Bahnnetz). Quelle: Deutsche Bahn 2023.',en:'Long-distance trains like ICE/IC. ~0.032 kg CO2/km (German rail). Source: Deutsche Bahn 2023.'},
   scooter:{de:'E-Scooter oder E-Bike. Ca. 0,03 kg CO2/km inkl. Strom und Herstellung. Quelle: VCD 2022.',en:'E-scooter or e-bike. ~0.03 kg CO2/km incl. electricity and manufacturing. Source: VCD 2022.'},
-  diet:{de:'Ernahrungsweise als Basis (kg CO2/Jahr). Quelle: Poore & Nemecek 2018.',en:'Diet baseline (kg CO2/year). Source: Poore & Nemecek 2018.'},
-  beef:{de:'1 kg Rindfleisch = ca. 27 kg CO2e. Gilt zusatzlich zum Ernahrungstyp. Quelle: IPCC 2019.',en:'1 kg beef = ~27 kg CO2e. Added on top of diet baseline. Source: IPCC 2019.'},
-  othermeat:{de:'Schwein, Geflugel, Fisch etc. Ca. 6 kg CO2 pro kg. Quelle: Poore & Nemecek 2018.',en:'Pork, poultry, fish etc. ~6 kg CO2 per kg. Source: Poore & Nemecek 2018.'},
+  diet:{de:'Ernährungsweise als Basis (kg CO2/Jahr). Quelle: Poore & Nemecek 2018.',en:'Diet baseline (kg CO2/year). Source: Poore & Nemecek 2018.'},
+  beef:{de:'1 kg Rindfleisch = ca. 27 kg CO2e. Gilt zusätzlich zum Ernährungstyp. Quelle: IPCC 2019.',en:'1 kg beef = ~27 kg CO2e. Added on top of diet baseline. Source: IPCC 2019.'},
+  othermeat:{de:'Schwein, Geflügel, Fisch etc. Ca. 6 kg CO2 pro kg. Quelle: Poore & Nemecek 2018.',en:'Pork, poultry, fish etc. ~6 kg CO2 per kg. Source: Poore & Nemecek 2018.'},
   local:{de:'Regional & saisonal eingekaufte Lebensmittel. Jeder Prozentpunkt spart ca. 3 kg CO2/Jahr. Quelle: WWF 2022.',en:'Locally & seasonally sourced food. Each percentage point saves ~3 kg CO2/year. Source: WWF 2022.'},
-  fwaste:{de:'Weggeworfene Lebensmittel in %. 100% Verschwendung = ca. 200 kg CO2 extra/Jahr. Quelle: Thunen-Institut 2021.',en:'Share of food thrown away. 100% waste = ~200 kg CO2 extra/year. Source: Thunen-Institut 2021.'},
-  waste:{de:'Hausmull in kg/Jahr ohne Recycling. Dt. Durchschnitt: ca. 242 kg/Person/Jahr. Quelle: Destatis 2022.',en:'General household waste in kg/year excl. recycling. German avg: ~242 kg/person/year. Source: Destatis 2022.'},
-  recycle:{de:'Anteil Mull, der uber Gelbe Tonne, Altpapier, Glas etc. recycelt wird. Quelle: UBA 2023.',en:'Share of waste recycled via yellow bin, paper, glass etc. Source: UBA 2023.'},
+  fwaste:{de:'Weggeworfene Lebensmittel in %. 100% Verschwendung = ca. 200 kg CO2 extra/Jahr. Quelle: Thünen-Institut 2021.',en:'Share of food thrown away. 100% waste = ~200 kg CO2 extra/year. Source: Thunen-Institut 2021.'},
+  waste:{de:'Hausmüll in kg/Jahr ohne Recycling. Dt. Durchschnitt: ca. 242 kg/Person/Jahr. Quelle: Destatis 2022.',en:'General household waste in kg/year excl. recycling. German avg: ~242 kg/person/year. Source: Destatis 2022.'},
+  recycle:{de:'Anteil Müll, der über Gelbe Tonne, Altpapier, Glas etc. recycelt wird. Quelle: UBA 2023.',en:'Share of waste recycled via yellow bin, paper, glass etc. Source: UBA 2023.'},
   compost:{de:'Kompostierung reduziert Bio-Abfall-Emissionen um bis zu 80%. Quelle: UBA 2021.',en:'Composting reduces organic waste emissions by up to 80%. Source: UBA 2021.'},
-  water:{de:'Wasserverbrauch m3/Jahr. Dt. Durchschnitt: ca. 47 m3/Person. Aufbereitung: 0,34 kg CO2/m3. Quelle: UBA 2022.',en:'Water usage m3/year. German avg: ~47 m3/person. Treatment: 0.34 kg CO2/m3. Source: UBA 2022.'},
-  clothes:{de:'Neue Kleidungsstucke pro Jahr. 1 Stuck = ca. 3 kg CO2 (Herstellung + Transport). Quelle: WRAP 2022.',en:'New clothing items per year. 1 item = ~3 kg CO2 (production + transport). Source: WRAP 2022.'},
-  electronics:{de:'Ausgaben fur Neugerate in EUR/Jahr. Ca. 0,30 kg CO2 pro EUR. Quelle: KfW 2022.',en:'Spending on new electronics EUR/year. ~0.30 kg CO2 per EUR. Source: KfW 2022.'},
-  stream:{de:'Videostreaming (Netflix, YouTube etc.) pro Tag. Ca. 0,036 kg CO2/h inkl. Endgerate & Rechenzentren. Quelle: Carbon Trust 2021.',en:'Video streaming per day. ~0.036 kg CO2/h incl. devices & data centres. Source: Carbon Trust 2021.'},
-  holidays:{de:'Auslandsurlaube pro Jahr. Ca. 300 kg CO2 pauschal pro Reise (exkl. Fluge). Quelle: Oko-Institut 2022.',en:'Foreign holidays per year. ~300 kg CO2 per trip (excl. flights). Source: Oko-Institut 2022.'},
-  belec:{de:'Jahresstromverbrauch des Buros in kWh. Dt. KMU-Durchschnitt: ~40.000 kWh/Jahr. Quelle: BDEW 2023.',en:'Annual office electricity use in kWh. German SME avg: ~40,000 kWh/year. Source: BDEW 2023.'},
-  bgas:{de:'Erdgasverbrauch Burogebaude m3/Jahr. 1 m3 = 2,0 kg CO2. Quelle: IPCC 2021.',en:'Office building natural gas m3/year. 1 m3 = 2.0 kg CO2. Source: IPCC 2021.'},
-  brenew:{de:'Anteil Okostrom am Buro-Stromtarif. Reduziert nur den Strom-CO2 um bis zu 70%. Quelle: UBA 2023.',en:'Share of green electricity in office tariff. Reduces only electricity CO2 by up to 70%. Source: UBA 2023.'},
-  sqm:{de:'Buroflache in m2. Gebaude-Overhead: ca. 15 kg CO2/m2/Jahr. Quelle: DGNB 2022.',en:'Office space in m2. Building overhead: ~15 kg CO2/m2/year. Source: DGNB 2022.'},
-  bsf:{de:'Inlandsfluge = bis ca. 3h Flugzeit (Deutschland-intern oder Nachbarlander). Ca. 250 kg CO2 pro Flug. Quelle: atmosfair 2023.',en:'Domestic flights = up to ~3h flight time (within Germany or neighbours). ~250 kg CO2 per flight. Source: atmosfair 2023.'},
-  blf:{de:'Interkontinentalfluge = uber 6h Flugzeit (z.B. nach USA, Asien). Ca. 3.500 kg CO2 pro Flug inkl. Klimawirkung. Quelle: atmosfair 2023.',en:'Intercontinental flights = over 6h (e.g. USA, Asia). ~3,500 kg CO2 per flight incl. climate effect. Source: atmosfair 2023.'},
+  water:{de:'Wasserverbrauch m³/Jahr. Dt. Durchschnitt: ca. 47 m³/Person. Aufbereitung: 0,34 kg CO2/m³. Quelle: UBA 2022.',en:'Water usage m³/year. German avg: ~47 m³/person. Treatment: 0.34 kg CO2/m³. Source: UBA 2022.'},
+  clothes:{de:'Neue Kleidungsstücke pro Jahr. 1 Stück = ca. 3 kg CO2 (Herstellung + Transport). Quelle: WRAP 2022.',en:'New clothing items per year. 1 item = ~3 kg CO2 (production + transport). Source: WRAP 2022.'},
+  electronics:{de:'Ausgaben für Neugeräte in EUR/Jahr. Ca. 0,30 kg CO2 pro EUR. Quelle: KfW 2022.',en:'Spending on new electronics EUR/year. ~0.30 kg CO2 per EUR. Source: KfW 2022.'},
+  stream:{de:'Videostreaming (Netflix, YouTube etc.) pro Tag. Ca. 0,036 kg CO2/h inkl. Endgeräte & Rechenzentren. Quelle: Carbon Trust 2021.',en:'Video streaming per day. ~0.036 kg CO2/h incl. devices & data centres. Source: Carbon Trust 2021.'},
+  holidays:{de:'Auslandsurlaube pro Jahr. Ca. 300 kg CO2 pauschal pro Reise (exkl. Flüge). Quelle: Öko-Institut 2022.',en:'Foreign holidays per year. ~300 kg CO2 per trip (excl. flights). Source: Oko-Institut 2022.'},
+  belec:{de:'Jahresstromverbrauch des Büros in kWh. Dt. KMU-Durchschnitt: ~40.000 kWh/Jahr. Quelle: BDEW 2023.',en:'Annual office electricity use in kWh. German SME avg: ~40,000 kWh/year. Source: BDEW 2023.'},
+  bgas:{de:'Erdgasverbrauch Bürogebäude m³/Jahr. 1 m³ = 2,0 kg CO2. Quelle: IPCC 2021.',en:'Office building natural gas m³/year. 1 m³ = 2.0 kg CO2. Source: IPCC 2021.'},
+  brenew:{de:'Anteil Ökostrom am Büro-Stromtarif. Reduziert nur den Strom-CO2 um bis zu 70%. Quelle: UBA 2023.',en:'Share of green electricity in office tariff. Reduces only electricity CO2 by up to 70%. Source: UBA 2023.'},
+  sqm:{de:'Bürofläche in m². Gebäude-Overhead: ca. 15 kg CO2/m²/Jahr. Quelle: DGNB 2022.',en:'Office space in m². Building overhead: ~15 kg CO2/m²/year. Source: DGNB 2022.'},
+  bsf:{de:'Inlandsflüge = bis ca. 3h Flugzeit (Deutschland-intern oder Nachbarländer). Ca. 250 kg CO2 pro Flug. Quelle: atmosfair 2023.',en:'Domestic flights = up to ~3h flight time (within Germany or neighbours). ~250 kg CO2 per flight. Source: atmosfair 2023.'},
+  blf:{de:'Interkontinentalflüge = über 6h Flugzeit (z.B. nach USA, Asien). Ca. 3.500 kg CO2 pro Flug inkl. Klimawirkung. Quelle: atmosfair 2023.',en:'Intercontinental flights = over 6h (e.g. USA, Asia). ~3,500 kg CO2 per flight incl. climate effect. Source: atmosfair 2023.'},
   bcar:{de:'Gesamtkilometer aller Dienstwagen pro Jahr. Emissionsfaktor je nach Fuhrpark-Typ. Quelle: ADAC 2023.',en:'Total km of all company cars per year. Emission factor depends on fleet type. Source: ADAC 2023.'},
   bcartype:{de:'Benzin: 0,21 kg/km | Diesel: 0,17 | Hybrid: 0,12 | Elektro: 0,06. Quelle: ADAC 2023.',en:'Petrol: 0.21 kg/km | Diesel: 0.17 | Hybrid: 0.12 | Electric: 0.06. Source: ADAC 2023.'},
   btrain:{de:'Bahn-Dienstreisen km/Jahr gesamt (alle Mitarbeiter). Ca. 0,032 kg CO2/km. Quelle: Deutsche Bahn 2023.',en:'Total business rail travel km/year (all employees). ~0.032 kg CO2/km. Source: Deutsche Bahn 2023.'},
-  bscooter:{de:'E-Scooter/E-Bikes fur Dienstreisen km/Jahr. Ca. 0,03 kg CO2/km. Quelle: VCD 2022.',en:'E-scooters/e-bikes for business travel km/year. ~0.03 kg CO2/km. Source: VCD 2022.'},
-  pcs:{de:'Laptops & Desktop-PCs. Desktop: ~175 kWh/Jahr, Laptop: ~50 kWh/Jahr. Hier: ~40 kg CO2/Gerat/Jahr. Quelle: Fraunhofer IZM 2022.',en:'Laptops & desktop PCs. Desktop: ~175 kWh/year, laptop: ~50 kWh/year. Avg: ~40 kg CO2/device/year. Source: Fraunhofer IZM 2022.'},
-  servers:{de:'On-Premise-Server. Ca. 2.000 kg CO2/Server/Jahr (Strom + Kuhlung). Quelle: Uptime Institute 2022.',en:'On-premise servers. ~2,000 kg CO2/server/year (power + cooling). Source: Uptime Institute 2022.'},
+  bscooter:{de:'E-Scooter/E-Bikes für Dienstreisen km/Jahr. Ca. 0,03 kg CO2/km. Quelle: VCD 2022.',en:'E-scooters/e-bikes for business travel km/year. ~0.03 kg CO2/km. Source: VCD 2022.'},
+  pcs:{de:'Laptops & Desktop-PCs. Desktop: ~175 kWh/Jahr, Laptop: ~50 kWh/Jahr. Hier: ~40 kg CO2/Gerät/Jahr. Quelle: Fraunhofer IZM 2022.',en:'Laptops & desktop PCs. Desktop: ~175 kWh/year, laptop: ~50 kWh/year. Avg: ~40 kg CO2/device/year. Source: Fraunhofer IZM 2022.'},
+  servers:{de:'On-Premise-Server. Ca. 2.000 kg CO2/Server/Jahr (Strom + Kühlung). Quelle: Uptime Institute 2022.',en:'On-premise servers. ~2,000 kg CO2/server/year (power + cooling). Source: Uptime Institute 2022.'},
   cloud:{de:'Cloud-Ausgaben in EUR/Monat. Ca. 0,5 kg CO2 pro EUR. Quelle: Amazon/Google ESG Reports 2023.',en:'Cloud spending EUR/month. ~0.5 kg CO2 per EUR. Source: Amazon/Google ESG Reports 2023.'},
   screens:{de:'Externe Monitore. Ca. 30 kg CO2/Monitor/Jahr. Quelle: Fraunhofer IZM 2022.',en:'External monitors. ~30 kg CO2/monitor/year. Source: Fraunhofer IZM 2022.'},
-  bwaste:{de:'Gesamter Buromull kg/Jahr. Dt. Durchschnitt Buro: ca. 150 kg/MA/Jahr. Quelle: UBA 2022.',en:'Total office waste kg/year. German office avg: ~150 kg/employee/year. Source: UBA 2022.'},
-  brecycle:{de:'Anteil Buromull, der recycelt wird (Gelbe Tonne, Altpapier, Glas etc.). Quelle: UBA 2023.',en:'Share of office waste recycled (yellow bin, paper, glass etc.). Source: UBA 2023.'},
-  bpaper:{de:'Papierkoper/Ries a 500 Blatt. 1 Ries = ca. 4,5 kg CO2 (Herstellung + Transport). Quelle: NABU 2022.',en:'Paper reams (500 sheets each). 1 ream = ~4.5 kg CO2 (production + transport). Source: NABU 2022.'},
-  staff:{de:'Anzahl Mitarbeiter. Basis fur Pendler-Berechnung und Pro-Kopf-Auswertung.',en:'Number of employees. Used as basis for commuting calculation and per-capita analysis.'},
-  homeoffice:{de:'Durchschnittliche Homeoffice-Tage pro Woche pro Mitarbeiter. 220 Arbeitstage/Jahr als Basis. Quelle: IW Koln 2023.',en:'Avg home-office days per week per employee. 220 working days/year as basis. Source: IW Koln 2023.'},
+  bwaste:{de:'Gesamter Büromüll kg/Jahr. Dt. Durchschnitt Büro: ca. 150 kg/MA/Jahr. Quelle: UBA 2022.',en:'Total office waste kg/year. German office avg: ~150 kg/employee/year. Source: UBA 2022.'},
+  brecycle:{de:'Anteil Büromüll, der recycelt wird (Gelbe Tonne, Altpapier, Glas etc.). Quelle: UBA 2023.',en:'Share of office waste recycled (yellow bin, paper, glass etc.). Source: UBA 2023.'},
+  bpaper:{de:'Papierkopier-Ries à 500 Blatt. 1 Ries = ca. 4,5 kg CO2 (Herstellung + Transport). Quelle: NABU 2022.',en:'Paper reams (500 sheets each). 1 ream = ~4.5 kg CO2 (production + transport). Source: NABU 2022.'},
+  staff:{de:'Anzahl Mitarbeiter. Basis für Pendler-Berechnung und Pro-Kopf-Auswertung.',en:'Number of employees. Used as basis for commuting calculation and per-capita analysis.'},
+  homeoffice:{de:'Durchschnittliche Homeoffice-Tage pro Woche pro Mitarbeiter. 220 Arbeitstage/Jahr als Basis. Quelle: IW Köln 2023.',en:'Avg home-office days per week per employee. 220 working days/year as basis. Source: IW Koln 2023.'},
   commute:{de:'Durchschnittlicher einfacher Pendelweg in km. Dt. Durchschnitt: ca. 17 km. Quelle: Destatis 2022.',en:'Avg one-way commute distance in km. German avg: ~17 km. Source: Destatis 2022.'},
-  commutetype:{de:'Auto: 0,21 kg/km | OPNV: 0,089 kg/km | Fahrrad/Fuss: 0 kg/km. Quelle: UBA 2023.',en:'Car: 0.21 kg/km | Public transit: 0.089 kg/km | Bike/Walk: 0 kg/km. Source: UBA 2023.'}
+  commutetype:{de:'Auto: 0,21 kg/km | ÖPNV: 0,089 kg/km | Fahrrad/Fuß: 0 kg/km. Quelle: UBA 2023.',en:'Car: 0.21 kg/km | Public transit: 0.089 kg/km | Bike/Walk: 0 kg/km. Source: UBA 2023.'}
 };
 
 function infoBtn(key) {
   var tip = TOOLTIPS[key];
   if (!tip) return '';
-  var txt = (tip[lang] || tip['de']).replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  return '<span class="info-btn" tabindex="0">?<span class="tooltip">'+txt+'</span></span>';
+  var txt = (tip[lang] || tip['de'])
+    .replace(/\\/g,'\\\\')
+    .replace(/'/g,"\\'")
+    .replace(/"/g,'&quot;');
+  return '<button class="info-btn" tabindex="0" aria-label="Info" onclick="event.stopPropagation();showTooltip(this,\'' + txt + '\')">?</button>';
 }
 
 var TR = {
   de: {
-    htitle:'CO2-FU\u00dfABDRUCK RECHNER', hsub:'INGWERPERIUM',
+    htitle:'CO2-FUßABDRUCK RECHNER', hsub:'INGWERPERIUM',
     mlbl_p:'PRIVAT', mlbl_b:'UNTERNEHMEN',
-    mdesc_p:'Haushalt, Mobilit\u00e4t, Ern\u00e4hrung & Lebensstil einer Einzelperson',
-    mdesc_b:'B\u00fcroenergie, Gesch\u00e4ftsreisen, Fuhrpark & Betriebsabl\u00e4ufe eines Unternehmens',
+    mdesc_p:'Haushalt, Mobilität & Lebensstil einer Einzelperson',
+    mdesc_b:'Büroenergie, Geschäftsreisen, Fuhrpark & Betriebsabläufe eines Unternehmens',
     rtitle:'ERGEBNISSE', lbl_total:'GESAMTEMISSIONEN PRO JAHR',
     lbl_breakdown:'KATEGORIEN',
-    lbl_cmp:'VERGLEICH \u2014 links = 0 kg, rechts = Maximum',
-    lbl_eq:'\u00c4QUIVALENTE \u2014 Was entspricht mein CO2?',
+    lbl_cmp:'VERGLEICH — links = 0 kg, rechts = Maximum',
+    lbl_eq:'ÄQUIVALENTE — Was entspricht mein CO2?',
     lbl_tips:'TOP-SPARTIPPS', lbl_rst:'RESET', lbl_shr:'TEILEN',
     copied:'In Zwischenablage kopiert!',
-    leg_you:'Dein Wert', leg_avg:'\u00d8 Referenz',
-    tabs_p:['ENERGIE','MOBILIT\u00c4T','ERN\u00c4HRUNG','ABFALL','LIFESTYLE'],
-    tabs_b:'B\u00dcROENERGIE|GESCH\u00c4FTSREISEN|IT & GER\u00c4TE|ABFALL|MITARBEITER'.split('|'),
-    cmp_p:[['Dein Fu\u00dfabdruck','\u2014'],['Dt. Durchschnitt','11.600 kg'],['EU Durchschnitt','8.200 kg'],['Welt Durchschnitt','4.800 kg'],['Paris-Ziel 2050','2.000 kg']],
-    cmp_b:[['Dein Unternehmen','\u2014'],['KMU Durchschnitt','50.000 kg'],['GmbH Durchschnitt','120.000 kg'],['Paris-konform/MA','5.000 kg']],
+    leg_you:'Dein Wert', leg_avg:'Ø Referenz',
+    tabs_p:['ENERGIE','MOBILITÄT','ERNÄHRUNG','ABFALL','LIFESTYLE'],
+    tabs_b:'BÜROENERGIE|GESCHÄFTSREISEN|IT & GERÄTE|ABFALL|MITARBEITER'.split('|'),
+    cmp_p:[['Dein Fußabdruck','—'],['Dt. Durchschnitt','11.600 kg'],['EU Durchschnitt','8.200 kg'],['Welt Durchschnitt','4.800 kg'],['Paris-Ziel 2050','2.000 kg']],
+    cmp_b:[['Dein Unternehmen','—'],['KMU Durchschnitt','50.000 kg'],['GmbH Durchschnitt','120.000 kg'],['Paris-konform/MA','5.000 kg']],
     cmpref_p:11600, cmpref_b:50000, cmpmax_p:15000, cmpmax_b:200000,
-    rating:['VORBILDLICH \u2014 UNTER PARIS-ZIEL','GUT \u2014 UNTER WELT-DURCHSCHNITT','MITTEL \u2014 UNTER EU-SCHNITT','HOCH \u2014 \u00dcBER EU-SCHNITT','SEHR HOCH \u2014 \u00dcBER DT. DURCHSCHNITT'],
-    rating_b:['VORBILDLICH \u2014 NETTO-NULL N\u00c4HERT SICH','GUT \u2014 UNTER KMU-SCHNITT','MITTEL','HOCH','SEHR HOCH \u2014 MA\u00dfNAHMEN DRINGEND'],
+    rating:['VORBILDLICH — UNTER PARIS-ZIEL','GUT — UNTER WELT-DURCHSCHNITT','MITTEL — UNTER EU-SCHNITT','HOCH — ÜBER EU-SCHNITT','SEHR HOCH — ÜBER DT. DURCHSCHNITT'],
+    rating_b:['VORBILDLICH — NETTO-NULL NÄHERT SICH','GUT — UNTER KMU-SCHNITT','MITTEL','HOCH','SEHR HOCH — MASSNAHMEN DRINGEND'],
     eq:[
-      {ico:'\ud83c\udf33',num_pre:'= ',lbl:'B\u00e4ume, die 1 Jahr n\u00f6tig w\u00e4ren, um deinen CO2-Aussto\u00df zu binden (ca. 22 kg CO2/Baum/Jahr)',div:22},
-      {ico:'\u2708\ufe0f',num_pre:'= ',lbl:'Kurzstreckenfl\u00fcge (<3h, z.B. DE\u2013Spanien) mit je ~180 kg CO2',div:180},
-      {ico:'\ud83d\ude97',num_pre:'= ',lbl:'Kilometer im Benzinauto (0,21 kg CO2/km)',div:0.21},
-      {ico:'\ud83c\udf54',num_pre:'= ',lbl:'Rindfleisch-Burger \u00e0 350 g (~3,5 kg CO2 pro St\u00fcck)',div:3.5},
-      {ico:'\ud83d\udca1',num_pre:'= ',lbl:'Stunden einer 10-Watt-LED-Birne (~0,01 kg CO2/h)',div:0.01},
-      {ico:'\ud83d\udcf1',num_pre:'= ',lbl:'Smartphone-Vollladungen (~0,0084 kg CO2 pro Ladevorgang)',div:0.0084}
+      {ico:'🌳',num_pre:'= ',lbl:'Bäume, die 1 Jahr nötig wären, um deinen CO2-Ausstoß zu binden (ca. 22 kg CO2/Baum/Jahr)',div:22},
+      {ico:'✈️',num_pre:'= ',lbl:'Kurzstreckenflüge (<3h, z.B. DE–Spanien) mit je ~180 kg CO2',div:180},
+      {ico:'🚗',num_pre:'= ',lbl:'Kilometer im Benzinauto (0,21 kg CO2/km)',div:0.21},
+      {ico:'🍔',num_pre:'= ',lbl:'Rindfleisch-Burger à 350 g (~3,5 kg CO2 pro Stück)',div:3.5},
+      {ico:'💡',num_pre:'= ',lbl:'Stunden einer 10-Watt-LED-Birne (~0,01 kg CO2/h)',div:0.01},
+      {ico:'📱',num_pre:'= ',lbl:'Smartphone-Vollladungen (~0,0084 kg CO2 pro Ladevorgang)',div:0.0084}
     ],
-    tips_p:{energy:'\u00d6kostrom & bessere D\u00e4mmung',mobility:'Weniger fliegen, mehr Bahn & E-Auto',food:'Weniger Fleisch, mehr Regionales',waste:'Mehr recyceln & kompostieren',lifestyle:'Secondhand statt Fast Fashion'},
-    tips_b:{energy:'LED-Beleuchtung & Geb\u00e4udezertifizierung',travel:'Videokonferenzen statt Flugreisen',it:'Energiesparende Ger\u00e4te & Cloud-Server',waste:'B\u00fcro-Recyclingprogramm einf\u00fchren',staff:'Homeoffice & Fahrradpauschale'},
-    tip_p:['\u00d6kostrom reduziert diese Kategorie bis 70%. Dt. \u00d8: ~3.500 kWh/Jahr.','1 Langstreckenflug (>6h) = ~2,5 t CO2. Kurzstrecke (<3h) = ~180 kg. E-Auto spart ~2 t/Jahr.','Vegan leben spart ~1,5 t CO2/Jahr. 1 kg Rind = 27 kg CO2.','Kompostierung spart ~80% Bio-Emissionen. \u00d8: 242 kg M\u00fcll/Jahr.','Fast Fashion: ~3 kg/Teil. Secondhand spart 82% Emissionen.'],
-    tip_b:['LED + Bewegungsmelder: bis 60% Energieeinsparung.','Videokonferenzen statt 1 Flug spart bis 1,8 t CO2. Inlandsflug (<3h) ca. 250 kg, Interkontinental (>6h) ca. 3.500 kg.','Laptop statt Desktop: 3\u00d7 effizienter. Cloud-Server: -30%.','Null-Abfall-Politik: M\u00fclleimer reduzieren zwingt zu Recycling.','1 Homeoffice-Tag/Woche spart ~0,5 t CO2/MA/Jahr.']
+    tips_p:{energy:'Ökostrom & bessere Dämmung',mobility:'Weniger fliegen, mehr Bahn & E-Auto',food:'Weniger Fleisch, mehr Regionales',waste:'Mehr recyceln & kompostieren',lifestyle:'Secondhand statt Fast Fashion'},
+    tips_b:{energy:'LED-Beleuchtung & Gebäudezertifizierung',travel:'Videokonferenzen statt Flugreisen',it:'Energiesparende Geräte & Cloud-Server',waste:'Büro-Recyclingprogramm einführen',staff:'Homeoffice & Fahrradpauschale'},
+    tip_p:['Ökostrom reduziert diese Kategorie bis 70%. Dt. Ø: ~3.500 kWh/Jahr.','1 Langstreckenflug (>6h) = ~2,5 t CO2. Kurzstrecke (<3h) = ~180 kg. E-Auto spart ~2 t/Jahr.','Vegan leben spart ~1,5 t CO2/Jahr. 1 kg Rind = 27 kg CO2.','Kompostierung spart ~80% Bio-Emissionen. Ø: 242 kg Müll/Jahr.','Fast Fashion: ~3 kg/Teil. Secondhand spart 82% Emissionen.'],
+    tip_b:['LED + Bewegungsmelder: bis 60% Energieeinsparung.','Videokonferenzen statt 1 Flug spart bis 1,8 t CO2. Inlandsflug (<3h) ca. 250 kg, Interkontinental (>6h) ca. 3.500 kg.','Laptop statt Desktop: 3× effizienter. Cloud-Server: -30%.','Null-Abfall-Politik: Mülleimer reduzieren zwingt zu Recycling.','1 Homeoffice-Tag/Woche spart ~0,5 t CO2/MA/Jahr.']
   },
   en: {
     htitle:'CO2 FOOTPRINT CALCULATOR', hsub:'INGWERPERIUM',
@@ -304,25 +432,25 @@ var TR = {
     mdesc_b:'Office energy, business travel, fleet & operations of a company',
     rtitle:'RESULTS', lbl_total:'TOTAL ANNUAL EMISSIONS',
     lbl_breakdown:'CATEGORIES',
-    lbl_cmp:'COMPARISON \u2014 left = 0 kg, right = maximum',
-    lbl_eq:'EQUIVALENTS \u2014 What does my CO2 equal?',
+    lbl_cmp:'COMPARISON — left = 0 kg, right = maximum',
+    lbl_eq:'EQUIVALENTS — What does my CO2 equal?',
     lbl_tips:'TOP REDUCTION TIPS', lbl_rst:'RESET', lbl_shr:'SHARE',
     copied:'Copied to clipboard!',
-    leg_you:'Your value', leg_avg:'\u00d8 Reference',
+    leg_you:'Your value', leg_avg:'Ø Reference',
     tabs_p:['ENERGY','MOBILITY','FOOD','WASTE','LIFESTYLE'],
     tabs_b:['OFFICE ENERGY','BUSINESS TRAVEL','IT & DEVICES','WASTE','STAFF'],
-    cmp_p:[['Your footprint','\u2014'],['German avg','11,600 kg'],['EU avg','8,200 kg'],['World avg','4,800 kg'],['Paris target 2050','2,000 kg']],
-    cmp_b:[['Your company','\u2014'],['SME average','50,000 kg'],['GmbH average','120,000 kg'],['Paris-aligned/FTE','5,000 kg']],
+    cmp_p:[['Your footprint','—'],['German avg','11,600 kg'],['EU avg','8,200 kg'],['World avg','4,800 kg'],['Paris target 2050','2,000 kg']],
+    cmp_b:[['Your company','—'],['SME average','50,000 kg'],['GmbH average','120,000 kg'],['Paris-aligned/FTE','5,000 kg']],
     cmpref_p:11600, cmpref_b:50000, cmpmax_p:15000, cmpmax_b:200000,
-    rating:['EXCELLENT \u2014 BELOW PARIS TARGET','GOOD \u2014 BELOW WORLD AVG','AVERAGE \u2014 BELOW EU AVG','HIGH \u2014 ABOVE EU AVG','VERY HIGH \u2014 ABOVE GERMAN AVG'],
-    rating_b:['EXCELLENT \u2014 APPROACHING NET ZERO','GOOD \u2014 BELOW SME AVG','AVERAGE','HIGH','VERY HIGH \u2014 ACTION URGENTLY NEEDED'],
+    rating:['EXCELLENT — BELOW PARIS TARGET','GOOD — BELOW WORLD AVG','AVERAGE — BELOW EU AVG','HIGH — ABOVE EU AVG','VERY HIGH — ABOVE GERMAN AVG'],
+    rating_b:['EXCELLENT — APPROACHING NET ZERO','GOOD — BELOW SME AVG','AVERAGE','HIGH','VERY HIGH — ACTION URGENTLY NEEDED'],
     eq:[
-      {ico:'\ud83c\udf33',num_pre:'= ',lbl:'Trees needed for 1 year to absorb your CO2 output (~22 kg CO2/tree/year)',div:22},
-      {ico:'\u2708\ufe0f',num_pre:'= ',lbl:'Short-haul flights (<3h, e.g. DE\u2013Spain) at ~180 kg CO2 each',div:180},
-      {ico:'\ud83d\ude97',num_pre:'= ',lbl:'Kilometres in a petrol car (0.21 kg CO2/km)',div:0.21},
-      {ico:'\ud83c\udf54',num_pre:'= ',lbl:'Beef burgers of 350 g (~3.5 kg CO2 each)',div:3.5},
-      {ico:'\ud83d\udca1',num_pre:'= ',lbl:'Hours of a 10-watt LED bulb (~0.01 kg CO2/h)',div:0.01},
-      {ico:'\ud83d\udcf1',num_pre:'= ',lbl:'Smartphone full charges (~0.0084 kg CO2 per charge)',div:0.0084}
+      {ico:'🌳',num_pre:'= ',lbl:'Trees needed for 1 year to absorb your CO2 output (~22 kg CO2/tree/year)',div:22},
+      {ico:'✈️',num_pre:'= ',lbl:'Short-haul flights (<3h, e.g. DE–Spain) at ~180 kg CO2 each',div:180},
+      {ico:'🚗',num_pre:'= ',lbl:'Kilometres in a petrol car (0.21 kg CO2/km)',div:0.21},
+      {ico:'🍔',num_pre:'= ',lbl:'Beef burgers of 350 g (~3.5 kg CO2 each)',div:3.5},
+      {ico:'💡',num_pre:'= ',lbl:'Hours of a 10-watt LED bulb (~0.01 kg CO2/h)',div:0.01},
+      {ico:'📱',num_pre:'= ',lbl:'Smartphone full charges (~0.0084 kg CO2 per charge)',div:0.0084}
     ],
     tips_p:{energy:'Green electricity & better insulation',mobility:'Fly less, take the train, get an EV',food:'Reduce meat, buy local & seasonal',waste:'Recycle more, compost, save water',lifestyle:'Buy secondhand instead of fast fashion'},
     tips_b:{energy:'LED lighting & building certification',travel:'Video calls instead of flights',it:'Energy-efficient devices & cloud servers',waste:'Introduce office recycling programme',staff:'Home office & cycling allowance'},
@@ -334,53 +462,53 @@ var TR = {
 var SCHEMAS = {
   p: [
     [{k:'elec',lbl_de:'Strom (kWh/Jahr)',lbl_en:'Electricity (kWh/year)',min:0,max:20000,step:50,def:0},
-     {k:'renew',lbl_de:'\u00d6kostrom-Anteil %',lbl_en:'Green electricity %',min:0,max:100,step:5,def:0},
-     {k:'oil',lbl_de:'Heiz\u00f6l (L/Jahr)',lbl_en:'Heating oil (L/year)',min:0,max:5000,step:25,def:0},
-     {k:'gas',lbl_de:'Erdgas (m\u00b3/Jahr)',lbl_en:'Natural gas (m\u00b3/year)',min:0,max:5000,step:25,def:0},
-     {k:'heat',lbl_de:'Fernw\u00e4rme (kWh/Jahr)',lbl_en:'District heating (kWh/year)',min:0,max:15000,step:100,def:0}],
+     {k:'renew',lbl_de:'Ökostrom-Anteil %',lbl_en:'Green electricity %',min:0,max:100,step:5,def:0},
+     {k:'oil',lbl_de:'Heizöl (L/Jahr)',lbl_en:'Heating oil (L/year)',min:0,max:5000,step:25,def:0},
+     {k:'gas',lbl_de:'Erdgas (m³/Jahr)',lbl_en:'Natural gas (m³/year)',min:0,max:5000,step:25,def:0},
+     {k:'heat',lbl_de:'Fernwärme (kWh/Jahr)',lbl_en:'District heating (kWh/year)',min:0,max:15000,step:100,def:0}],
     [{k:'car',lbl_de:'Auto (km/Jahr)',lbl_en:'Car (km/year)',min:0,max:80000,step:500,def:0},
      {k:'cartype',lbl_de:'Fahrzeugtyp',lbl_en:'Car type',type:'sel',opts:[['petrol','Benzin (0.21 kg/km)','Petrol (0.21 kg/km)'],['diesel','Diesel (0.17 kg/km)','Diesel (0.17 kg/km)'],['hybrid','Hybrid (0.12 kg/km)','Hybrid (0.12 kg/km)'],['electric','Elektro (0.06 kg/km)','Electric (0.06 kg/km)'],['suv','SUV/Benzin (0.25 kg/km +8t Herst.)','SUV/Petrol (0.25 kg/km +8t manuf.)'],['none','Kein Auto','No car']],def:'petrol'},
-     {k:'sf',lbl_de:'Kurzstreckenfl\u00fcge (<3h, z.B. DE\u2013Spanien)',lbl_en:'Short-haul flights (<3h, e.g. DE\u2013Spain)',min:0,max:30,step:1,def:0},
-     {k:'lf',lbl_de:'Langstreckenfl\u00fcge (>6h, z.B. DE\u2013USA)',lbl_en:'Long-haul flights (>6h, e.g. DE\u2013USA)',min:0,max:20,step:1,def:0},
-     {k:'transit',lbl_de:'OPNV: Bus/U-Bahn (km/Jahr)',lbl_en:'Public transit: Bus/Metro (km/year)',min:0,max:30000,step:200,def:0},
+     {k:'sf',lbl_de:'Kurzstreckenflüge (<3h, z.B. DE–Spanien)',lbl_en:'Short-haul flights (<3h, e.g. DE–Spain)',min:0,max:30,step:1,def:0},
+     {k:'lf',lbl_de:'Langstreckenflüge (>6h, z.B. DE–USA)',lbl_en:'Long-haul flights (>6h, e.g. DE–USA)',min:0,max:20,step:1,def:0},
+     {k:'transit',lbl_de:'ÖPNV: Bus/U-Bahn (km/Jahr)',lbl_en:'Public transit: Bus/Metro (km/year)',min:0,max:30000,step:200,def:0},
      {k:'train',lbl_de:'Bahn: Fernverkehr (km/Jahr)',lbl_en:'Train: Long-distance (km/year)',min:0,max:50000,step:200,def:0},
      {k:'scooter',lbl_de:'E-Scooter / E-Bike (km/Jahr)',lbl_en:'E-Scooter / E-Bike (km/year)',min:0,max:10000,step:100,def:0}],
-    [{k:'diet',lbl_de:'Ern\u00e4hrungsweise',lbl_en:'Diet type',type:'sel',opts:[['none','Nicht angeben (0 kg)','Not specified (0 kg)'],['heavy','Viel Fleisch (~3.500 kg CO2/J)','Heavy meat-eater (~3,500 kg CO2/y)'],['meat','Durchschnittlich (~2.500 kg CO2/J)','Average meat-eater (~2,500 kg CO2/y)'],['low','Wenig Fleisch (~1.700 kg CO2/J)','Low meat (~1,700 kg CO2/y)'],['veg','Vegetarisch (~1.200 kg CO2/J)','Vegetarian (~1,200 kg CO2/y)'],['vegan','Vegan (~900 kg CO2/J)','Vegan (~900 kg CO2/y)']],def:'none'},
+    [{k:'diet',lbl_de:'Ernährungsweise',lbl_en:'Diet type',type:'sel',opts:[['none','Nicht angeben (0 kg)','Not specified (0 kg)'],['heavy','Viel Fleisch (~3.500 kg CO2/J)','Heavy meat-eater (~3,500 kg CO2/y)'],['meat','Durchschnittlich (~2.500 kg CO2/J)','Average meat-eater (~2,500 kg CO2/y)'],['low','Wenig Fleisch (~1.700 kg CO2/J)','Low meat (~1,700 kg CO2/y)'],['veg','Vegetarisch (~1.200 kg CO2/J)','Vegetarian (~1,200 kg CO2/y)'],['vegan','Vegan (~900 kg CO2/J)','Vegan (~900 kg CO2/y)']],def:'none'},
      {k:'beef',lbl_de:'Rindfleisch extra (kg/Woche)',lbl_en:'Beef extra (kg/week)',min:0,max:5,step:0.1,def:0},
      {k:'othermeat',lbl_de:'Sonst. Fleisch/Fisch (kg/Woche)',lbl_en:'Other meat/fish (kg/week)',min:0,max:10,step:0.1,def:0},
      {k:'local',lbl_de:'Regional & saisonal %',lbl_en:'Local & seasonal %',min:0,max:100,step:5,def:0},
      {k:'fwaste',lbl_de:'Lebensmittelverschwendung %',lbl_en:'Food waste %',min:0,max:60,step:5,def:0}],
-    [{k:'waste',lbl_de:'Hausm\u00fcll (kg/Jahr)',lbl_en:'General waste (kg/year)',min:0,max:1000,step:10,def:0},
+    [{k:'waste',lbl_de:'Hausmüll (kg/Jahr)',lbl_en:'General waste (kg/year)',min:0,max:1000,step:10,def:0},
      {k:'recycle',lbl_de:'Gelbe Tonne/Recycling %',lbl_en:'Yellow bin/Recycling %',min:0,max:100,step:5,def:0},
-     {k:'compost',lbl_de:'Kompostierung',lbl_en:'Composting',type:'sel',opts:[['none','Kein Kompost','No composting'],['partial','Teilweise','Partial'],['full','Vollst\u00e4ndig','Full composting']],def:'none'},
-     {k:'water',lbl_de:'Wasserverbrauch (m\u00b3/Jahr)',lbl_en:'Water usage (m\u00b3/year)',min:0,max:300,step:5,def:0}],
-    [{k:'clothes',lbl_de:'Neue Kleidung (St\u00fcck/Jahr)',lbl_en:'New clothes (items/year)',min:0,max:100,step:1,def:0},
-     {k:'electronics',lbl_de:'Elektronik-K\u00e4ufe (\u20ac/Jahr)',lbl_en:'Electronics purchases (\u20ac/year)',min:0,max:5000,step:50,def:0},
+     {k:'compost',lbl_de:'Kompostierung',lbl_en:'Composting',type:'sel',opts:[['none','Kein Kompost','No composting'],['partial','Teilweise','Partial'],['full','Vollständig','Full composting']],def:'none'},
+     {k:'water',lbl_de:'Wasserverbrauch (m³/Jahr)',lbl_en:'Water usage (m³/year)',min:0,max:300,step:5,def:0}],
+    [{k:'clothes',lbl_de:'Neue Kleidung (Stück/Jahr)',lbl_en:'New clothes (items/year)',min:0,max:100,step:1,def:0},
+     {k:'electronics',lbl_de:'Elektronik-Käufe (€/Jahr)',lbl_en:'Electronics purchases (€/year)',min:0,max:5000,step:50,def:0},
      {k:'stream',lbl_de:'Streaming (h/Tag)',lbl_en:'Streaming (h/day)',min:0,max:16,step:0.5,def:0},
      {k:'holidays',lbl_de:'Auslandsurlaube (Anzahl)',lbl_en:'Holidays abroad (count)',min:0,max:10,step:1,def:0}]
   ],
   b: [
-    [{k:'belec',lbl_de:'B\u00fcrostrom (kWh/Jahr)',lbl_en:'Office electricity (kWh/year)',min:0,max:200000,step:1000,def:0},
-     {k:'brenew',lbl_de:'\u00d6kostrom-Anteil %',lbl_en:'Green electricity %',min:0,max:100,step:5,def:0},
-     {k:'bgas',lbl_de:'Heizgas B\u00fcro (m\u00b3/Jahr)',lbl_en:'Office gas heating (m\u00b3/year)',min:0,max:50000,step:500,def:0},
-     {k:'sqm',lbl_de:'B\u00fcrofl\u00e4che (m\u00b2)',lbl_en:'Office space (m\u00b2)',min:0,max:5000,step:50,def:0}],
-    [{k:'bsf',lbl_de:'Inlandsfl\u00fcge/Jahr (<3h)',lbl_en:'Domestic flights/year (<3h)',min:0,max:200,step:1,def:0},
-     {k:'blf',lbl_de:'Interkontinentalfl\u00fcge/Jahr (>6h)',lbl_en:'Intercontinental flights/year (>6h)',min:0,max:100,step:1,def:0},
+    [{k:'belec',lbl_de:'Bürostrom (kWh/Jahr)',lbl_en:'Office electricity (kWh/year)',min:0,max:200000,step:1000,def:0},
+     {k:'brenew',lbl_de:'Ökostrom-Anteil %',lbl_en:'Green electricity %',min:0,max:100,step:5,def:0},
+     {k:'bgas',lbl_de:'Heizgas Büro (m³/Jahr)',lbl_en:'Office gas heating (m³/year)',min:0,max:50000,step:500,def:0},
+     {k:'sqm',lbl_de:'Bürofläche (m²)',lbl_en:'Office space (m²)',min:0,max:5000,step:50,def:0}],
+    [{k:'bsf',lbl_de:'Inlandsflüge/Jahr (<3h)',lbl_en:'Domestic flights/year (<3h)',min:0,max:200,step:1,def:0},
+     {k:'blf',lbl_de:'Interkontinentalflüge/Jahr (>6h)',lbl_en:'Intercontinental flights/year (>6h)',min:0,max:100,step:1,def:0},
      {k:'bcar',lbl_de:'Dienstwagen km/Jahr (gesamt)',lbl_en:'Company car km/year (total)',min:0,max:500000,step:5000,def:0},
      {k:'bcartype',lbl_de:'Fuhrpark-Typ',lbl_en:'Fleet type',type:'sel',opts:[['petrol','Benzin-Flotte (0.21 kg/km)','Petrol fleet (0.21 kg/km)'],['diesel','Diesel-Flotte (0.17 kg/km)','Diesel fleet (0.17 kg/km)'],['hybrid','Hybrid-Flotte (0.12 kg/km)','Hybrid fleet (0.12 kg/km)'],['electric','Elektro-Flotte (0.06 kg/km)','Electric fleet (0.06 kg/km)']],def:'diesel'},
      {k:'btrain',lbl_de:'Bahn: Fernverkehr Dienstreisen (km/J)',lbl_en:'Business rail long-distance (km/y)',min:0,max:100000,step:1000,def:0},
      {k:'bscooter',lbl_de:'E-Scooter / E-Bike Dienst (km/Jahr)',lbl_en:'E-Scooter / E-Bike business (km/year)',min:0,max:50000,step:500,def:0}],
     [{k:'pcs',lbl_de:'PCs / Laptops (Anzahl)',lbl_en:'PCs / Laptops (count)',min:0,max:500,step:1,def:0},
      {k:'servers',lbl_de:'Server On-Premise (Anzahl)',lbl_en:'On-premise servers (count)',min:0,max:50,step:1,def:0},
-     {k:'cloud',lbl_de:'Cloud-Ausgaben (\u20ac/Monat)',lbl_en:'Cloud spending (\u20ac/month)',min:0,max:10000,step:100,def:0},
+     {k:'cloud',lbl_de:'Cloud-Ausgaben (€/Monat)',lbl_en:'Cloud spending (€/month)',min:0,max:10000,step:100,def:0},
      {k:'screens',lbl_de:'Monitore (Anzahl)',lbl_en:'Monitors (count)',min:0,max:500,step:1,def:0}],
-    [{k:'bwaste',lbl_de:'B\u00fcrom\u00fcll (kg/Jahr)',lbl_en:'Office waste (kg/year)',min:0,max:10000,step:100,def:0},
+    [{k:'bwaste',lbl_de:'Büromüll (kg/Jahr)',lbl_en:'Office waste (kg/year)',min:0,max:10000,step:100,def:0},
      {k:'brecycle',lbl_de:'Gelbe Tonne/Recycling %',lbl_en:'Yellow bin/Recycling %',min:0,max:100,step:5,def:0},
      {k:'bpaper',lbl_de:'Papierverbrauch (Ries/Jahr)',lbl_en:'Paper usage (reams/year)',min:0,max:500,step:5,def:0}],
     [{k:'staff',lbl_de:'Mitarbeiter (Anzahl)',lbl_en:'Employees (headcount)',min:1,max:500,step:1,def:1},
-     {k:'homeoffice',lbl_de:'Homeoffice-Tage/Woche (\u00d8)',lbl_en:'Home-office days/week (avg)',min:0,max:5,step:0.5,def:0},
-     {k:'commute',lbl_de:'Pendelweg einfach (km, \u00d8)',lbl_en:'Commute one-way (km, avg)',min:0,max:100,step:1,def:0},
-     {k:'commutetype',lbl_de:'Pendel-Verkehrsmittel',lbl_en:'Commute mode',type:'sel',opts:[['car','Auto (0.21 kg/km)','Car (0.21 kg/km)'],['transit','OPNV: Bus/U-Bahn (0.089 kg/km)','Public transit (0.089 kg/km)'],['bike','Fahrrad/Fu\u00df (0 kg/km)','Bike/Walk (0 kg/km)']],def:'car'}]
+     {k:'homeoffice',lbl_de:'Homeoffice-Tage/Woche (Ø)',lbl_en:'Home-office days/week (avg)',min:0,max:5,step:0.5,def:0},
+     {k:'commute',lbl_de:'Pendelweg einfach (km, Ø)',lbl_en:'Commute one-way (km, avg)',min:0,max:100,step:1,def:0},
+     {k:'commutetype',lbl_de:'Pendel-Verkehrsmittel',lbl_en:'Commute mode',type:'sel',opts:[['car','Auto (0.21 kg/km)','Car (0.21 kg/km)'],['transit','ÖPNV: Bus/U-Bahn (0.089 kg/km)','Public transit (0.089 kg/km)'],['bike','Fahrrad/Fuß (0 kg/km)','Bike/Walk (0 kg/km)']],def:'car'}]
   ]
 };
 
@@ -425,8 +553,8 @@ function getCategories(){ return mode==='p' ? calcP() : calcB(); }
 
 function getCatLabels(){
   return mode==='p'
-    ? (lang==='de'?['Energie','Mobilit\u00e4t','Ern\u00e4hrung','Abfall','Lifestyle']:['Energy','Mobility','Food','Waste','Lifestyle'])
-    : (lang==='de'?['B\u00fcroenergie','Gesch\u00e4ftsreisen','IT & Ger\u00e4te','Abfall','Mitarbeiter']:['Office Energy','Business Travel','IT & Devices','Waste','Staff']);
+    ? (lang==='de'?['Energie','Mobilität','Ernährung','Abfall','Lifestyle']:['Energy','Mobility','Food','Waste','Lifestyle'])
+    : (lang==='de'?['Büroenergie','Geschäftsreisen','IT & Geräte','Abfall','Mitarbeiter']:['Office Energy','Business Travel','IT & Devices','Waste','Staff']);
 }
 
 function getCatTips(){
@@ -539,7 +667,6 @@ function updateResults(){
     });
   }
 
-  // Compare bar: 0 = left edge, cmpmax = right edge
   var cmax = mode==='p' ? T.cmpmax_p : T.cmpmax_b;
   var cmpRef = mode==='p' ? T.cmpref_p : T.cmpref_b;
   document.getElementById('cmpmax').textContent = cmax.toLocaleString()+' kg';
@@ -560,14 +687,13 @@ function updateResults(){
   if (mode==='p') {
     var diff = Math.round(total)-11600;
     var sign = diff>0?'+':'';
-    rowsHtml += '<div class="crow"><span>'+(lang==='de'?'Differenz zum \u00d8':'Diff. to avg')+'</span><span class="cval" style="color:'+(diff>0?'#FF6040':'#7DC44A')+'">'+sign+diff.toLocaleString()+' kg</span></div>';
+    rowsHtml += '<div class="crow"><span>'+(lang==='de'?'Differenz zum Ø':'Diff. to avg')+'</span><span class="cval" style="color:'+(diff>0?'#FF6040':'#7DC44A')+'">'+sign+diff.toLocaleString()+' kg</span></div>';
   } else {
     var perFTE = vals.staff>0 ? Math.round(total/vals.staff) : 0;
     rowsHtml += '<div class="crow"><span>'+(lang==='de'?'Pro Mitarbeiter':'Per employee')+'</span><span class="cval">'+perFTE.toLocaleString()+' kg</span></div>';
   }
   document.getElementById('cmprows').innerHTML = rowsHtml;
 
-  // Equivalents — icon + big number + explanation text
   var eqDefs = T.eq;
   var eqHtml = '';
   eqDefs.forEach(function(e){
@@ -587,11 +713,11 @@ function updateResults(){
 
 function setLang(l){
   lang = l;
-  // keep in sync with Hub key
   try { localStorage.setItem('ingw-lang', l); } catch(e){}
   document.querySelectorAll('.lbtn').forEach(function(b){b.classList.remove('on');});
   var btn = document.querySelector('.lbtn[onclick="setLang(\''+l+'\')"]');
   if(btn) btn.classList.add('on');
+  hideTooltip();
   applyStaticTranslations();
   buildTabs(); buildInputs(); updateResults();
   saveToStorage();
@@ -603,6 +729,7 @@ function setMode(m){
   document.querySelectorAll('.mbtn').forEach(function(b){b.classList.remove('on');});
   document.getElementById('mbtn-'+m).classList.add('on');
   if(myChart){myChart.destroy();myChart=null;}
+  hideTooltip();
   defaults();
   applyStaticTranslations();
   buildTabs(); buildInputs(); updateResults();
@@ -628,6 +755,7 @@ function applyStaticTranslations(){
 
 function doReset(){
   if(myChart){myChart.destroy();myChart=null;}
+  hideTooltip();
   defaults();
   buildTabs(); buildInputs(); updateResults();
   saveToStorage();
@@ -667,11 +795,9 @@ function fallbackCopy(txt){
   document.body.removeChild(ta);
 }
 
-// Init — language priority: URL param → ingw-lang (Hub) → saved co2 state → 'de'
+// Init
 var loaded = loadFromStorage();
 if(!loaded) defaults();
-
-// Override lang from Hub or URL, Hub key wins over saved co2 lang
 (function(){
   var urlLang = new URLSearchParams(window.location.search).get('lang');
   var hubLang = null;
