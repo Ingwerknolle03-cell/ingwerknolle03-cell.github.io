@@ -340,10 +340,17 @@ footer{border-top:1px solid var(--border);padding:32px 40px;display:flex;justify
         <div class="accordion-arrow">+</div>
       </button>
       <div class="accordion-body"><div class="accordion-body-inner">
+        <a href="IngwerperiumLearner.html" class="acc-item">
+          <div class="acc-item-dot"></div>
+          <div class="acc-item-text">
+            <strong data-i="g2-title">Ingwerperium Learner</strong>
+            <span data-i="g2-desc">Lerne Biologie, Themen und Zusammenhänge effizient.</span>
+          </div>
+        </a>
         <a href="vokabeltrainer.html" class="acc-item"><div class="acc-item-dot"></div><div class="acc-item-text"><strong data-i="g1-title">Spaßiger Vokabeltrainer</strong><span data-i="g1-desc">Trainiere neue und alte Vokabeln.</span></div></a>
       </div></div>
     </div>
-
+IngwerperiumLearner.html
   </div>
     <!-- Filme -->
   <div class="film-standalone">
@@ -443,6 +450,17 @@ document.addEventListener('click',e=>{
 /* ═══ HIGHLIGHTS DATA ═══ */
 const HIGHLIGHTS=[
   {href:'CACTI.html',cls:'card-green',e:'🌵',lbl:{de:'Game',en:'Game'},title:{de:'CACTI',en:'CACTI'},desc:{de:'Das lustigste Kaktus-Spiel aller Zeiten!',en:'The funniest cactus game ever!'},btn:'play'},
+  {href:'IngwerperiumLearner.html',
+   cls:'card-purple',
+   e:'🧠',
+   lbl:{de:'App',en:'App'},
+   title:{de:'Ingwerperium Learner',en:'Ingwerperium Learner'},
+   desc:{
+     de:'Lerne Biologie mit System, Wiederholungen und Quiz.',
+     en:'Learn biology with system, repetition and quizzes.'
+   },
+   btn:'start'
+  },
   {href:'infosphäre.html',cls:'card-purple',e:'🌐',lbl:{de:'Wissen',en:'Knowledge'},title:{de:'InfoSphäre',en:'InfoSphere'},desc:{de:'Spannende Inhalte, besser erklärt als Wikipedia.',en:'Fascinating content, better explained than Wikipedia.'},btn:'explore'},
   {href:'watercreaturesquiz.html',cls:'card-cyan',e:'🌊',lbl:{de:'Quiz',en:'Quiz'},title:{de:'Wasserkreaturen',en:'Water Creatures'},desc:{de:'Teste dein Wissen über Meerestiere! 🐬',en:'Test your knowledge of sea creatures! 🐬'},btn:'play'},
   {href:'grundlagenpython.html',cls:'card-purple',e:'🐍',lbl:{de:'Python',en:'Python'},title:{de:'Python Grundlagen',en:'Python Basics'},desc:{de:'Lerne Python von Grund auf – Handbuch & Quiz.',en:'Learn Python from scratch – handbook & quiz.'},btn:'start'},
@@ -501,6 +519,8 @@ setInterval(()=>{page=(page+1)%pages;renderHL(currentLang);},8000);
 /* ═══ TRANSLATIONS ═══ */
 const i18n={
   de:{
+    'g2-title':'Ingwerperium Learner',
+    'g2-desc':'Lerne Biologie, Themen und Zusammenhänge effizient.',
     "n22-desc": "Berechne deinen CO2 Fußabdruck.",
     "n23-title": "CO2 Rechner",
     'nav-info':'Info','nav-privacy':'Datenschutz','nav-privacy-f':'FORUM',
@@ -523,6 +543,8 @@ const i18n={
     'partner-btn':'Entdecken →',
   },
   en:{
+    'g2-title':'Ingwerperium Learner',
+    'g2-desc':'Learn biology, topics and connections efficiently.',
     "n22-desc": "Calculate your carbon footprint.",
     "n23-title": "CO2 calculator",
     'nav-info':'Info','nav-privacy':'Privacy','nav-privacy-f':'FORUM',
