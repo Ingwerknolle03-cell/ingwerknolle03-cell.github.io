@@ -114,7 +114,6 @@ select:focus{border-color:var(--bdr2)}
   pointer-events:none;
   white-space:normal;
   word-break:break-word;
-  /* constrained width — never wider than viewport minus margin */
   max-width:min(340px, calc(100vw - 24px));
   width:max-content;
 }
@@ -130,6 +129,21 @@ select:focus{border-color:var(--bdr2)}
 }
 @media(max-width:720px){
   #tooltip-close-hint{display:block}
+}
+
+/* ── LUPE HINT ── */
+#mag-hint{
+  position:fixed;
+  bottom:10px;
+  left:50%;
+  transform:translateX(-50%);
+  font-family:'Press Start 2P',monospace;
+  font-size:5px;
+  color:rgba(160,120,74,0.45);
+  pointer-events:none;
+  white-space:nowrap;
+  z-index:100;
+  letter-spacing:0.5px;
 }
 </style>
 </head>
@@ -202,11 +216,14 @@ select:focus{border-color:var(--bdr2)}
 </div>
 <div class="toast" id="toast"></div>
 
-<!-- GLOBAL TOOLTIP OVERLAY (viewport-aware, always readable) -->
+<!-- GLOBAL TOOLTIP OVERLAY -->
 <div id="tooltip-overlay" role="tooltip" aria-live="polite">
   <span id="tooltip-text"></span>
   <div id="tooltip-close-hint">[ tippen zum schließen ]</div>
 </div>
+
+<!-- LUPE HINT -->
+<div id="mag-hint">[ RECHTSKLICK HALTEN = LUPE ]</div>
 
 </div>
 
@@ -229,105 +246,56 @@ function loadFromStorage() {
 }
 
 /* ═══════════════════════════════════════════════
-   TOOLTIP SYSTEM — viewport-aware global overlay
+   TOOLTIP SYSTEM
    ═══════════════════════════════════════════════ */
 var _activeInfoBtn = null;
 
 function showTooltip(btn, text) {
   var overlay = document.getElementById('tooltip-overlay');
   var textEl  = document.getElementById('tooltip-text');
-
-  // Close if same button clicked again
-  if (_activeInfoBtn === btn) {
-    hideTooltip();
-    return;
-  }
-  if (_activeInfoBtn) {
-    _activeInfoBtn.classList.remove('active');
-  }
+  if (_activeInfoBtn === btn) { hideTooltip(); return; }
+  if (_activeInfoBtn) { _activeInfoBtn.classList.remove('active'); }
   _activeInfoBtn = btn;
   btn.classList.add('active');
-
   textEl.textContent = text;
   overlay.classList.add('visible');
-
-  // Position after making visible so we can measure its size
-  requestAnimationFrame(function() {
-    positionTooltip(btn, overlay);
-  });
+  requestAnimationFrame(function() { positionTooltip(btn, overlay); });
 }
 
 function positionTooltip(btn, overlay) {
-  var MARGIN = 8; // px gap from viewport edges
+  var MARGIN = 8;
   var btnRect = btn.getBoundingClientRect();
   var ow = overlay.offsetWidth;
   var oh = overlay.offsetHeight;
   var vw = window.innerWidth;
   var vh = window.innerHeight;
-
-  // Preferred: right of button
   var left = btnRect.right + 6;
   var top  = btnRect.top;
-
-  // If overflows right → try left of button
-  if (left + ow > vw - MARGIN) {
-    left = btnRect.left - ow - 6;
-  }
-  // Still overflows left → centre horizontally in viewport
-  if (left < MARGIN) {
-    left = MARGIN;
-  }
-  // Clamp right edge
-  if (left + ow > vw - MARGIN) {
-    left = vw - ow - MARGIN;
-    if (left < MARGIN) left = MARGIN;
-  }
-
-  // Preferred: align top with button top
-  // If overflows bottom → shift up
-  if (top + oh > vh - MARGIN) {
-    top = vh - oh - MARGIN;
-  }
-  // Don't go above viewport
+  if (left + ow > vw - MARGIN) { left = btnRect.left - ow - 6; }
+  if (left < MARGIN) { left = MARGIN; }
+  if (left + ow > vw - MARGIN) { left = vw - ow - MARGIN; if (left < MARGIN) left = MARGIN; }
+  if (top + oh > vh - MARGIN) { top = vh - oh - MARGIN; }
   if (top < MARGIN) top = MARGIN;
-
   overlay.style.left = Math.round(left) + 'px';
   overlay.style.top  = Math.round(top)  + 'px';
-  // Hard-clamp width inside viewport
   overlay.style.maxWidth = (vw - 2*MARGIN) + 'px';
 }
 
 function hideTooltip() {
   var overlay = document.getElementById('tooltip-overlay');
   overlay.classList.remove('visible');
-  if (_activeInfoBtn) {
-    _activeInfoBtn.classList.remove('active');
-    _activeInfoBtn = null;
-  }
+  if (_activeInfoBtn) { _activeInfoBtn.classList.remove('active'); _activeInfoBtn = null; }
 }
 
-// Close on outside click / tap
 document.addEventListener('click', function(e) {
-  if (_activeInfoBtn && !_activeInfoBtn.contains(e.target)) {
-    hideTooltip();
-  }
+  if (_activeInfoBtn && !_activeInfoBtn.contains(e.target)) { hideTooltip(); }
 });
-
-// Close on Escape
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') hideTooltip();
-});
-
-// Reposition on resize / scroll
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') hideTooltip(); });
 window.addEventListener('resize', function() {
-  if (_activeInfoBtn) {
-    positionTooltip(_activeInfoBtn, document.getElementById('tooltip-overlay'));
-  }
+  if (_activeInfoBtn) { positionTooltip(_activeInfoBtn, document.getElementById('tooltip-overlay')); }
 });
 document.addEventListener('scroll', function() {
-  if (_activeInfoBtn) {
-    positionTooltip(_activeInfoBtn, document.getElementById('tooltip-overlay'));
-  }
+  if (_activeInfoBtn) { positionTooltip(_activeInfoBtn, document.getElementById('tooltip-overlay')); }
 }, true);
 
 /* ═══════════════
@@ -341,10 +309,10 @@ var TOOLTIPS = {
   heat:{de:'Fernwärme kWh/Jahr. Emissionsfaktor ~0,2 kg CO2/kWh. Quelle: AGFW 2022.',en:'District heating kWh/year. Emission factor ~0.2 kg CO2/kWh. Source: AGFW 2022.'},
   car:{de:'Kilometer pro Jahr mit dem eigenen PKW. Dt. Durchschnitt: ~14.000 km/Jahr. Quelle: KBA 2023.',en:'km per year by personal car. German avg: ~14,000 km/year. Source: KBA 2023.'},
   cartype:{de:'Benzin: 0,21 kg/km | Diesel: 0,17 | Hybrid: 0,12 | E-Auto: 0,06 | SUV: 0,25 + einmalig 8t Herstellung auf 15 Jahre verteilt. Quelle: ADAC 2023.',en:'Petrol: 0.21 kg/km | Diesel: 0.17 | Hybrid: 0.12 | EV: 0.06 | SUV: 0.25 + one-time 8t manufacturing over 15 years. Source: ADAC 2023.'},
-  sf:{de:'Kurzstreckenflüge bis ca. 3 Stunden Flugzeit (z.B. Deutschland-Spanien, ~1.500 km). Pro Hin- und Rückflug je einen Flug zählen. Ca. 180 kg CO2 pro Flug. Quelle: atmosfair 2023.',en:'Short-haul flights up to ~3 hours (e.g. Germany-Spain, ~1,500 km). Count each leg separately. ~180 kg CO2 per flight. Source: atmosfair 2023.'},
-  lf:{de:'Langstreckenflüge ab ca. 6 Stunden Flugzeit (z.B. Deutschland-USA). Pro Hin- und Rückflug je einen Flug zählen. Ca. 2.500 kg CO2 pro Flug inkl. Klimawirkung. Quelle: atmosfair 2023.',en:'Long-haul flights from ~6 hours (e.g. Germany-USA). Count each leg separately. ~2,500 kg CO2 per flight incl. climate effect. Source: atmosfair 2023.'},
+  sf:{de:'Kurzstreckenflüge bis ca. 3 Stunden Flugzeit. Ca. 180 kg CO2 pro Flug. Quelle: atmosfair 2023.',en:'Short-haul flights up to ~3 hours. ~180 kg CO2 per flight. Source: atmosfair 2023.'},
+  lf:{de:'Langstreckenflüge ab ca. 6 Stunden Flugzeit. Ca. 2.500 kg CO2 pro Flug inkl. Klimawirkung. Quelle: atmosfair 2023.',en:'Long-haul flights from ~6 hours. ~2,500 kg CO2 per flight incl. climate effect. Source: atmosfair 2023.'},
   transit:{de:'ÖPNV = Bus, U-Bahn, Tram, S-Bahn. Ca. 0,089 kg CO2/km. Quelle: UBA 2023.',en:'Public transit = bus, metro, tram, suburban rail. ~0.089 kg CO2/km. Source: UBA 2023.'},
-  train:{de:'Fernzüge wie ICE/IC. Ca. 0,032 kg CO2/km (Dt. Bahnnetz). Quelle: Deutsche Bahn 2023.',en:'Long-distance trains like ICE/IC. ~0.032 kg CO2/km (German rail). Source: Deutsche Bahn 2023.'},
+  train:{de:'Fernzüge wie ICE/IC. Ca. 0,032 kg CO2/km. Quelle: Deutsche Bahn 2023.',en:'Long-distance trains like ICE/IC. ~0.032 kg CO2/km. Source: Deutsche Bahn 2023.'},
   scooter:{de:'E-Scooter oder E-Bike. Ca. 0,03 kg CO2/km inkl. Strom und Herstellung. Quelle: VCD 2022.',en:'E-scooter or e-bike. ~0.03 kg CO2/km incl. electricity and manufacturing. Source: VCD 2022.'},
   diet:{de:'Ernährungsweise als Basis (kg CO2/Jahr). Quelle: Poore & Nemecek 2018.',en:'Diet baseline (kg CO2/year). Source: Poore & Nemecek 2018.'},
   beef:{de:'1 kg Rindfleisch = ca. 27 kg CO2e. Gilt zusätzlich zum Ernährungstyp. Quelle: IPCC 2019.',en:'1 kg beef = ~27 kg CO2e. Added on top of diet baseline. Source: IPCC 2019.'},
@@ -355,28 +323,28 @@ var TOOLTIPS = {
   recycle:{de:'Anteil Müll, der über Gelbe Tonne, Altpapier, Glas etc. recycelt wird. Quelle: UBA 2023.',en:'Share of waste recycled via yellow bin, paper, glass etc. Source: UBA 2023.'},
   compost:{de:'Kompostierung reduziert Bio-Abfall-Emissionen um bis zu 80%. Quelle: UBA 2021.',en:'Composting reduces organic waste emissions by up to 80%. Source: UBA 2021.'},
   water:{de:'Wasserverbrauch m³/Jahr. Dt. Durchschnitt: ca. 47 m³/Person. Aufbereitung: 0,34 kg CO2/m³. Quelle: UBA 2022.',en:'Water usage m³/year. German avg: ~47 m³/person. Treatment: 0.34 kg CO2/m³. Source: UBA 2022.'},
-  clothes:{de:'Neue Kleidungsstücke pro Jahr. 1 Stück = ca. 3 kg CO2 (Herstellung + Transport). Quelle: WRAP 2022.',en:'New clothing items per year. 1 item = ~3 kg CO2 (production + transport). Source: WRAP 2022.'},
+  clothes:{de:'Neue Kleidungsstücke pro Jahr. 1 Stück = ca. 3 kg CO2. Quelle: WRAP 2022.',en:'New clothing items per year. 1 item = ~3 kg CO2. Source: WRAP 2022.'},
   electronics:{de:'Ausgaben für Neugeräte in EUR/Jahr. Ca. 0,30 kg CO2 pro EUR. Quelle: KfW 2022.',en:'Spending on new electronics EUR/year. ~0.30 kg CO2 per EUR. Source: KfW 2022.'},
-  stream:{de:'Videostreaming (Netflix, YouTube etc.) pro Tag. Ca. 0,036 kg CO2/h inkl. Endgeräte & Rechenzentren. Quelle: Carbon Trust 2021.',en:'Video streaming per day. ~0.036 kg CO2/h incl. devices & data centres. Source: Carbon Trust 2021.'},
-  holidays:{de:'Auslandsurlaube pro Jahr. Ca. 300 kg CO2 pauschal pro Reise (exkl. Flüge). Quelle: Öko-Institut 2022.',en:'Foreign holidays per year. ~300 kg CO2 per trip (excl. flights). Source: Oko-Institut 2022.'},
+  stream:{de:'Videostreaming (Netflix, YouTube etc.) pro Tag. Ca. 0,036 kg CO2/h. Quelle: Carbon Trust 2021.',en:'Video streaming per day. ~0.036 kg CO2/h incl. devices & data centres. Source: Carbon Trust 2021.'},
+  holidays:{de:'Auslandsurlaube pro Jahr. Ca. 300 kg CO2 pauschal pro Reise. Quelle: Öko-Institut 2022.',en:'Foreign holidays per year. ~300 kg CO2 per trip (excl. flights). Source: Oko-Institut 2022.'},
   belec:{de:'Jahresstromverbrauch des Büros in kWh. Dt. KMU-Durchschnitt: ~40.000 kWh/Jahr. Quelle: BDEW 2023.',en:'Annual office electricity use in kWh. German SME avg: ~40,000 kWh/year. Source: BDEW 2023.'},
   bgas:{de:'Erdgasverbrauch Bürogebäude m³/Jahr. 1 m³ = 2,0 kg CO2. Quelle: IPCC 2021.',en:'Office building natural gas m³/year. 1 m³ = 2.0 kg CO2. Source: IPCC 2021.'},
   brenew:{de:'Anteil Ökostrom am Büro-Stromtarif. Reduziert nur den Strom-CO2 um bis zu 70%. Quelle: UBA 2023.',en:'Share of green electricity in office tariff. Reduces only electricity CO2 by up to 70%. Source: UBA 2023.'},
   sqm:{de:'Bürofläche in m². Gebäude-Overhead: ca. 15 kg CO2/m²/Jahr. Quelle: DGNB 2022.',en:'Office space in m². Building overhead: ~15 kg CO2/m²/year. Source: DGNB 2022.'},
-  bsf:{de:'Inlandsflüge = bis ca. 3h Flugzeit (Deutschland-intern oder Nachbarländer). Ca. 250 kg CO2 pro Flug. Quelle: atmosfair 2023.',en:'Domestic flights = up to ~3h flight time (within Germany or neighbours). ~250 kg CO2 per flight. Source: atmosfair 2023.'},
-  blf:{de:'Interkontinentalflüge = über 6h Flugzeit (z.B. nach USA, Asien). Ca. 3.500 kg CO2 pro Flug inkl. Klimawirkung. Quelle: atmosfair 2023.',en:'Intercontinental flights = over 6h (e.g. USA, Asia). ~3,500 kg CO2 per flight incl. climate effect. Source: atmosfair 2023.'},
-  bcar:{de:'Gesamtkilometer aller Dienstwagen pro Jahr. Emissionsfaktor je nach Fuhrpark-Typ. Quelle: ADAC 2023.',en:'Total km of all company cars per year. Emission factor depends on fleet type. Source: ADAC 2023.'},
+  bsf:{de:'Inlandsflüge = bis ca. 3h Flugzeit. Ca. 250 kg CO2 pro Flug. Quelle: atmosfair 2023.',en:'Domestic flights = up to ~3h flight time. ~250 kg CO2 per flight. Source: atmosfair 2023.'},
+  blf:{de:'Interkontinentalflüge = über 6h Flugzeit. Ca. 3.500 kg CO2 pro Flug inkl. Klimawirkung. Quelle: atmosfair 2023.',en:'Intercontinental flights = over 6h. ~3,500 kg CO2 per flight incl. climate effect. Source: atmosfair 2023.'},
+  bcar:{de:'Gesamtkilometer aller Dienstwagen pro Jahr. Quelle: ADAC 2023.',en:'Total km of all company cars per year. Source: ADAC 2023.'},
   bcartype:{de:'Benzin: 0,21 kg/km | Diesel: 0,17 | Hybrid: 0,12 | Elektro: 0,06. Quelle: ADAC 2023.',en:'Petrol: 0.21 kg/km | Diesel: 0.17 | Hybrid: 0.12 | Electric: 0.06. Source: ADAC 2023.'},
-  btrain:{de:'Bahn-Dienstreisen km/Jahr gesamt (alle Mitarbeiter). Ca. 0,032 kg CO2/km. Quelle: Deutsche Bahn 2023.',en:'Total business rail travel km/year (all employees). ~0.032 kg CO2/km. Source: Deutsche Bahn 2023.'},
+  btrain:{de:'Bahn-Dienstreisen km/Jahr gesamt. Ca. 0,032 kg CO2/km. Quelle: Deutsche Bahn 2023.',en:'Total business rail travel km/year. ~0.032 kg CO2/km. Source: Deutsche Bahn 2023.'},
   bscooter:{de:'E-Scooter/E-Bikes für Dienstreisen km/Jahr. Ca. 0,03 kg CO2/km. Quelle: VCD 2022.',en:'E-scooters/e-bikes for business travel km/year. ~0.03 kg CO2/km. Source: VCD 2022.'},
-  pcs:{de:'Laptops & Desktop-PCs. Desktop: ~175 kWh/Jahr, Laptop: ~50 kWh/Jahr. Hier: ~40 kg CO2/Gerät/Jahr. Quelle: Fraunhofer IZM 2022.',en:'Laptops & desktop PCs. Desktop: ~175 kWh/year, laptop: ~50 kWh/year. Avg: ~40 kg CO2/device/year. Source: Fraunhofer IZM 2022.'},
-  servers:{de:'On-Premise-Server. Ca. 2.000 kg CO2/Server/Jahr (Strom + Kühlung). Quelle: Uptime Institute 2022.',en:'On-premise servers. ~2,000 kg CO2/server/year (power + cooling). Source: Uptime Institute 2022.'},
+  pcs:{de:'Laptops & Desktop-PCs. Ca. 40 kg CO2/Gerät/Jahr. Quelle: Fraunhofer IZM 2022.',en:'Laptops & desktop PCs. ~40 kg CO2/device/year. Source: Fraunhofer IZM 2022.'},
+  servers:{de:'On-Premise-Server. Ca. 2.000 kg CO2/Server/Jahr. Quelle: Uptime Institute 2022.',en:'On-premise servers. ~2,000 kg CO2/server/year. Source: Uptime Institute 2022.'},
   cloud:{de:'Cloud-Ausgaben in EUR/Monat. Ca. 0,5 kg CO2 pro EUR. Quelle: Amazon/Google ESG Reports 2023.',en:'Cloud spending EUR/month. ~0.5 kg CO2 per EUR. Source: Amazon/Google ESG Reports 2023.'},
   screens:{de:'Externe Monitore. Ca. 30 kg CO2/Monitor/Jahr. Quelle: Fraunhofer IZM 2022.',en:'External monitors. ~30 kg CO2/monitor/year. Source: Fraunhofer IZM 2022.'},
   bwaste:{de:'Gesamter Büromüll kg/Jahr. Dt. Durchschnitt Büro: ca. 150 kg/MA/Jahr. Quelle: UBA 2022.',en:'Total office waste kg/year. German office avg: ~150 kg/employee/year. Source: UBA 2022.'},
-  brecycle:{de:'Anteil Büromüll, der recycelt wird (Gelbe Tonne, Altpapier, Glas etc.). Quelle: UBA 2023.',en:'Share of office waste recycled (yellow bin, paper, glass etc.). Source: UBA 2023.'},
-  bpaper:{de:'Papierkopier-Ries à 500 Blatt. 1 Ries = ca. 4,5 kg CO2 (Herstellung + Transport). Quelle: NABU 2022.',en:'Paper reams (500 sheets each). 1 ream = ~4.5 kg CO2 (production + transport). Source: NABU 2022.'},
-  staff:{de:'Anzahl Mitarbeiter. Basis für Pendler-Berechnung und Pro-Kopf-Auswertung.',en:'Number of employees. Used as basis for commuting calculation and per-capita analysis.'},
+  brecycle:{de:'Anteil Büromüll, der recycelt wird. Quelle: UBA 2023.',en:'Share of office waste recycled. Source: UBA 2023.'},
+  bpaper:{de:'Papierkopier-Ries à 500 Blatt. 1 Ries = ca. 4,5 kg CO2. Quelle: NABU 2022.',en:'Paper reams (500 sheets each). 1 ream = ~4.5 kg CO2. Source: NABU 2022.'},
+  staff:{de:'Anzahl Mitarbeiter. Basis für Pendler-Berechnung.',en:'Number of employees. Used as basis for commuting calculation.'},
   homeoffice:{de:'Durchschnittliche Homeoffice-Tage pro Woche pro Mitarbeiter. 220 Arbeitstage/Jahr als Basis. Quelle: IW Köln 2023.',en:'Avg home-office days per week per employee. 220 working days/year as basis. Source: IW Koln 2023.'},
   commute:{de:'Durchschnittlicher einfacher Pendelweg in km. Dt. Durchschnitt: ca. 17 km. Quelle: Destatis 2022.',en:'Avg one-way commute distance in km. German avg: ~17 km. Source: Destatis 2022.'},
   commutetype:{de:'Auto: 0,21 kg/km | ÖPNV: 0,089 kg/km | Fahrrad/Fuß: 0 kg/km. Quelle: UBA 2023.',en:'Car: 0.21 kg/km | Public transit: 0.089 kg/km | Bike/Walk: 0 kg/km. Source: UBA 2023.'}
@@ -789,7 +757,7 @@ function doShare(){
 
 function fallbackCopy(txt){
   var ta = document.createElement('textarea');
-  ta.value = txt; ta.style.position='fixed'; ta.style.opacity=' ';
+  ta.value = txt; ta.style.position='fixed'; ta.style.opacity='0';
   document.body.appendChild(ta); ta.select();
   try{ document.execCommand('copy'); showToast(TR[lang].copied); }catch(e){ showToast('Error'); }
   document.body.removeChild(ta);
@@ -814,6 +782,191 @@ applyStaticTranslations();
 buildTabs();
 buildInputs();
 updateResults();
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════
+     LUPE — Rechtsklick >= 1 Sekunde halten → 4× Vergrößerung
+     Funktioniert als DOM-Klon + CSS transform scale(4)
+     ═══════════════════════════════════════════════════════════ -->
+<script>
+(function(){
+  var SCALE   = 4;
+  var HOLD_MS = 1000;
+  var BORDER  = 3;
+  var active  = false;
+  var holdTimer = null;
+  var mouseX = 0, mouseY = 0;
+
+  /* ── Overlay-Rahmen ── */
+  var overlay = document.createElement('div');
+  overlay.id  = 'mag-overlay-box';
+  Object.assign(overlay.style, {
+    position:     'fixed',
+    zIndex:       '99998',
+    overflow:     'hidden',
+    border:       BORDER + 'px solid #C4843A',
+    boxShadow:    '0 0 0 2px #1A0E05, 4px 4px 0 #8B5E2A',
+    display:      'none',
+    pointerEvents:'none',
+    background:   '#2C1A0E'
+  });
+  document.body.appendChild(overlay);
+
+  /* ── innerer Klon-Container ── */
+  var inner = document.createElement('div');
+  Object.assign(inner.style, {
+    position:        'absolute',
+    top:             '0',
+    left:            '0',
+    transformOrigin: '0 0',
+    pointerEvents:   'none'
+  });
+  overlay.appendChild(inner);
+
+  /* ── 4× Label ── */
+  var lbl = document.createElement('div');
+  Object.assign(lbl.style, {
+    position:    'absolute',
+    bottom:      '5px',
+    right:       '7px',
+    zIndex:      '9',
+    fontFamily:  "'Press Start 2P', monospace",
+    fontSize:    '5px',
+    color:       'rgba(212,168,67,0.55)',
+    userSelect:  'none',
+    pointerEvents:'none',
+    lineHeight:  '1'
+  });
+  lbl.textContent = '4×';
+  overlay.appendChild(lbl);
+
+  /* ── Größe der Lupe (1/3 Fenster) ── */
+  function getSize() {
+    return {
+      w: Math.floor(window.innerWidth  / 3),
+      h: Math.floor(window.innerHeight / 3)
+    };
+  }
+
+  /* ── DOM-Snapshot bauen ── */
+  function buildSnapshot() {
+    inner.innerHTML = '';
+
+    /* Clone body, Lupe selbst raus */
+    var bodyClone = document.body.cloneNode(true);
+    var mg = bodyClone.querySelector('#mag-overlay-box');
+    if (mg) mg.remove();
+    var hint = bodyClone.querySelector('#mag-hint');
+    if (hint) hint.remove();
+
+    /* Styles fixieren */
+    var docW = document.documentElement.scrollWidth;
+    var docH = document.documentElement.scrollHeight;
+    Object.assign(bodyClone.style, {
+      margin:    '0',
+      padding:   '0',
+      width:     docW + 'px',
+      minHeight: docH + 'px',
+      overflow:  'visible',
+      pointerEvents: 'none'
+    });
+
+    inner.style.width  = docW + 'px';
+    inner.style.height = docH + 'px';
+    inner.style.transform = 'scale(1)'; /* wird in updatePos gesetzt */
+    inner.appendChild(bodyClone);
+  }
+
+  /* ── Position & Zoom setzen ── */
+  function updatePos(cx, cy) {
+    var ms = getSize();
+
+    /* Overlay-Position: Mitte auf Cursor, geclampt */
+    var ox = Math.min(Math.max(cx - ms.w / 2, 0), window.innerWidth  - ms.w - BORDER * 2);
+    var oy = Math.min(Math.max(cy - ms.h / 2, 0), window.innerHeight - ms.h - BORDER * 2);
+    overlay.style.left   = ox + 'px';
+    overlay.style.top    = oy + 'px';
+    overlay.style.width  = ms.w + 'px';
+    overlay.style.height = ms.h + 'px';
+
+    /*
+      Wir wollen, dass der Seitenpunkt unter dem Cursor
+      im Zentrum des Overlay-Rechtecks erscheint.
+
+      Seiten-Koordinate des Cursors:
+        pageX = cx + scrollX
+        pageY = cy + scrollY
+
+      Nach transform: scale(SCALE) translate(-tx, -ty):
+        sichtbarer Ursprung des Klon-Coords = (tx, ty)
+        => sichtbare Mitte = (tx + (ms.w/2)/SCALE,  ty + (ms.h/2)/SCALE)
+
+      Damit Mitte == Cursor:
+        tx = pageX - (ms.w/2)/SCALE
+        ty = pageY - (ms.h/2)/SCALE
+    */
+    var pageX = cx + window.scrollX;
+    var pageY = cy + window.scrollY;
+    var tx    = pageX - (ms.w / 2) / SCALE;
+    var ty    = pageY - (ms.h / 2) / SCALE;
+
+    inner.style.transform = 'scale(' + SCALE + ') translate(-' + tx + 'px, -' + ty + 'px)';
+  }
+
+  /* ── Lupe einblenden ── */
+  function showMag() {
+    active = true;
+    buildSnapshot();
+    overlay.style.opacity    = '0';
+    overlay.style.transition = 'opacity 0.15s ease';
+    overlay.style.display    = 'block';
+    updatePos(mouseX, mouseY);
+    requestAnimationFrame(function() {
+      overlay.style.opacity = '1';
+    });
+  }
+
+  /* ── Lupe ausblenden ── */
+  function hideMag() {
+    clearTimeout(holdTimer);
+    holdTimer = null;
+    if (!active) return;
+    active = false;
+    overlay.style.display = 'none';
+    inner.innerHTML = '';
+  }
+
+  /* ── Event-Listener ── */
+  document.addEventListener('mousedown', function(e) {
+    if (e.button !== 2) return;
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    holdTimer = setTimeout(showMag, HOLD_MS);
+  });
+
+  document.addEventListener('mouseup', function(e) {
+    if (e.button !== 2) return;
+    hideMag();
+  });
+
+  document.addEventListener('mousemove', function(e) {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    if (active) updatePos(mouseX, mouseY);
+  });
+
+  /* Kontextmenü unterdrücken wenn Timer läuft oder Lupe aktiv */
+  document.addEventListener('contextmenu', function(e) {
+    if (holdTimer !== null || active) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  });
+
+  /* Lupe ausblenden wenn Fenster den Fokus verliert */
+  window.addEventListener('blur', hideMag);
+
+})();
 </script>
 </body>
 </html>
