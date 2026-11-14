@@ -6,307 +6,1289 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>INGWERPERIUM // BOTANY SYSTEM</title>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, setDoc, updateDoc,
+  onSnapshot, collection, addDoc, runTransaction,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+// --------------------------------------------------
+// FIREBASE CONFIGURATION
+// Original configuration from your Ingwerperium forum
+// --------------------------------------------------
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBqkzJEJa94RQd9KYzpwR6rmIcvEouAJ-s",
+  authDomain: "ingwerperium.firebaseapp.com",
+  projectId: "ingwerperium",
+  storageBucket: "ingwerperium.firebasestorage.app",
+  messagingSenderId: "43358415912",
+  appId: "1:43358415912:web:abda437dc5f0905ede591d"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const $ = id => document.getElementById(id);
+
+let uid = null;
+let roomId = null;
+let playerName = "";
+let playerRef = null;
+let roomRef = null;
+
+let playerListener = null;
+let leaderboardListener = null;
+let questionsListener = null;
+
+let playerData = null;
+let leaderboard = [];
+let customQuestions = [];
+
+let language = "en";
+let currentQuestion = null;
+let questionCounter = 0;
+let answeredQuestions = new Set();
+let isAnswered = false;
+
+const builtInQuestions = [
+
+{
+ id:"q001", category:"PHOTOSYNTHESIS",
+ q:["What process converts sunlight into chemical energy?","Welcher Prozess wandelt Sonnenlicht in chemische Energie um?"],
+ a:[["Photosynthesis","Respiration","Fermentation"],["Fotosynthese","Atmung","Gärung"]],
+ e:["Photosynthesis uses light energy to produce sugars from water and carbon dioxide.","Bei der Fotosynthese wird Lichtenergie genutzt, um aus Wasser und Kohlenstoffdioxid Zucker herzustellen."]
+},
+{
+ id:"q002", category:"PLANT ANATOMY",
+ q:["Which plant organ absorbs most water?","Welches Pflanzenorgan nimmt den größten Teil des Wassers auf?"],
+ a:[["Roots","Leaves","Flowers"],["Wurzeln","Blätter","Blüten"]],
+ e:["Roots absorb water and dissolved minerals from the soil.","Wurzeln nehmen Wasser und gelöste Mineralstoffe aus dem Boden auf."]
+},
+{
+ id:"q003", category:"PLANT BIOLOGY",
+ q:["What is the green pigment in many plants called?","Wie heißt der grüne Farbstoff vieler Pflanzen?"],
+ a:[["Chlorophyll","Melanin","Carotene"],["Chlorophyll","Melanin","Carotin"]],
+ e:["Chlorophyll absorbs light energy for photosynthesis.","Chlorophyll absorbiert Lichtenergie für die Fotosynthese."]
+},
+{
+ id:"q004", category:"PLANT ANATOMY",
+ q:["Which tissue transports water through a plant?","Welches Gewebe transportiert Wasser durch eine Pflanze?"],
+ a:[["Xylem","Phloem","Epidermis"],["Xylem","Phloem","Epidermis"]],
+ e:["Xylem transports water and minerals from the roots upwards.","Das Xylem transportiert Wasser und Mineralstoffe von den Wurzeln nach oben."]
+},
+{
+ id:"q005", category:"PLANT ANATOMY",
+ q:["Which tissue transports sugars in plants?","Welches Gewebe transportiert Zucker in Pflanzen?"],
+ a:[["Phloem","Xylem","Cork"],["Phloem","Xylem","Kork"]],
+ e:["Phloem transports sugars and other organic substances through the plant.","Das Phloem transportiert Zucker und andere organische Stoffe durch die Pflanze."]
+},
+{
+ id:"q006", category:"PLANT BIOLOGY",
+ q:["What is the main function of a flower?","Was ist die Hauptfunktion einer Blüte?"],
+ a:[["Reproduction","Water storage","Root growth"],["Fortpflanzung","Wasserspeicherung","Wurzelwachstum"]],
+ e:["Flowers are reproductive structures of flowering plants.","Blüten sind die Fortpflanzungsorgane der Blütenpflanzen."]
+},
+{
+ id:"q007", category:"PLANT ECOLOGY",
+ q:["What is pollination?","Was bedeutet Bestäubung?"],
+ a:[["Transfer of pollen to a stigma","Growth of roots","Release of seeds"],["Übertragung von Pollen auf eine Narbe","Wachstum der Wurzeln","Freisetzung von Samen"]],
+ e:["Pollination is the transfer of pollen to a receptive stigma.","Bei der Bestäubung wird Pollen auf eine empfängliche Narbe übertragen."]
+},
+{
+ id:"q008", category:"PLANT BIOLOGY",
+ q:["Which gas do plants absorb during photosynthesis?","Welches Gas nehmen Pflanzen bei der Fotosynthese auf?"],
+ a:[["Carbon dioxide","Oxygen","Hydrogen"],["Kohlenstoffdioxid","Sauerstoff","Wasserstoff"]],
+ e:["Plants absorb carbon dioxide and use it to build sugars.","Pflanzen nehmen Kohlenstoffdioxid auf und verwenden es zur Zuckerbildung."]
+},
+{
+ id:"q009", category:"PLANT BIOLOGY",
+ q:["What is transpiration?","Was ist Transpiration?"],
+ a:[["Loss of water vapor","Production of seeds","Absorption of sunlight"],["Abgabe von Wasserdampf","Produktion von Samen","Aufnahme von Sonnenlicht"]],
+ e:["Transpiration is the loss of water vapor, mainly through stomata.","Transpiration ist die Abgabe von Wasserdampf, hauptsächlich über Spaltöffnungen."]
+},
+{
+ id:"q010", category:"PLANT ANATOMY",
+ q:["What are stomata?","Was sind Stomata?"],
+ a:[["Tiny pores on plant surfaces","Types of roots","Flower petals"],["Kleine Öffnungen auf Pflanzenoberflächen","Wurzelarten","Blütenblätter"]],
+ e:["Stomata regulate gas exchange and water loss.","Stomata regulieren den Gasaustausch und den Wasserverlust."]
+},
+{
+ id:"q011", category:"PLANT DIVERSITY",
+ q:["Which plants reproduce using spores?","Welche Pflanzen vermehren sich durch Sporen?"],
+ a:[["Ferns","Apple trees","Pine trees"],["Farne","Apfelbäume","Kiefern"]],
+ e:["Ferns reproduce using spores instead of seeds.","Farne vermehren sich durch Sporen statt durch Samen."]
+},
+{
+ id:"q012", category:"PLANT DIVERSITY",
+ q:["Which plant is carnivorous?","Welche Pflanze ist fleischfressend?"],
+ a:[["Venus flytrap","Sunflower","Oak"],["Venusfliegenfalle","Sonnenblume","Eiche"]],
+ e:["The Venus flytrap catches insects using modified leaves.","Die Venusfliegenfalle fängt Insekten mit umgebildeten Blättern."]
+},
+{
+ id:"q013", category:"PLANT ECOLOGY",
+ q:["What is a plant adapted to dry conditions called?","Wie nennt man eine an Trockenheit angepasste Pflanze?"],
+ a:[["Xerophyte","Hydrophyte","Epiphyte"],["Xerophyt","Hydrophyt","Epiphyt"]],
+ e:["Xerophytes have adaptations that help them survive with little water.","Xerophyten besitzen Anpassungen, die ihnen das Überleben mit wenig Wasser ermöglichen."]
+},
+{
+ id:"q014", category:"PLANT BIOLOGY",
+ q:["What is seed germination?","Was ist Samenkeimung?"],
+ a:[["Beginning of growth from a seed","Formation of pollen","Drying of fruit"],["Beginn des Wachstums aus einem Samen","Bildung von Pollen","Trocknen einer Frucht"]],
+ e:["Germination begins when a viable seed starts growing.","Keimung beginnt, wenn ein lebensfähiger Samen zu wachsen anfängt."]
+},
+{
+ id:"q015", category:"PLANT SCIENCE",
+ q:["Which nutrient is important for leaf growth?","Welcher Nährstoff ist wichtig für das Blattwachstum?"],
+ a:[["Nitrogen","Gold","Silver"],["Stickstoff","Gold","Silber"]],
+ e:["Nitrogen is an important component of proteins and chlorophyll.","Stickstoff ist ein wichtiger Bestandteil von Proteinen und Chlorophyll."]
+},
+{
+ id:"q016", category:"PLANT ECOLOGY",
+ q:["What is mycorrhiza?","Was ist Mykorrhiza?"],
+ a:[["Symbiosis between fungi and roots","A type of flower","A seed disease"],["Symbiose zwischen Pilzen und Wurzeln","Eine Blütenart","Eine Samenkrankheit"]],
+ e:["Mycorrhizal fungi help roots absorb nutrients and water.","Mykorrhizapilze helfen Wurzeln bei der Aufnahme von Nährstoffen und Wasser."]
+},
+{
+ id:"q017", category:"PLANT DIVERSITY",
+ q:["Which tree produces acorns?","Welcher Baum bildet Eicheln?"],
+ a:[["Oak","Birch","Maple"],["Eiche","Birke","Ahorn"]],
+ e:["Acorns are the fruits of oak trees.","Eicheln sind die Früchte der Eichen."]
+},
+{
+ id:"q018", category:"PLANT DIVERSITY",
+ q:["Which plant is famous for following the sun when young?","Welche Pflanze richtet sich im jungen Stadium nach der Sonne aus?"],
+ a:[["Sunflower","Fern","Moss"],["Sonnenblume","Farn","Moos"]],
+ e:["Young sunflowers can track the sun through heliotropism.","Junge Sonnenblumen können der Sonne durch Heliotropismus folgen."]
+},
+{
+ id:"q019", category:"HERBS",
+ q:["Which herb is commonly used in pesto?","Welches Kraut wird häufig für Pesto verwendet?"],
+ a:[["Basil","Thyme","Sage"],["Basilikum","Thymian","Salbei"]],
+ e:["Basil is a traditional main ingredient in many pesto recipes.","Basilikum ist eine traditionelle Hauptzutat vieler Pesto-Rezepte."]
+},
+{
+ id:"q020", category:"HERBS",
+ q:["Which herb is known for its strong menthol aroma?","Welches Kraut ist für sein starkes Mentholaroma bekannt?"],
+ a:[["Peppermint","Parsley","Dill"],["Pfefferminze","Petersilie","Dill"]],
+ e:["Peppermint contains menthol, which gives it its characteristic cooling aroma.","Pfefferminze enthält Menthol, das ihr das typische kühlende Aroma verleiht."]
+},
+{
+ id:"q021", category:"TREES",
+ q:["Which tree produces maple syrup?","Welcher Baum liefert Ahornsirup?"],
+ a:[["Maple","Oak","Beech"],["Ahorn","Eiche","Buche"]],
+ e:["Maple syrup is made from the sap of maple trees.","Ahornsirup wird aus dem Saft von Ahornbäumen hergestellt."]
+},
+{
+ id:"q022", category:"PLANT SCIENCE",
+ q:["Which mineral is important for chlorophyll production?","Welcher Mineralstoff ist wichtig für die Bildung von Chlorophyll?"],
+ a:[["Magnesium","Gold","Sodium"],["Magnesium","Gold","Natrium"]],
+ e:["Magnesium is the central atom in the chlorophyll molecule.","Magnesium ist das zentrale Atom im Chlorophyllmolekül."]
+},
+{
+ id:"q023", category:"PLANT ECOLOGY",
+ q:["What is an epiphyte?","Was ist ein Epiphyt?"],
+ a:[["A plant growing on another plant","A plant living underwater","A plant that eats insects"],["Eine Pflanze, die auf einer anderen Pflanze wächst","Eine Unterwasserpflanze","Eine fleischfressende Pflanze"]],
+ e:["Epiphytes use other plants for support without necessarily taking nutrients from them.","Epiphyten nutzen andere Pflanzen als Halt, ohne ihnen zwangsläufig Nährstoffe zu entziehen."]
+},
+{
+ id:"q024", category:"PLANT DIVERSITY",
+ q:["Which plant group includes beans and peas?","Welche Pflanzengruppe umfasst Bohnen und Erbsen?"],
+ a:[["Legumes","Grasses","Ferns"],["Hülsenfrüchtler","Gräser","Farne"]],
+ e:["Beans and peas belong to the legume family.","Bohnen und Erbsen gehören zur Familie der Hülsenfrüchtler."]
+},
+{
+ id:"q025", category:"PLANT BIOLOGY",
+ q:["What does a seed contain?","Was enthält ein Samen?"],
+ a:[["A plant embryo","A fully grown tree","Only water"],["Einen Pflanzenembryo","Einen ausgewachsenen Baum","Nur Wasser"]],
+ e:["A seed contains an embryo and usually stored nutrients.","Ein Samen enthält einen Embryo und normalerweise gespeicherte Nährstoffe."]
+},
+{
+ id:"q026", category:"PLANT DIVERSITY",
+ q:["Which of these is a conifer?","Welche dieser Pflanzen ist ein Nadelbaum?"],
+ a:[["Pine","Apple","Rose"],["Kiefer","Apfelbaum","Rose"]],
+ e:["Pines are conifers that produce seeds in cones.","Kiefern sind Nadelbäume, die Samen in Zapfen bilden."]
+},
+{
+ id:"q027", category:"PLANT SCIENCE",
+ q:["Which nutrient is especially important for root development?","Welcher Nährstoff ist besonders wichtig für die Wurzelentwicklung?"],
+ a:[["Phosphorus","Mercury","Lead"],["Phosphor","Quecksilber","Blei"]],
+ e:["Phosphorus supports root development and energy transfer.","Phosphor unterstützt die Wurzelentwicklung und die Energieübertragung."]
+},
+{
+ id:"q028", category:"PLANT ECOLOGY",
+ q:["What is an organism that breaks down dead plant material called?","Wie nennt man einen Organismus, der abgestorbenes Pflanzenmaterial zersetzt?"],
+ a:[["Decomposer","Pollinator","Producer"],["Zersetzer","Bestäuber","Produzent"]],
+ e:["Decomposers recycle nutrients from dead organic matter.","Zersetzer führen Nährstoffe aus abgestorbenem organischem Material in den Kreislauf zurück."]
+},
+{
+ id:"q029", category:"FLOWERS",
+ q:["Which part of a flower produces pollen?","Welcher Teil einer Blüte produziert Pollen?"],
+ a:[["Anther","Stigma","Petal"],["Staubbeutel","Narbe","Blütenblatt"]],
+ e:["The anther is part of the stamen and produces pollen.","Der Staubbeutel gehört zum Staubblatt und produziert Pollen."]
+},
+{
+ id:"q030", category:"PLANT BIOLOGY",
+ q:["What is the main purpose of fruit?","Was ist die Hauptfunktion einer Frucht?"],
+ a:[["Protecting and dispersing seeds","Absorbing sunlight","Producing roots"],["Schutz und Verbreitung von Samen","Aufnahme von Sonnenlicht","Bildung von Wurzeln"]],
+ e:["Fruits protect seeds and often help disperse them.","Früchte schützen Samen und helfen häufig bei ihrer Verbreitung."]
+},
+{
+ id:"q031", category:"PLANT DIVERSITY",
+ q:["Which plant is known for producing cotton fibers?","Welche Pflanze ist für die Produktion von Baumwollfasern bekannt?"],
+ a:[["Cotton plant","Flax","Hemp"],["Baumwollpflanze","Flachs","Hanf"]],
+ e:["Cotton fibers grow around the seeds of the cotton plant.","Baumwollfasern wachsen um die Samen der Baumwollpflanze."]
+},
+{
+ id:"q032", category:"PLANT DIVERSITY",
+ q:["Which plant is a common source of natural rubber?","Welche Pflanze ist eine häufige Quelle für Naturkautschuk?"],
+ a:[["Rubber tree","Oak","Lavender"],["Kautschukbaum","Eiche","Lavendel"]],
+ e:["Natural rubber is obtained from the latex of rubber trees.","Naturkautschuk wird aus dem Latex von Kautschukbäumen gewonnen."]
+},
+{
+ id:"q033", category:"PLANT SCIENCE",
+ q:["What is the study of plants called?","Wie nennt man die Wissenschaft von Pflanzen?"],
+ a:[["Botany","Zoology","Geology"],["Botanik","Zoologie","Geologie"]],
+ e:["Botany is the scientific study of plants.","Botanik ist die wissenschaftliche Lehre von Pflanzen."]
+},
+{
+ id:"q034", category:"TREES",
+ q:["Which tree is known for its white bark?","Welcher Baum ist für seine weiße Rinde bekannt?"],
+ a:[["Birch","Oak","Walnut"],["Birke","Eiche","Walnussbaum"]],
+ e:["Many birch species have distinctive pale or white bark.","Viele Birkenarten besitzen eine auffällig helle oder weiße Rinde."]
+},
+{
+ id:"q035", category:"PLANT BIOLOGY",
+ q:["What is dormancy in plants?","Was bedeutet Dormanz bei Pflanzen?"],
+ a:[["A period of reduced growth","Rapid flowering","Seed dispersal"],["Eine Phase verminderten Wachstums","Schnelle Blüte","Samenverbreitung"]],
+ e:["Dormancy is a period when plant growth and activity are reduced.","Dormanz ist eine Phase, in der Wachstum und Aktivität einer Pflanze reduziert sind."]
+},
+{
+ id:"q036", category:"HERBS",
+ q:["Which herb is commonly associated with Mediterranean cooking?","Welches Kraut wird häufig mit der mediterranen Küche verbunden?"],
+ a:[["Rosemary","Clover","Moss"],["Rosmarin","Klee","Moos"]],
+ e:["Rosemary is an aromatic herb widely used in Mediterranean cuisine.","Rosmarin ist ein aromatisches Kraut, das häufig in der mediterranen Küche verwendet wird."]
+}
+];
+
+// --------------------------------------------------
+// TRANSLATIONS
+// --------------------------------------------------
+
+const text = {
+ en: {
+  title:"THE PLANT KNOWLEDGE SYSTEM",
+  subtitle:"INGWERPERIUM COMMUNITY DATABASE / ENDLESS MULTIPLAYER QUIZ",
+  name:"RESEARCHER NAME",
+  code:"SESSION CODE",
+  create:"CREATE SESSION",
+  join:"JOIN SESSION",
+  createTitle:"NEW RESEARCH SESSION",
+  joinTitle:"JOIN EXISTING SESSION",
+  system:"SYSTEM STATUS",
+  connected:"CONNECTED",
+  offline:"OFFLINE",
+  active:"ACTIVE SESSION",
+  question:"KNOWLEDGE TEST",
+  next:"NEXT QUESTION",
+  score:"TOTAL SCORE",
+  answered:"ANSWERED",
+  accuracy:"ACCURACY",
+  leaderboard:"LIVE LEADERBOARD",
+  players:"PLAYERS",
+  import:"IMPORT TXT QUESTIONS",
+  export:"EXPORT QUESTION FORMAT",
+  importInfo:"Format: Question;Correct answer;Wrong answer 2;Wrong answer 3",
+  importButton:"IMPORT QUESTIONS",
+  chooseFile:"SELECT TXT FILE",
+  leave:"LEAVE SESSION",
+  copy:"COPY SESSION CODE",
+  correct:"CORRECT ANSWER",
+  wrong:"INCORRECT ANSWER",
+  explanation:"EXPLANATION",
+  waiting:"WAITING FOR PLAYERS",
+  loading:"LOADING QUESTION DATABASE",
+  noQuestions:"NO QUESTIONS AVAILABLE",
+  imported:"QUESTIONS IMPORTED",
+  empty:"NO RESEARCHERS CONNECTED",
+  category:"CATEGORY",
+  database:"QUESTION DATABASE",
+  builtIn:"BUILT-IN QUESTIONS",
+  custom:"COMMUNITY QUESTIONS",
+  endless:"ENDLESS MODE",
+  questionNumber:"QUESTION",
+  answerPrompt:"SELECT YOUR ANSWER",
+  nameRequired:"Enter a researcher name.",
+  codeRequired:"Enter a session code.",
+  notFound:"Session not found.",
+  connectedMessage:"Connected to the Ingwerperium database.",
+  importError:"Could not import questions.",
+  noFile:"Select a TXT file first.",
+  formatError:"No valid questions found. Check the TXT format.",
+  roomError:"Could not connect to session.",
+  importedMessage:"Community questions added successfully.",
+  noPlayer:"Player data not found."
+ },
+ de: {
+  title:"DAS PFLANZEN-WISSENSSYSTEM",
+  subtitle:"INGWERPERIUM COMMUNITY-DATENBANK / ENDLOSER MULTIPLAYER-QUIZ",
+  name:"FORSCHERNAME",
+  code:"SITZUNGSCODE",
+  create:"SITZUNG ERSTELLEN",
+  join:"SITZUNG BEITRETEN",
+  createTitle:"NEUE FORSCHUNGSSITZUNG",
+  joinTitle:"BESTEHENDER SITZUNG BEITRETEN",
+  system:"SYSTEMSTATUS",
+  connected:"VERBUNDEN",
+  offline:"OFFLINE",
+  active:"AKTIVE SITZUNG",
+  question:"WISSENSTEST",
+  next:"NÄCHSTE FRAGE",
+  score:"GESAMTPUNKTE",
+  answered:"BEANTWORTET",
+  accuracy:"TREFFERQUOTE",
+  leaderboard:"LIVE-RANGLISTE",
+  players:"SPIELER",
+  import:"TXT-FRAGEN IMPORTIEREN",
+  export:"TXT-FORMAT EXPORTIEREN",
+  importInfo:"Format: Frage;Richtige Antwort;Falsche Antwort 2;Falsche Antwort 3",
+  importButton:"FRAGEN IMPORTIEREN",
+  chooseFile:"TXT-DATEI AUSWÄHLEN",
+  leave:"SITZUNG VERLASSEN",
+  copy:"SITZUNGSCODE KOPIEREN",
+  correct:"RICHTIGE ANTWORT",
+  wrong:"FALSCHE ANTWORT",
+  explanation:"ERKLÄRUNG",
+  waiting:"WARTE AUF SPIELER",
+  loading:"FRAGENDATENBANK WIRD GELADEN",
+  noQuestions:"KEINE FRAGEN VERFÜGBAR",
+  imported:"FRAGEN IMPORTIERT",
+  empty:"KEINE FORSCHER VERBUNDEN",
+  category:"KATEGORIE",
+  database:"FRAGENDATENBANK",
+  builtIn:"INTEGRIERTE FRAGEN",
+  custom:"COMMUNITY-FRAGEN",
+  endless:"ENDLOSMODUS",
+  questionNumber:"FRAGE",
+  answerPrompt:"WÄHLE DEINE ANTWORT",
+  nameRequired:"Bitte einen Forschernamen eingeben.",
+  codeRequired:"Bitte einen Sitzungscode eingeben.",
+  notFound:"Sitzung nicht gefunden.",
+  connectedMessage:"Mit der Ingwerperium-Datenbank verbunden.",
+  importError:"Fragen konnten nicht importiert werden.",
+  noFile:"Bitte zuerst eine TXT-Datei auswählen.",
+  formatError:"Keine gültigen Fragen gefunden. Prüfe das TXT-Format.",
+  roomError:"Verbindung zur Sitzung fehlgeschlagen.",
+  importedMessage:"Community-Fragen erfolgreich hinzugefügt.",
+  noPlayer:"Spielerdaten nicht gefunden."
+ }
+};
+
+function tr(key) {
+ return text[language][key] || key;
+}
+
+function setLanguage(lang) {
+ language = lang;
+ document.documentElement.lang = lang;
+ $("languageButton").textContent = lang === "en" ? "DEUTSCH" : "ENGLISH";
+
+ document.querySelectorAll("[data-text]").forEach(el => {
+  el.textContent = tr(el.dataset.text);
+ });
+
+ if (currentQuestion) renderQuestion();
+ renderStats();
+ renderLeaderboard();
+}
+
+// --------------------------------------------------
+// UI HELPERS
+// --------------------------------------------------
+
+function message(value, type="info") {
+ const el = $("statusMessage");
+ el.textContent = value;
+ el.className = "status " + type;
+}
+
+function showGame() {
+ $("lobby").classList.add("hidden");
+ $("game").classList.remove("hidden");
+}
+
+function showLobby() {
+ $("game").classList.add("hidden");
+ $("lobby").classList.remove("hidden");
+}
+
+function randomCode() {
+ const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+ let result = "";
+ for (let i=0; i<6; i++) {
+  result += chars[Math.floor(Math.random()*chars.length)];
+ }
+ return result;
+}
+
+function cleanName(name) {
+ return name.trim().replace(/[.#$/[\]]/g,"").slice(0,24);
+}
+
+function shuffle(array) {
+ const result = [...array];
+ for (let i=result.length-1; i>0; i--) {
+  const j = Math.floor(Math.random()*(i+1));
+  [result[i],result[j]] = [result[j],result[i]];
+ }
+ return result;
+}
+
+// --------------------------------------------------
+// AUTHENTICATION
+// --------------------------------------------------
+
+async function authenticate() {
+ try {
+  const result = await signInAnonymously(auth);
+  uid = result.user.uid;
+  $("connectionStatus").textContent = tr("connected");
+  $("connectionStatus").classList.add("good");
+  message(tr("connectedMessage"),"good");
+ } catch(error) {
+  $("connectionStatus").textContent = tr("offline");
+  message("Firebase: " + error.message,"error");
+ }
+}
+
+// --------------------------------------------------
+// ROOM MANAGEMENT
+// --------------------------------------------------
+
+async function createSession() {
+ if (!uid) return message("Firebase is not connected.","error");
+
+ const name = cleanName($("createName").value);
+ if (!name) return message(tr("nameRequired"),"error");
+
+ try {
+  let code = randomCode();
+  let ref = doc(db,"plantRooms",code);
+  let snap = await getDoc(ref);
+
+  while (snap.exists()) {
+   code = randomCode();
+   ref = doc(db,"plantRooms",code);
+   snap = await getDoc(ref);
+  }
+
+  await setDoc(ref,{
+   createdAt:serverTimestamp(),
+   createdBy:uid,
+   active:true
+  });
+
+  await enterSession(code,name);
+ } catch(error) {
+  message(tr("roomError") + " " + error.message,"error");
+ }
+}
+
+async function joinSession() {
+ if (!uid) return message("Firebase is not connected.","error");
+
+ const name = cleanName($("joinName").value);
+ const code = $("roomCode").value.trim().toUpperCase();
+
+ if (!name) return message(tr("nameRequired"),"error");
+ if (!code) return message(tr("codeRequired"),"error");
+
+ try {
+  const ref = doc(db,"plantRooms",code);
+  const snap = await getDoc(ref);
+
+  if (!snap.exists()) return message(tr("notFound"),"error");
+
+  await enterSession(code,name);
+ } catch(error) {
+  message(tr("roomError") + " " + error.message,"error");
+ }
+}
+
+async function enterSession(code,name) {
+ roomId = code;
+ playerName = name;
+ roomRef = doc(db,"plantRooms",roomId);
+ playerRef = doc(db,"plantRooms",roomId,"players",uid);
+
+ await setDoc(playerRef,{
+  name:playerName,
+  score:0,
+  answered:0,
+  correct:0,
+  joinedAt:serverTimestamp(),
+  online:true
+ },{merge:true});
+
+ $("roomCodeDisplay").textContent = roomId;
+ $("researcherDisplay").textContent = playerName;
+
+ showGame();
+ startListeners();
+}
+
+function startListeners() {
+ if (playerListener) playerListener();
+ if (leaderboardListener) leaderboardListener();
+ if (questionsListener) questionsListener();
+
+ playerListener = onSnapshot(playerRef,snap => {
+  if (!snap.exists()) return;
+  playerData = snap.data();
+  renderStats();
+ });
+
+ const playersRef = collection(db,"plantRooms",roomId,"players");
+ leaderboardListener = onSnapshot(playersRef,snapshot => {
+  leaderboard = snapshot.docs.map(d => ({id:d.id,...d.data()}));
+  renderLeaderboard();
+ });
+
+ const questionsRef = collection(db,"plantRooms",roomId,"questions");
+ questionsListener = onSnapshot(questionsRef,snapshot => {
+  customQuestions = snapshot.docs.map(d => ({
+   id:d.id,
+   ...d.data()
+  }));
+  renderDatabaseCounts();
+  if (!currentQuestion) nextQuestion();
+ });
+}
+
+async function leaveSession() {
+ if (playerRef) {
+  try {
+   await updateDoc(playerRef,{online:false});
+  } catch(e) {}
+ }
+
+ if (playerListener) playerListener();
+ if (leaderboardListener) leaderboardListener();
+ if (questionsListener) questionsListener();
+
+ playerListener = null;
+ leaderboardListener = null;
+ questionsListener = null;
+
+ roomId = null;
+ roomRef = null;
+ playerRef = null;
+ playerData = null;
+ currentQuestion = null;
+ customQuestions = [];
+ answeredQuestions.clear();
+
+ showLobby();
+ message("");
+}
+
+// --------------------------------------------------
+// QUESTION DATABASE
+// --------------------------------------------------
+
+function allQuestions() {
+ return [...builtInQuestions,...customQuestions];
+}
+
+function renderDatabaseCounts() {
+ $("builtInCount").textContent = builtInQuestions.length;
+ $("customCount").textContent = customQuestions.length;
+ $("totalCount").textContent = builtInQuestions.length + customQuestions.length;
+}
+
+function nextQuestion() {
+ const pool = allQuestions();
+
+ if (!pool.length) {
+  message(tr("noQuestions"),"error");
+  return;
+ }
+
+ let available = pool.filter(q => !answeredQuestions.has(q.id));
+
+ if (!available.length) {
+  answeredQuestions.clear();
+  available = pool;
+ }
+
+ currentQuestion = available[Math.floor(Math.random()*available.length)];
+ questionCounter++;
+ isAnswered = false;
+
+ renderQuestion();
+}
+
+function renderQuestion() {
+ if (!currentQuestion) return;
+
+ const index = language === "en" ? 0 : 1;
+ const questionText = Array.isArray(currentQuestion.q)
+  ? currentQuestion.q[index]
+  : currentQuestion.q;
+
+ const answers = Array.isArray(currentQuestion.a?.[index])
+  ? currentQuestion.a[index]
+  : currentQuestion.a;
+
+ $("questionCategory").textContent = currentQuestion.category || "COMMUNITY";
+ $("questionNumber").textContent = tr("questionNumber") + " " + String(questionCounter).padStart(4,"0");
+ $("questionText").textContent = questionText;
+
+ const answerBox = $("answerOptions");
+ answerBox.innerHTML = "";
+
+ const shuffled = shuffle(answers.map((answer,i)=>({
+  answer,
+  correct:i===0 || currentQuestion.correct===i
+ })));
+
+ // For built-in questions, correct index is 0.
+ // For imported questions, first answer is always correct.
+ shuffled.forEach((item,index) => {
+  const button = document.createElement("button");
+  button.className = "answer-button";
+  button.textContent = String.fromCharCode(65+index) + " // " + item.answer;
+  button.onclick = () => answerQuestion(item.correct,button);
+  answerBox.appendChild(button);
+ });
+
+ $("answerPrompt").textContent = tr("answerPrompt");
+ $("feedback").className = "feedback hidden";
+ $("nextButton").classList.add("hidden");
+}
+
+async function answerQuestion(isCorrect,button) {
+ if (isAnswered || !currentQuestion || !playerData) return;
+
+ isAnswered = true;
+ answeredQuestions.add(currentQuestion.id);
+
+ const points = isCorrect ? 10 : 0;
+ const buttons = [...document.querySelectorAll(".answer-button")];
+
+ // Disable all answers after selection.
+ buttons.forEach(b => b.disabled = true);
+
+ // Mark the selected answer.
+ button.classList.add(isCorrect ? "correct" : "wrong");
+
+ const index = language === "en" ? 0 : 1;
+ const explanation = Array.isArray(currentQuestion.e)
+  ? currentQuestion.e[index]
+  : (currentQuestion.e || "");
+
+ const feedback = $("feedback");
+ feedback.className = "feedback " + (isCorrect ? "good" : "bad");
+
+ const heading = document.createElement("strong");
+ heading.textContent = isCorrect ? tr("correct") + " +10 PTS" : tr("wrong");
+
+ const explanationTitle = document.createElement("div");
+ explanationTitle.className = "explanation-title";
+ explanationTitle.textContent = tr("explanation");
+
+ const explanationText = document.createElement("div");
+ explanationText.textContent = explanation;
+
+ feedback.replaceChildren(heading,explanationTitle,explanationText);
+
+ try {
+  await runTransaction(db,async transaction => {
+   const snap = await transaction.get(playerRef);
+   if (!snap.exists()) throw new Error("Player not found");
+
+   const data = snap.data();
+
+   transaction.update(playerRef,{
+    score:(data.score || 0) + points,
+    answered:(data.answered || 0) + 1,
+    correct:(data.correct || 0) + (isCorrect ? 1 : 0),
+    lastAnswerAt:serverTimestamp()
+   });
+  });
+
+  $("nextButton").classList.remove("hidden");
+ } catch(error) {
+  message("Could not save score: " + error.message,"error");
+ }
+}
+
+// --------------------------------------------------
+// TXT IMPORT
+// FORMAT:
+// Question;Correct answer;Wrong answer 2;Wrong answer 3
+// --------------------------------------------------
+
+function parseTextFile(content) {
+ const lines = content.split(/\r?\n/);
+ const result = [];
+
+ lines.forEach((line,lineIndex) => {
+  const trimmed = line.trim();
+  if (!trimmed || trimmed.startsWith("#")) return;
+
+  const parts = trimmed.split(";").map(s=>s.trim());
+
+  if (parts.length < 4) return;
+  if (parts.some(p=>!p)) return;
+
+  result.push({
+   q:parts[0],
+   a:[parts[1],parts[2],parts[3]],
+   correct:0,
+   category:"COMMUNITY IMPORT",
+   e:""
+  });
+ });
+
+ return result;
+}
+
+async function importQuestions() {
+ if (!roomId) return;
+ const file = $("questionFile").files[0];
+
+ if (!file) return message(tr("noFile"),"error");
+
+ try {
+  const content = await file.text();
+  const parsed = parseTextFile(content);
+
+  if (!parsed.length) return message(tr("formatError"),"error");
+
+  if (parsed.length > 200) {
+   return message("Maximum 200 questions per import.","error");
+  }
+
+  const questionsRef = collection(db,"plantRooms",roomId,"questions");
+
+  for (const question of parsed) {
+   await addDoc(questionsRef,{
+    q:question.q,
+    a:question.a,
+    correct:0,
+    category:question.category,
+    e:"",
+    createdBy:uid,
+    createdAt:serverTimestamp()
+   });
+  }
+
+  $("questionFile").value = "";
+  message(parsed.length + " " + tr("importedMessage"),"good");
+
+ } catch(error) {
+  message(tr("importError") + " " + error.message,"error");
+ }
+}
+
+// --------------------------------------------------
+// TXT EXPORT TEMPLATE
+// --------------------------------------------------
+
+function exportTemplate() {
+ const template = [
+  "# INGWERPERIUM BOTANY QUIZ",
+  "# Format: Question;Correct answer;Wrong answer 2;Wrong answer 3",
+  "# The first answer is always correct.",
+  "",
+  "Which tree produces acorns?;Oak;Birch;Maple",
+  "Welcher Baum bildet Eicheln?;Eiche;Birke;Ahorn",
+  "What is the green pigment in plants?;Chlorophyll;Melanin;Carotene",
+  "Wie heißt der grüne Farbstoff in Pflanzen?;Chlorophyll;Melanin;Carotin"
+ ].join("\n");
+
+ const blob = new Blob([template],{type:"text/plain;charset=utf-8"});
+ const url = URL.createObjectURL(blob);
+ const a = document.createElement("a");
+ a.href = url;
+ a.download = "ingwerperium-quiz-template.txt";
+ a.click();
+ URL.revokeObjectURL(url);
+}
+
+// --------------------------------------------------
+// PLAYER DATA AND LEADERBOARD
+// --------------------------------------------------
+
+function renderStats() {
+ if (!playerData) return;
+
+ $("myScore").textContent = playerData.score || 0;
+ $("myAnswered").textContent = playerData.answered || 0;
+
+ const answered = playerData.answered || 0;
+ const correct = playerData.correct || 0;
+ const accuracy = answered ? Math.round(correct/answered*100) : 0;
+
+ $("myAccuracy").textContent = accuracy + "%";
+}
+
+function renderLeaderboard() {
+ const list = $("leaderboardList");
+ if (!list) return;
+
+ list.innerHTML = "";
+
+ const sorted = [...leaderboard].sort((a,b)=>
+  (b.score||0)-(a.score||0)
+ );
+
+ if (!sorted.length) {
+  list.textContent = tr("empty");
+  return;
+ }
+
+ sorted.forEach((player,index) => {
+  const row = document.createElement("div");
+  row.className = "leader-row";
+
+  const position = document.createElement("span");
+  position.className = "leader-position";
+  position.textContent = String(index+1).padStart(2,"0");
+
+  const name = document.createElement("span");
+  name.className = "leader-name";
+  name.textContent = player.name || "Researcher";
+
+  const score = document.createElement("span");
+  score.className = "leader-score";
+  score.textContent = (player.score || 0) + " PTS";
+
+  row.append(position,name,score);
+  list.appendChild(row);
+ });
+
+ $("playerCount").textContent = sorted.length;
+}
+
+// --------------------------------------------------
+// BUTTONS
+// --------------------------------------------------
+
+$("createButton").addEventListener("click",createSession);
+$("joinButton").addEventListener("click",joinSession);
+$("nextButton").addEventListener("click",nextQuestion);
+$("leaveButton").addEventListener("click",leaveSession);
+$("importButton").addEventListener("click",importQuestions);
+$("exportButton").addEventListener("click",exportTemplate);
+
+$("languageButton").addEventListener("click",()=>{
+ setLanguage(language === "en" ? "de" : "en");
+});
+
+$("copyButton").addEventListener("click",async()=>{
+ if (!roomId) return;
+
+ try {
+  await navigator.clipboard.writeText(roomId);
+  message("SESSION CODE COPIED","good");
+ } catch(e) {
+  message("SESSION CODE: " + roomId);
+ }
+});
+
+$("roomCode").addEventListener("keydown",e=>{
+ if (e.key==="Enter") joinSession();
+});
+
+$("createName").addEventListener("keydown",e=>{
+ if (e.key==="Enter") createSession();
+});
+
+$("joinName").addEventListener("keydown",e=>{
+ if (e.key==="Enter") joinSession();
+});
+
+// --------------------------------------------------
+// START
+// --------------------------------------------------
+
+renderDatabaseCounts();
+setLanguage("en");
+await authenticate();
+
+</script>
 
 <style>
 :root {
-  --bg: #090d0b;
-  --panel: #111914;
-  --panel2: #18221b;
-  --line: #435b47;
-  --text: #d5e5d1;
-  --muted: #829782;
-  --green: #8cce83;
-  --red: #d8796e;
-  --yellow: #d5bd70;
+ --bg:#080c09;
+ --panel:#101812;
+ --panel2:#17231a;
+ --line:#405b43;
+ --text:#d5e5d1;
+ --muted:#819681;
+ --green:#91d78b;
+ --red:#db7770;
+ --yellow:#d4bd73;
 }
 
 * {
-  box-sizing: border-box;
-  border-radius: 0 !important;
+ box-sizing:border-box;
+ border-radius:0 !important;
 }
 
 body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: "Courier New", monospace;
-  font-size: 14px;
-  min-height: 100vh;
+ margin:0;
+ background:var(--bg);
+ color:var(--text);
+ font-family:"Courier New",monospace;
+ font-size:14px;
+ min-height:100vh;
 }
 
-button, input {
-  font: inherit;
-  border-radius: 0;
+button,input {
+ font:inherit;
 }
 
 button {
-  background: var(--panel2);
-  color: var(--green);
-  border: 1px solid var(--line);
-  padding: 11px 15px;
-  cursor: pointer;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+ padding:11px 15px;
+ background:var(--panel2);
+ border:1px solid var(--line);
+ color:var(--green);
+ cursor:pointer;
+ text-transform:uppercase;
+ letter-spacing:1px;
 }
 
 button:hover {
-  background: var(--green);
-  color: #071008;
+ background:var(--green);
+ color:#071008;
 }
 
 button:disabled {
-  opacity: .4;
-  cursor: not-allowed;
+ opacity:.4;
+ cursor:not-allowed;
 }
 
 input {
-  width: 100%;
-  background: #070b08;
-  color: var(--text);
-  border: 1px solid var(--line);
-  padding: 12px;
-  outline: none;
+ width:100%;
+ padding:12px;
+ background:#070b08;
+ color:var(--text);
+ border:1px solid var(--line);
+ outline:none;
 }
 
 input:focus {
-  border-color: var(--green);
+ border-color:var(--green);
 }
 
 header {
-  border-bottom: 2px solid var(--green);
-  padding: 18px 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 20px;
-  flex-wrap: wrap;
-  background: #0d140f;
+ min-height:65px;
+ border-bottom:2px solid var(--green);
+ padding:15px 25px;
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:15px;
+ flex-wrap:wrap;
+ background:#0d140f;
 }
 
 .logo {
-  font-weight: bold;
-  letter-spacing: 3px;
-  color: var(--green);
-  font-size: 17px;
+ color:var(--green);
+ font-weight:bold;
+ letter-spacing:3px;
+ font-size:15px;
 }
 
 .header-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--muted);
-  font-size: 11px;
+ display:flex;
+ gap:15px;
+ align-items:center;
+ font-size:11px;
+ color:var(--muted);
+}
+
+.good {
+ color:var(--green) !important;
 }
 
 main {
-  max-width: 1100px;
-  margin: 30px auto;
-  padding: 0 20px;
-}
-
-.panel {
-  border: 1px solid var(--line);
-  background: var(--panel);
-  margin-bottom: 18px;
-}
-
-.panel-head {
-  padding: 11px 15px;
-  background: var(--panel2);
-  border-bottom: 1px solid var(--line);
-  color: var(--green);
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  font-size: 11px;
-}
-
-.panel-body {
-  padding: 20px;
-}
-
-h1, h2, h3, p {
-  margin-top: 0;
-}
-
-h1 {
-  font-size: clamp(25px, 5vw, 42px);
-  letter-spacing: 2px;
-  color: var(--green);
-  margin-bottom: 10px;
-}
-
-h2 {
-  font-size: 17px;
-  color: var(--green);
-  letter-spacing: 1px;
-}
-
-.muted {
-  color: var(--muted);
-  line-height: 1.7;
-}
-
-.small {
-  font-size: 11px;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px;
+ max-width:1150px;
+ margin:30px auto;
+ padding:0 18px;
 }
 
 .hidden {
-  display: none !important;
+ display:none !important;
 }
 
-.actions {
-  display: flex;
-  gap: 9px;
-  flex-wrap: wrap;
-  margin-top: 15px;
+.panel {
+ background:var(--panel);
+ border:1px solid var(--line);
+ margin-bottom:18px;
+}
+
+.panel-head {
+ padding:12px 15px;
+ background:var(--panel2);
+ border-bottom:1px solid var(--line);
+ color:var(--green);
+ font-size:11px;
+ letter-spacing:2px;
+ text-transform:uppercase;
+}
+
+.panel-body {
+ padding:20px;
+}
+
+h1 {
+ font-size:clamp(25px,5vw,43px);
+ color:var(--green);
+ letter-spacing:2px;
+ margin:10px 0;
+}
+
+h2 {
+ color:var(--green);
+ font-size:17px;
+ letter-spacing:1px;
+}
+
+p {
+ line-height:1.7;
+}
+
+.muted {
+ color:var(--muted);
+ line-height:1.7;
+}
+
+.small {
+ font-size:11px;
+ color:var(--muted);
+}
+
+.grid {
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:18px;
 }
 
 .field {
-  margin: 13px 0;
+ margin:14px 0;
 }
 
 .field label {
-  display: block;
-  color: var(--muted);
-  font-size: 11px;
-  margin-bottom: 7px;
-  text-transform: uppercase;
-}
-
-#questionText {
-  font-size: clamp(19px, 3vw, 27px);
-  line-height: 1.45;
-  margin: 12px 0 24px;
-}
-
-.answers {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.answer {
-  text-align: left;
-  min-height: 62px;
-  text-transform: none;
-  letter-spacing: 0;
-  line-height: 1.5;
-  padding: 14px;
-}
-
-.answer.correct {
-  border-color: var(--green);
-  color: var(--green);
-  background: #17271a;
-}
-
-.answer.wrong {
-  border-color: var(--red);
-  color: var(--red);
-  background: #281614;
-}
-
-#feedback {
-  margin-top: 18px;
-  padding: 14px;
-  border: 1px solid var(--line);
-  line-height: 1.7;
-}
-
-#feedback.good {
-  border-color: var(--green);
-}
-
-#feedback.bad {
-  border-color: var(--red);
+ display:block;
+ color:var(--muted);
+ font-size:10px;
+ margin-bottom:7px;
+ letter-spacing:1px;
 }
 
 .stat-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+ display:grid;
+ grid-template-columns:repeat(3,1fr);
+ gap:10px;
 }
 
 .stat {
-  background: #080e0a;
-  border: 1px solid var(--line);
-  padding: 14px;
-}
-
-.stat-value {
-  color: var(--green);
-  font-size: 25px;
-  margin-top: 8px;
+ padding:14px;
+ background:#080e0a;
+ border:1px solid var(--line);
 }
 
 .stat-label {
-  font-size: 10px;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 1px;
+ color:var(--muted);
+ font-size:10px;
+ letter-spacing:1px;
 }
 
-.player-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 11px 5px;
-  border-bottom: 1px solid #28372b;
+.stat-value {
+ color:var(--green);
+ font-size:26px;
+ margin-top:8px;
 }
 
-.player-row:last-child {
-  border-bottom: 0;
+.actions {
+ display:flex;
+ gap:10px;
+ flex-wrap:wrap;
+ margin-top:15px;
 }
 
-.player-name {
-  overflow-wrap: anywhere;
+.question-category {
+ color:var(--yellow);
+ font-size:11px;
+ letter-spacing:2px;
 }
 
-.player-score {
-  color: var(--green);
-  white-space: nowrap;
+.question-number {
+ color:var(--muted);
+ font-size:11px;
+ margin:12px 0;
 }
 
-.online-dot {
-  color: var(--green);
-  margin-right: 8px;
+.question-text {
+ font-size:clamp(20px,3vw,29px);
+ line-height:1.5;
+ margin:15px 0 25px;
+}
+
+.answers {
+ display:grid;
+ grid-template-columns:1fr;
+ gap:9px;
+}
+
+.answer-button {
+ width:100%;
+ text-align:left;
+ text-transform:none;
+ letter-spacing:0;
+ padding:15px;
+ line-height:1.5;
+}
+
+.answer-button.correct {
+ border-color:var(--green);
+ color:var(--green);
+ background:#17271a;
+}
+
+.answer-button.wrong {
+ border-color:var(--red);
+ color:var(--red);
+ background:#281614;
+}
+
+.feedback {
+ border:1px solid var(--line);
+ padding:15px;
+ margin-top:18px;
+ line-height:1.7;
+}
+
+.feedback.good {
+ border-color:var(--green);
+}
+
+.feedback.bad {
+ border-color:var(--red);
+}
+
+.explanation-title {
+ color:var(--yellow);
+ margin-top:12px;
+ font-size:11px;
+ letter-spacing:1px;
+}
+
+.leader-row {
+ display:grid;
+ grid-template-columns:35px 1fr auto;
+ gap:10px;
+ align-items:center;
+ padding:12px 4px;
+ border-bottom:1px solid #28372b;
+}
+
+.leader-position {
+ color:var(--yellow);
+}
+
+.leader-name {
+ overflow-wrap:anywhere;
+}
+
+.leader-score {
+ color:var(--green);
+ white-space:nowrap;
+}
+
+.import-info {
+ border:1px solid var(--line);
+ background:#080e0a;
+ color:var(--muted);
+ padding:12px;
+ font-size:11px;
+ line-height:1.7;
+ margin:12px 0;
+ overflow-wrap:anywhere;
+}
+
+.database-counts {
+ display:grid;
+ grid-template-columns:1fr 1fr 1fr;
+ gap:8px;
+ margin-top:15px;
+}
+
+.database-count {
+ padding:10px;
+ background:#080e0a;
+ border:1px solid var(--line);
+}
+
+.database-count strong {
+ display:block;
+ color:var(--green);
+ font-size:20px;
+ margin-top:5px;
+}
+
+.status {
+ font-size:12px;
+ color:var(--yellow);
+ min-height:20px;
+ margin:15px 0;
+ overflow-wrap:anywhere;
 }
 
 footer {
-  max-width: 1100px;
-  margin: 40px auto 0;
-  padding: 20px;
-  border-top: 1px solid var(--line);
-  color: var(--muted);
-  font-size: 10px;
-  letter-spacing: 1px;
+ max-width:1150px;
+ margin:35px auto 0;
+ padding:20px;
+ border-top:1px solid var(--line);
+ color:var(--muted);
+ font-size:10px;
+ letter-spacing:1px;
 }
 
-#status {
-  color: var(--yellow);
-  font-size: 11px;
-}
-
-@media(max-width: 720px) {
-  .grid, .answers {
-    grid-template-columns: 1fr;
-  }
-  main {
-    margin-top: 18px;
-    padding: 0 12px;
-  }
-  .panel-body {
-    padding: 15px;
-  }
+@media(max-width:720px) {
+ .grid {
+  grid-template-columns:1fr;
+ }
+ main {
+  margin-top:18px;
+  padding:0 12px;
+ }
+ .panel-body {
+  padding:15px;
+ }
+ .stat-grid {
+  gap:6px;
+ }
+ .stat {
+  padding:10px;
+ }
+ .stat-value {
+  font-size:21px;
+ }
+ header {
+  padding:14px;
+ }
+ .logo {
+  font-size:12px;
+ }
 }
 </style>
 </head>
@@ -314,825 +1296,198 @@ footer {
 <body>
 
 <header>
-  <div class="logo">INGWERPERIUM // BOTANY SYSTEM</div>
-  <div class="header-right">
-    <span id="connection">SYSTEM OFFLINE</span>
-    <button onclick="toggleLanguage()" id="languageButton">DEUTSCH</button>
-  </div>
+ <div class="logo">INGWERPERIUM // BOTANY SYSTEM</div>
+ <div class="header-right">
+  <span id="connectionStatus">CONNECTING...</span>
+  <button id="languageButton">DEUTSCH</button>
+ </div>
 </header>
 
 <main>
 
-  <section id="home">
-    <div class="panel">
-      <div class="panel-head" data-i18n="system">SYSTEM OVERVIEW</div>
-      <div class="panel-body">
-        <div class="small muted">BOTANY DATABASE / MULTIPLAYER MODULE 01</div>
-        <h1 data-i18n="title">THE PLANT KNOWLEDGE SYSTEM</h1>
-        <p class="muted" data-i18n="intro">
-          Explore the world of plants. Answer questions, learn new facts and compete with other researchers.
-          The database never ends.
-        </p>
-        <div class="stat-grid">
-          <div class="stat">
-            <div class="stat-label" data-i18n="questions">DATABASE QUESTIONS</div>
-            <div class="stat-value" id="questionCount">--</div>
-          </div>
-          <div class="stat">
-            <div class="stat-label" data-i18n="mode">GAME MODE</div>
-            <div class="stat-value" style="font-size:16px" data-i18n="endless">ENDLESS</div>
-          </div>
-          <div class="stat">
-            <div class="stat-label" data-i18n="players">PLAYERS</div>
-            <div class="stat-value" style="font-size:16px" data-i18n="unlimited">UNLIMITED</div>
-          </div>
-        </div>
-      </div>
+<section id="lobby">
+
+ <div class="panel">
+  <div class="panel-head">SYSTEM OVERVIEW // MODULE 01</div>
+  <div class="panel-body">
+   <div class="small">BOTANY DATABASE / COMMUNITY MULTIPLAYER</div>
+   <h1 data-text="title">THE PLANT KNOWLEDGE SYSTEM</h1>
+   <p class="muted" data-text="subtitle">INGWERPERIUM COMMUNITY DATABASE / ENDLESS MULTIPLAYER QUIZ</p>
+
+   <div class="stat-grid" style="margin-top:22px">
+    <div class="stat">
+     <div class="stat-label">TOTAL QUESTIONS</div>
+     <div class="stat-value" id="totalCount">36</div>
     </div>
-
-    <div class="grid">
-      <div class="panel">
-        <div class="panel-head" data-i18n="createRoom">CREATE A NEW SESSION</div>
-        <div class="panel-body">
-          <div class="field">
-            <label data-i18n="yourName">YOUR RESEARCHER NAME</label>
-            <input id="createName" maxlength="20" placeholder="Researcher_01">
-          </div>
-          <button onclick="createRoom()" data-i18n="createButton">CREATE SESSION</button>
-        </div>
-      </div>
-
-      <div class="panel">
-        <div class="panel-head" data-i18n="joinRoom">JOIN EXISTING SESSION</div>
-        <div class="panel-body">
-          <div class="field">
-            <label data-i18n="yourName">YOUR RESEARCHER NAME</label>
-            <input id="joinName" maxlength="20" placeholder="Researcher_02">
-          </div>
-          <div class="field">
-            <label data-i18n="roomCode">SESSION CODE</label>
-            <input id="roomCodeInput" maxlength="6" placeholder="ABC123">
-          </div>
-          <button onclick="joinRoom()" data-i18n="joinButton">JOIN SESSION</button>
-        </div>
-      </div>
+    <div class="stat">
+     <div class="stat-label">GAME MODE</div>
+     <div class="stat-value" style="font-size:17px">ENDLESS</div>
     </div>
-  </section>
-
-  <section id="game" class="hidden">
-    <div class="panel">
-      <div class="panel-head">
-        <span data-i18n="activeSession">ACTIVE SESSION</span>
-        <span style="float:right" id="roomDisplay">------</span>
-      </div>
-      <div class="panel-body">
-        <div class="small muted" data-i18n="sessionInfo">SHARED RESEARCH ENVIRONMENT / LIVE CONNECTION</div>
-        <h1 data-i18n="research">PLANT RESEARCH</h1>
-        <div class="actions">
-          <button onclick="copyRoomCode()" data-i18n="copyCode">COPY SESSION CODE</button>
-          <button onclick="leaveRoom()" data-i18n="leave">LEAVE SESSION</button>
-        </div>
-      </div>
+    <div class="stat">
+     <div class="stat-label">PLAYERS</div>
+     <div class="stat-value" style="font-size:17px">UNLIMITED</div>
     </div>
+   </div>
+  </div>
+ </div>
 
-    <div class="grid">
-      <div>
-        <div class="panel">
-          <div class="panel-head" data-i18n="questionPanel">KNOWLEDGE TEST</div>
-          <div class="panel-body">
-            <div class="small muted" id="questionCategory">BOTANY / GENERAL</div>
-            <h2 id="questionNumber">QUESTION 001</h2>
-            <div id="questionText">Loading question...</div>
-            <div class="answers" id="answers"></div>
-            <div id="feedback" class="hidden"></div>
-            <div class="actions">
-              <button id="nextButton" class="hidden" onclick="nextQuestion()" data-i18n="next">NEXT QUESTION</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="panel">
-          <div class="panel-head" data-i18n="personalStats">YOUR RESEARCH DATA</div>
-          <div class="panel-body">
-            <div class="stat-grid">
-              <div class="stat">
-                <div class="stat-label" data-i18n="score">TOTAL SCORE</div>
-                <div class="stat-value" id="myScore">0</div>
-              </div>
-              <div class="stat">
-                <div class="stat-label" data-i18n="answered">ANSWERED</div>
-                <div class="stat-value" id="myAnswered">0</div>
-              </div>
-              <div class="stat">
-                <div class="stat-label" data-i18n="accuracy">ACCURACY</div>
-                <div class="stat-value" id="myAccuracy">0%</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <div class="panel">
-          <div class="panel-head" data-i18n="leaderboard">LIVE LEADERBOARD</div>
-          <div class="panel-body">
-            <div id="playerList" class="muted">Waiting for researchers...</div>
-          </div>
-        </div>
-
-        <div class="panel">
-          <div class="panel-head" data-i18n="database">DATABASE INFORMATION</div>
-          <div class="panel-body">
-            <h2 data-i18n="endlessResearch">ENDLESS RESEARCH</h2>
-            <p class="muted" data-i18n="databaseInfo">
-              Every researcher progresses independently. Scores are shared with everyone in this session.
-              There is no final round.
-            </p>
-            <div class="small muted" id="playerCount">0 PLAYERS CONNECTED</div>
-          </div>
-        </div>
-      </div>
+ <div class="grid">
+  <div class="panel">
+   <div class="panel-head" data-text="createTitle">NEW RESEARCH SESSION</div>
+   <div class="panel-body">
+    <div class="field">
+     <label data-text="name">RESEARCHER NAME</label>
+     <input id="createName" maxlength="24" placeholder="Researcher_01">
     </div>
-  </section>
+    <button id="createButton" data-text="create">CREATE SESSION</button>
+   </div>
+  </div>
 
-  <p id="status"></p>
+  <div class="panel">
+   <div class="panel-head" data-text="joinTitle">JOIN EXISTING SESSION</div>
+   <div class="panel-body">
+    <div class="field">
+     <label data-text="name">RESEARCHER NAME</label>
+     <input id="joinName" maxlength="24" placeholder="Researcher_02">
+    </div>
+    <div class="field">
+     <label data-text="code">SESSION CODE</label>
+     <input id="roomCode" maxlength="6" placeholder="ABC123">
+    </div>
+    <button id="joinButton" data-text="join">JOIN SESSION</button>
+   </div>
+  </div>
+ </div>
+
+</section>
+
+<section id="game" class="hidden">
+
+ <div class="panel">
+  <div class="panel-head">
+   <span data-text="active">ACTIVE SESSION</span>
+   <span style="float:right" id="roomCodeDisplay"></span>
+  </div>
+  <div class="panel-body">
+   <div class="small">CONNECTED RESEARCHER</div>
+   <h1 id="researcherDisplay">RESEARCHER</h1>
+   <div class="actions">
+    <button id="copyButton" data-text="copy">COPY SESSION CODE</button>
+    <button id="leaveButton" data-text="leave">LEAVE SESSION</button>
+   </div>
+  </div>
+ </div>
+
+ <div class="grid">
+
+  <div>
+   <div class="panel">
+    <div class="panel-head" data-text="question">KNOWLEDGE TEST</div>
+    <div class="panel-body">
+     <div class="question-category" id="questionCategory">BOTANY</div>
+     <div class="question-number" id="questionNumber">QUESTION 0001</div>
+     <div class="question-text" id="questionText">Loading...</div>
+     <div class="small" id="answerPrompt">SELECT YOUR ANSWER</div>
+     <div class="answers" id="answerOptions"></div>
+     <div class="feedback hidden" id="feedback"></div>
+     <div class="actions">
+      <button id="nextButton" class="hidden" data-text="next">NEXT QUESTION</button>
+     </div>
+    </div>
+   </div>
+
+   <div class="panel">
+    <div class="panel-head">PERSONAL RESEARCH DATA</div>
+    <div class="panel-body">
+     <div class="stat-grid">
+      <div class="stat">
+       <div class="stat-label" data-text="score">TOTAL SCORE</div>
+       <div class="stat-value" id="myScore">0</div>
+      </div>
+      <div class="stat">
+       <div class="stat-label" data-text="answered">ANSWERED</div>
+       <div class="stat-value" id="myAnswered">0</div>
+      </div>
+      <div class="stat">
+       <div class="stat-label" data-text="accuracy">ACCURACY</div>
+       <div class="stat-value" id="myAccuracy">0%</div>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+
+  <div>
+   <div class="panel">
+    <div class="panel-head" data-text="leaderboard">LIVE LEADERBOARD</div>
+    <div class="panel-body">
+     <div id="leaderboardList" class="muted">No researchers connected.</div>
+     <div class="small" style="margin-top:15px">
+      <span id="playerCount">0</span> <span data-text="players">PLAYERS</span>
+     </div>
+    </div>
+   </div>
+
+   <div class="panel">
+    <div class="panel-head" data-text="database">QUESTION DATABASE</div>
+    <div class="panel-body">
+     <div class="small">DATABASE STATUS / LIVE SESSION</div>
+     <div class="database-counts">
+      <div class="database-count">
+       <span class="small" data-text="builtIn">BUILT-IN</span>
+       <strong id="builtInCount">36</strong>
+      </div>
+      <div class="database-count">
+       <span class="small" data-text="custom">COMMUNITY</span>
+       <strong id="customCount">0</strong>
+      </div>
+      <div class="database-count">
+       <span class="small">TOTAL</span>
+       <strong id="totalCount">36</strong>
+      </div>
+     </div>
+     <p class="muted small" style="margin-top:14px">
+      Questions are selected randomly. There is no final round.
+     </p>
+    </div>
+   </div>
+
+   <div class="panel">
+    <div class="panel-head" data-text="import">IMPORT TXT QUESTIONS</div>
+    <div class="panel-body">
+     <p class="muted small" data-text="importInfo">
+      Format: Question;Correct answer;Wrong answer 2;Wrong answer 3
+     </p>
+     <div class="import-info">
+      Question;Correct answer;Wrong answer 2;Wrong answer 3<br>
+      Which tree produces acorns?;Oak;Birch;Maple<br>
+      Welcher Baum bildet Eicheln?;Eiche;Birke;Ahorn
+     </div>
+     <div class="field">
+      <label data-text="chooseFile">SELECT TXT FILE</label>
+      <input type="file" id="questionFile" accept=".txt,text/plain">
+     </div>
+     <div class="actions">
+      <button id="importButton" data-text="importButton">IMPORT QUESTIONS</button>
+      <button id="exportButton" data-text="export">EXPORT FORMAT</button>
+     </div>
+     <p class="muted small" style="margin-top:12px">
+      Imported questions are shared with everyone in this session.
+     </p>
+    </div>
+   </div>
+
+  </div>
+ </div>
+</section>
+
+<div class="status" id="statusMessage"></div>
+
 </main>
 
 <footer>
-  INGWERPERIUM HUB // BOTANY SYSTEM // BUILD 1.0 // FIREBASE MULTIPLAYER
+ INGWERPERIUM HUB // BOTANY SYSTEM // BUILD 2.0 // ENDLESS COMMUNITY DATABASE
 </footer>
-
-<script>
-// --------------------------------------------------
-// FIREBASE CONFIGURATION
-// Replace this object with your existing Firebase config.
-// --------------------------------------------------
-
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  appId: "YOUR_APP_ID"
-};
-
-firebase.initializeApp(firebaseConfig);
-
-const auth = firebase.auth();
-const db = firebase.firestore();
-
-let currentUser = null;
-let currentRoom = null;
-let currentPlayer = null;
-let playerData = null;
-let playerListener = null;
-let playersListener = null;
-let currentQuestion = null;
-let answered = false;
-let language = "en";
-let playersCache = [];
-
-// --------------------------------------------------
-// TRANSLATIONS
-// --------------------------------------------------
-
-const translations = {
-  en: {
-    system: "SYSTEM OVERVIEW",
-    title: "THE PLANT KNOWLEDGE SYSTEM",
-    intro: "Explore the world of plants. Answer questions, learn new facts and compete with other researchers. The database never ends.",
-    questions: "DATABASE QUESTIONS",
-    mode: "GAME MODE",
-    endless: "ENDLESS",
-    players: "PLAYERS",
-    unlimited: "UNLIMITED",
-    createRoom: "CREATE A NEW SESSION",
-    joinRoom: "JOIN EXISTING SESSION",
-    yourName: "YOUR RESEARCHER NAME",
-    roomCode: "SESSION CODE",
-    createButton: "CREATE SESSION",
-    joinButton: "JOIN SESSION",
-    activeSession: "ACTIVE SESSION",
-    sessionInfo: "SHARED RESEARCH ENVIRONMENT / LIVE CONNECTION",
-    research: "PLANT RESEARCH",
-    copyCode: "COPY SESSION CODE",
-    leave: "LEAVE SESSION",
-    questionPanel: "KNOWLEDGE TEST",
-    personalStats: "YOUR RESEARCH DATA",
-    score: "TOTAL SCORE",
-    answered: "ANSWERED",
-    accuracy: "ACCURACY",
-    leaderboard: "LIVE LEADERBOARD",
-    database: "DATABASE INFORMATION",
-    endlessResearch: "ENDLESS RESEARCH",
-    databaseInfo: "Every researcher progresses independently. Scores are shared with everyone in this session. There is no final round.",
-    next: "NEXT QUESTION",
-    correct: "CORRECT ANSWER",
-    incorrect: "INCORRECT ANSWER",
-    explanation: "EXPLANATION",
-    points: "POINTS",
-    waiting: "Waiting for researchers...",
-    connected: "CONNECTED",
-    noRoom: "Session not found.",
-    nameRequired: "Please enter a researcher name.",
-    codeRequired: "Please enter a session code.",
-    connectionError: "Connection error. Check your Firebase settings.",
-    copied: "Session code copied.",
-    playersConnected: "PLAYERS CONNECTED",
-    question: "QUESTION",
-    loading: "Loading question...",
-    alreadyAnswered: "You have already answered this question."
-  },
-  de: {
-    system: "SYSTEMÜBERSICHT",
-    title: "DAS PFLANZEN-WISSENSSYSTEM",
-    intro: "Erkunde die Welt der Pflanzen. Beantworte Fragen, lerne Neues und tritt gegen andere Forscher an. Die Datenbank endet nie.",
-    questions: "DATENBANKFRAGEN",
-    mode: "SPIELMODUS",
-    endless: "ENDLOS",
-    players: "SPIELER",
-    unlimited: "UNBEGRENZT",
-    createRoom: "NEUE SITZUNG ERSTELLEN",
-    joinRoom: "SITZUNG BEITRETEN",
-    yourName: "DEIN FORSCHERNAME",
-    roomCode: "SITZUNGSCODE",
-    createButton: "SITZUNG ERSTELLEN",
-    joinButton: "SITZUNG BEITRETEN",
-    activeSession: "AKTIVE SITZUNG",
-    sessionInfo: "GEMEINSAME FORSCHUNGSUMGEBUNG / LIVE-VERBINDUNG",
-    research: "PFLANZENFORSCHUNG",
-    copyCode: "SITZUNGSCODE KOPIEREN",
-    leave: "SITZUNG VERLASSEN",
-    questionPanel: "WISSENSTEST",
-    personalStats: "DEINE FORSCHUNGSDATEN",
-    score: "GESAMTPUNKTE",
-    answered: "BEANTWORTET",
-    accuracy: "TREFFERQUOTE",
-    leaderboard: "LIVE-RANGLISTE",
-    database: "DATENBANKINFORMATION",
-    endlessResearch: "ENDLOSE FORSCHUNG",
-    databaseInfo: "Jeder Forscher macht unabhängig Fortschritte. Die Punktestände werden mit allen in dieser Sitzung geteilt. Es gibt keine letzte Runde.",
-    next: "NÄCHSTE FRAGE",
-    correct: "RICHTIGE ANTWORT",
-    incorrect: "FALSCHE ANTWORT",
-    explanation: "ERKLÄRUNG",
-    points: "PUNKTE",
-    waiting: "Warte auf Forscher...",
-    connected: "VERBUNDEN",
-    noRoom: "Sitzung nicht gefunden.",
-    nameRequired: "Bitte gib einen Forschernamen ein.",
-    codeRequired: "Bitte gib einen Sitzungscode ein.",
-    connectionError: "Verbindungsfehler. Prüfe deine Firebase-Einstellungen.",
-    copied: "Sitzungscode kopiert.",
-    playersConnected: "SPIELER VERBUNDEN",
-    question: "FRAGE",
-    loading: "Frage wird geladen...",
-    alreadyAnswered: "Du hast diese Frage bereits beantwortet."
-  }
-};
-
-function t(key) {
-  return translations[language][key] || key;
-}
-
-function toggleLanguage() {
-  language = language === "en" ? "de" : "en";
-  document.getElementById("languageButton").textContent =
-    language === "en" ? "DEUTSCH" : "ENGLISH";
-
-  document.querySelectorAll("[data-i18n]").forEach(el => {
-    const key = el.dataset.i18n;
-    el.textContent = t(key);
-  });
-
-  if (currentQuestion) renderQuestion();
-  renderPlayers();
-  renderStats();
-}
-
-// --------------------------------------------------
-// QUESTION DATABASE
-// Add more questions here whenever you want.
-// --------------------------------------------------
-
-const questions = [
-  {
-    category: "BOTANY / BIOLOGY",
-    q: ["What process allows plants to convert sunlight into chemical energy?", "Welcher Prozess ermöglicht Pflanzen, Sonnenlicht in chemische Energie umzuwandeln?"],
-    a: [["Photosynthesis", "Fermentation", "Respiration", "Transpiration"], ["Fotosynthese", "Gärung", "Atmung", "Transpiration"]],
-    correct: 0,
-    e: ["Photosynthesis uses light energy to convert water and carbon dioxide into sugars and oxygen.", "Bei der Fotosynthese wird Lichtenergie genutzt, um Wasser und Kohlenstoffdioxid in Zucker und Sauerstoff umzuwandeln."]
-  },
-  {
-    category: "PLANT ANATOMY",
-    q: ["Which part of a plant absorbs most of its water?", "Welcher Teil einer Pflanze nimmt den größten Teil des Wassers auf?"],
-    a: [["Leaves", "Roots", "Flowers", "Fruits"], ["Blätter", "Wurzeln", "Blüten", "Früchte"]],
-    correct: 1,
-    e: ["Root hairs greatly increase the surface area available for water absorption.", "Wurzelhaare vergrößern die Oberfläche, über die Wasser aufgenommen werden kann."]
-  },
-  {
-    category: "BOTANY / BIOLOGY",
-    q: ["What is the green pigment in plants called?", "Wie heißt der grüne Farbstoff in Pflanzen?"],
-    a: [["Melanin", "Chlorophyll", "Keratin", "Carotene"], ["Melanin", "Chlorophyll", "Keratin", "Carotin"]],
-    correct: 1,
-    e: ["Chlorophyll absorbs light energy and gives many plants their green color.", "Chlorophyll absorbiert Lichtenergie und verleiht vielen Pflanzen ihre grüne Farbe."]
-  },
-  {
-    category: "PLANT ECOLOGY",
-    q: ["What is a plant called that grows on another plant without taking nutrients from it?", "Wie nennt man eine Pflanze, die auf einer anderen Pflanze wächst, ohne ihr Nährstoffe zu entziehen?"],
-    a: [["Parasite", "Epiphyte", "Carnivore", "Herb"], ["Parasit", "Epiphyt", "Karnivore", "Kraut"]],
-    correct: 1,
-    e: ["Epiphytes use other plants as support but usually obtain water and nutrients from their surroundings.", "Epiphyten nutzen andere Pflanzen als Halt, beziehen Wasser und Nährstoffe aber meist aus ihrer Umgebung."]
-  },
-  {
-    category: "PLANT ANATOMY",
-    q: ["Which tissue transports water from roots to leaves?", "Welches Gewebe transportiert Wasser von den Wurzeln zu den Blättern?"],
-    a: [["Phloem", "Xylem", "Epidermis", "Cortex"], ["Phloem", "Xylem", "Epidermis", "Rinde"]],
-    correct: 1,
-    e: ["Xylem transports water and dissolved minerals through the plant.", "Das Xylem transportiert Wasser und darin gelöste Mineralstoffe durch die Pflanze."]
-  },
-  {
-    category: "PLANT ECOLOGY",
-    q: ["What is the main function of a flower?", "Was ist die Hauptfunktion einer Blüte?"],
-    a: [["Water storage", "Reproduction", "Photosynthesis only", "Root growth"], ["Wasserspeicherung", "Fortpflanzung", "Nur Fotosynthese", "Wurzelwachstum"]],
-    correct: 1,
-    e: ["Flowers are reproductive structures that can produce seeds after fertilization.", "Blüten dienen der Fortpflanzung und können nach der Befruchtung Samen hervorbringen."]
-  },
-  {
-    category: "PLANT SCIENCE",
-    q: ["Which gas do plants absorb during photosynthesis?", "Welches Gas nehmen Pflanzen bei der Fotosynthese auf?"],
-    a: [["Oxygen", "Nitrogen", "Carbon dioxide", "Hydrogen"], ["Sauerstoff", "Stickstoff", "Kohlenstoffdioxid", "Wasserstoff"]],
-    correct: 2,
-    e: ["Plants take in carbon dioxide and use it to build organic molecules.", "Pflanzen nehmen Kohlenstoffdioxid auf und verwenden es zum Aufbau organischer Stoffe."]
-  },
-  {
-    category: "PLANT BIOLOGY",
-    q: ["What is the term for the loss of water vapor from leaves?", "Wie nennt man die Abgabe von Wasserdampf über Blätter?"],
-    a: [["Germination", "Transpiration", "Pollination", "Dormancy"], ["Keimung", "Transpiration", "Bestäubung", "Ruhephase"]],
-    correct: 1,
-    e: ["Transpiration is the evaporation of water, mainly through tiny openings called stomata.", "Transpiration ist die Abgabe von Wasser, hauptsächlich über kleine Öffnungen namens Spaltöffnungen."]
-  },
-  {
-    category: "PLANT SCIENCE",
-    q: ["Which nutrient is especially important for leaf growth?", "Welcher Nährstoff ist besonders wichtig für das Blattwachstum?"],
-    a: [["Nitrogen", "Sodium", "Chlorine", "Lead"], ["Stickstoff", "Natrium", "Chlor", "Blei"]],
-    correct: 0,
-    e: ["Nitrogen is a key component of proteins and chlorophyll.", "Stickstoff ist ein wichtiger Bestandteil von Proteinen und Chlorophyll."]
-  },
-  {
-    category: "PLANT ECOLOGY",
-    q: ["What is pollination?", "Was ist Bestäubung?"],
-    a: [["Movement of pollen to a stigma", "Growth of roots", "Release of seeds", "Absorption of water"], ["Übertragung von Pollen auf eine Narbe", "Wachstum der Wurzeln", "Freisetzung von Samen", "Aufnahme von Wasser"]],
-    correct: 0,
-    e: ["Pollination is the transfer of pollen from an anther to a receptive stigma.", "Bei der Bestäubung gelangt Pollen von einem Staubbeutel auf eine empfängliche Narbe."]
-  },
-  {
-    category: "PLANT DIVERSITY",
-    q: ["Which plant group reproduces using spores rather than seeds?", "Welche Pflanzengruppe vermehrt sich durch Sporen statt durch Samen?"],
-    a: [["Ferns", "Conifers", "Flowering plants", "Legumes"], ["Farne", "Nadelbäume", "Blütenpflanzen", "Hülsenfrüchtler"]],
-    correct: 0,
-    e: ["Ferns reproduce using spores and do not produce flowers or seeds.", "Farne vermehren sich durch Sporen und bilden weder Blüten noch Samen."]
-  },
-  {
-    category: "PLANT BIOLOGY",
-    q: ["What is seed germination?", "Was bedeutet Samenkeimung?"],
-    a: [["The beginning of growth from a seed", "The death of a leaf", "The formation of pollen", "The drying of fruit"], ["Der Beginn des Wachstums aus einem Samen", "Das Absterben eines Blattes", "Die Bildung von Pollen", "Das Trocknen einer Frucht"]],
-    correct: 0,
-    e: ["Germination begins when a viable seed starts to grow under suitable conditions.", "Keimung beginnt, wenn ein lebensfähiger Samen unter geeigneten Bedingungen zu wachsen anfängt."]
-  },
-  {
-    category: "PLANT DIVERSITY",
-    q: ["Which of these is a carnivorous plant?", "Welche dieser Pflanzen ist eine fleischfressende Pflanze?"],
-    a: [["Venus flytrap", "Oak tree", "Sunflower", "Lavender"], ["Venusfliegenfalle", "Eiche", "Sonnenblume", "Lavendel"]],
-    correct: 0,
-    e: ["The Venus flytrap catches insects using modified leaves.", "Die Venusfliegenfalle fängt Insekten mithilfe umgebildeter Blätter."]
-  },
-  {
-    category: "PLANT ECOLOGY",
-    q: ["What is a plant adapted to dry environments called?", "Wie nennt man eine Pflanze, die an trockene Lebensräume angepasst ist?"],
-    a: [["Hydrophyte", "Xerophyte", "Mesophyte", "Epiphyte"], ["Hydrophyt", "Xerophyt", "Mesophyt", "Epiphyt"]],
-    correct: 1,
-    e: ["Xerophytes have adaptations that help them survive with limited water.", "Xerophyten besitzen Anpassungen, die ihnen das Überleben bei wenig Wasser ermöglichen."]
-  },
-  {
-    category: "PLANT ANATOMY",
-    q: ["What are stomata?", "Was sind Stomata?"],
-    a: [["Tiny pores in plant surfaces", "Types of seeds", "Root branches", "Flower petals"], ["Kleine Öffnungen auf Pflanzenoberflächen", "Samenarten", "Wurzelverzweigungen", "Blütenblätter"]],
-    correct: 0,
-    e: ["Stomata regulate gas exchange and water loss in plants.", "Stomata regulieren den Gasaustausch und den Wasserverlust von Pflanzen."]
-  },
-  {
-    category: "PLANT DIVERSITY",
-    q: ["Which plant is well known for fixing nitrogen with bacteria in its roots?", "Welche Pflanzengruppe ist für die Stickstoffbindung mit Bakterien an ihren Wurzeln bekannt?"],
-    a: [["Legumes", "Mosses", "Grasses", "Ferns"], ["Hülsenfrüchtler", "Moose", "Gräser", "Farne"]],
-    correct: 0,
-    e: ["Many legumes form root nodules with bacteria that convert atmospheric nitrogen into usable forms.", "Viele Hülsenfrüchtler bilden Wurzelknöllchen mit Bakterien, die Luftstickstoff in nutzbare Formen umwandeln."]
-  },
-  {
-    category: "PLANT SCIENCE",
-    q: ["Which mineral is important for strong plant cell walls?", "Welcher Mineralstoff ist wichtig für stabile pflanzliche Zellwände?"],
-    a: [["Calcium", "Gold", "Mercury", "Silver"], ["Calcium", "Gold", "Quecksilber", "Silber"]],
-    correct: 0,
-    e: ["Calcium contributes to the structure and stability of cell walls.", "Calcium trägt zur Struktur und Stabilität der Zellwände bei."]
-  },
-  {
-    category: "PLANT ECOLOGY",
-    q: ["What is an organism that helps transfer pollen between flowers?", "Welcher Organismus kann Pollen zwischen Blüten übertragen?"],
-    a: [["Pollinator", "Decomposer", "Predator", "Pathogen"], ["Bestäuber", "Zersetzer", "Räuber", "Krankheitserreger"]],
-    correct: 0,
-    e: ["Bees, butterflies, birds and other animals can act as pollinators.", "Bienen, Schmetterlinge, Vögel und andere Tiere können als Bestäuber wirken."]
-  },
-  {
-    category: "PLANT BIOLOGY",
-    q: ["Which part of a seed develops into the new plant?", "Welcher Teil eines Samens entwickelt sich zur neuen Pflanze?"],
-    a: [["Embryo", "Seed coat", "Fruit wall", "Pollen"], ["Embryo", "Samenschale", "Fruchtwand", "Pollen"]],
-    correct: 0,
-    e: ["The embryo is the young plant contained inside the seed.", "Der Embryo ist die junge Pflanze im Inneren des Samens."]
-  },
-  {
-    category: "PLANT DIVERSITY",
-    q: ["Which of these is a conifer?", "Welche dieser Pflanzen ist ein Nadelbaum?"],
-    a: [["Pine", "Apple", "Rose", "Bean"], ["Kiefer", "Apfelbaum", "Rose", "Bohne"]],
-    correct: 0,
-    e: ["Pines are conifers that produce seeds in cones.", "Kiefern sind Nadelbäume, deren Samen in Zapfen entstehen."]
-  },
-  {
-    category: "PLANT SCIENCE",
-    q: ["What is the main role of phosphorus in plants?", "Welche wichtige Funktion hat Phosphor in Pflanzen?"],
-    a: [["Energy transfer and growth", "Making leaves blue", "Absorbing sound", "Producing oxygen directly"], ["Energieübertragung und Wachstum", "Blätter blau färben", "Schall aufnehmen", "Direkt Sauerstoff erzeugen"]],
-    correct: 0,
-    e: ["Phosphorus is part of ATP and nucleic acids and supports root and reproductive development.", "Phosphor ist Bestandteil von ATP und Nukleinsäuren und unterstützt Wurzel- und Fortpflanzungsentwicklung."]
-  },
-  {
-    category: "PLANT ECOLOGY",
-    q: ["What is a symbiotic relationship between fungi and plant roots called?", "Wie heißt die symbiotische Verbindung zwischen Pilzen und Pflanzenwurzeln?"],
-    a: [["Mycorrhiza", "Photosynthesis", "Transpiration", "Germination"], ["Mykorrhiza", "Fotosynthese", "Transpiration", "Keimung"]],
-    correct: 0,
-    e: ["Mycorrhizal fungi can help plants absorb water and nutrients in exchange for sugars.", "Mykorrhizapilze helfen Pflanzen bei der Aufnahme von Wasser und Nährstoffen und erhalten dafür Zucker."]
-  },
-  {
-    category: "PLANT DIVERSITY",
-    q: ["Which plant is famous for following the sun when young?", "Welche Pflanze ist dafür bekannt, sich im jungen Stadium zur Sonne auszurichten?"],
-    a: [["Sunflower", "Cactus", "Fern", "Moss"], ["Sonnenblume", "Kaktus", "Farn", "Moos"]],
-    correct: 0,
-    e: ["Young sunflower heads can track the sun through a process called heliotropism.", "Junge Sonnenblumen können der Sonne durch einen Prozess namens Heliotropismus folgen."]
-  },
-  {
-    category: "PLANT BIOLOGY",
-    q: ["What is the function of fruit in many flowering plants?", "Welche Funktion hat die Frucht bei vielen Blütenpflanzen?"],
-    a: [["Protecting and dispersing seeds", "Absorbing sunlight", "Making roots", "Producing chlorophyll"], ["Samen schützen und verbreiten", "Sonnenlicht aufnehmen", "Wurzeln bilden", "Chlorophyll herstellen"]],
-    correct: 0,
-    e: ["Fruits protect developing seeds and often help with their dispersal.", "Früchte schützen heranwachsende Samen und unterstützen häufig deren Verbreitung."]
-  }
-];
-
-document.getElementById("questionCount").textContent = questions.length;
-
-// --------------------------------------------------
-// AUTHENTICATION
-// --------------------------------------------------
-
-auth.signInAnonymously().then(result => {
-  currentUser = result.user;
-  document.getElementById("connection").textContent = t("connected");
-}).catch(error => {
-  showStatus(t("connectionError") + " " + error.message);
-});
-
-// --------------------------------------------------
-// ROOM MANAGEMENT
-// --------------------------------------------------
-
-function makeCode() {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let code = "";
-  for (let i = 0; i < 6; i++) {
-    code += chars[Math.floor(Math.random() * chars.length)];
-  }
-  return code;
-}
-
-function cleanName(value) {
-  return value.trim().replace(/[.#$/[\]]/g, "").slice(0, 20);
-}
-
-async function createRoom() {
-  if (!currentUser) return showStatus("Connecting to Firebase...");
-  const name = cleanName(document.getElementById("createName").value);
-  if (!name) return showStatus(t("nameRequired"));
-
-  try {
-    let code = makeCode();
-    let roomRef = db.collection("plantRooms").doc(code);
-    let existing = await roomRef.get();
-
-    while (existing.exists) {
-      code = makeCode();
-      roomRef = db.collection("plantRooms").doc(code);
-      existing = await roomRef.get();
-    }
-
-    await roomRef.set({
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      createdBy: currentUser.uid,
-      active: true
-    });
-
-    await enterRoom(code, name);
-  } catch (error) {
-    showStatus(t("connectionError") + " " + error.message);
-  }
-}
-
-async function joinRoom() {
-  if (!currentUser) return showStatus("Connecting to Firebase...");
-  const name = cleanName(document.getElementById("joinName").value);
-  const code = document.getElementById("roomCodeInput").value.trim().toUpperCase();
-
-  if (!name) return showStatus(t("nameRequired"));
-  if (!code) return showStatus(t("codeRequired"));
-
-  try {
-    const room = await db.collection("plantRooms").doc(code).get();
-    if (!room.exists) return showStatus(t("noRoom"));
-    await enterRoom(code, name);
-  } catch (error) {
-    showStatus(t("connectionError") + " " + error.message);
-  }
-}
-
-async function enterRoom(code, name) {
-  currentRoom = code;
-  currentPlayer = currentUser.uid;
-
-  const playerRef = db.collection("plantRooms")
-    .doc(code)
-    .collection("players")
-    .doc(currentPlayer);
-
-  const oldData = await playerRef.get();
-
-  if (oldData.exists) {
-    await playerRef.update({
-      name,
-      online: true,
-      lastSeen: firebase.firestore.FieldValue.serverTimestamp()
-    });
-  } else {
-    await playerRef.set({
-      name,
-      score: 0,
-      answered: 0,
-      correct: 0,
-      questionIndex: 0,
-      online: true,
-      lastSeen: firebase.firestore.FieldValue.serverTimestamp()
-    });
-  }
-
-  document.getElementById("home").classList.add("hidden");
-  document.getElementById("game").classList.remove("hidden");
-  document.getElementById("roomDisplay").textContent = code;
-
-  listenToPlayer();
-  listenToPlayers();
-  showNextQuestion();
-}
-
-function listenToPlayer() {
-  if (playerListener) playerListener();
-
-  playerListener = db.collection("plantRooms")
-    .doc(currentRoom)
-    .collection("players")
-    .doc(currentPlayer)
-    .onSnapshot(snapshot => {
-      if (!snapshot.exists) return;
-      playerData = snapshot.data();
-      renderStats();
-    });
-}
-
-function listenToPlayers() {
-  if (playersListener) playersListener();
-
-  playersListener = db.collection("plantRooms")
-    .doc(currentRoom)
-    .collection("players")
-    .onSnapshot(snapshot => {
-      playersCache = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      renderPlayers();
-    });
-}
-
-async function leaveRoom() {
-  if (currentRoom && currentPlayer) {
-    try {
-      await db.collection("plantRooms")
-        .doc(currentRoom)
-        .collection("players")
-        .doc(currentPlayer)
-        .update({ online: false });
-    } catch (e) {}
-  }
-
-  if (playerListener) playerListener();
-  if (playersListener) playersListener();
-
-  currentRoom = null;
-  currentPlayer = null;
-  playerData = null;
-  currentQuestion = null;
-  answered = false;
-
-  document.getElementById("game").classList.add("hidden");
-  document.getElementById("home").classList.remove("hidden");
-  showStatus("");
-}
-
-async function copyRoomCode() {
-  if (!currentRoom) return;
-  try {
-    await navigator.clipboard.writeText(currentRoom);
-    showStatus(t("copied"));
-  } catch (e) {
-    showStatus("CODE: " + currentRoom);
-  }
-}
-
-// --------------------------------------------------
-// ENDLESS QUESTION SYSTEM
-// --------------------------------------------------
-
-function getQuestionIndex(index) {
-  // Every researcher gets a different starting order.
-  // The question pool repeats forever.
-  const offset = currentPlayer
-    .split("")
-    .reduce((sum, char) => sum + char.charCodeAt(0), 0);
-
-  return (index * 7 + offset) % questions.length;
-}
-
-function showNextQuestion() {
-  if (!playerData) {
-    setTimeout(showNextQuestion, 400);
-    return;
-  }
-
-  answered = false;
-  currentQuestion = questions[getQuestionIndex(playerData.questionIndex)];
-  renderQuestion();
-}
-
-function renderQuestion() {
-  if (!currentQuestion) return;
-
-  const langIndex = language === "en" ? 0 : 1;
-  document.getElementById("questionCategory").textContent = currentQuestion.category;
-  document.getElementById("questionNumber").textContent =
-    t("question") + " " + String((playerData?.questionIndex || 0) + 1).padStart(3, "0");
-
-  document.getElementById("questionText").textContent = currentQuestion.q[langIndex];
-
-  const answers = document.getElementById("answers");
-  answers.innerHTML = "";
-
-  currentQuestion.a[langIndex].forEach((answer, index) => {
-    const button = document.createElement("button");
-    button.className = "answer";
-    button.textContent = String.fromCharCode(65 + index) + " // " + answer;
-    button.disabled = answered;
-    button.onclick = () => submitAnswer(index, button);
-    answers.appendChild(button);
-  });
-
-  document.getElementById("feedback").className = "hidden";
-  document.getElementById("nextButton").classList.add("hidden");
-}
-
-async function submitAnswer(selected, button) {
-  if (answered || !playerData) return;
-  answered = true;
-
-  const correct = selected === currentQuestion.correct;
-  const points = correct ? 10 : 0;
-
-  document.querySelectorAll(".answer").forEach((el, index) => {
-    el.disabled = true;
-    if (index === currentQuestion.correct) el.classList.add("correct");
-    if (index === selected && !correct) el.classList.add("wrong");
-  });
-
-  const feedback = document.getElementById("feedback");
-  const langIndex = language === "en" ? 0 : 1;
-
-  feedback.className = correct ? "good" : "bad";
-  feedback.innerHTML = `
-    <strong>${correct ? t("correct") : t("incorrect")}</strong><br>
-    ${correct ? "+" + points + " " + t("points") : "0 " + t("points")}
-    <br><br>
-    <strong>${t("explanation")}</strong><br>
-    ${currentQuestion.e[langIndex]}
-  `;
-
-  try {
-    const playerRef = db.collection("plantRooms")
-      .doc(currentRoom)
-      .collection("players")
-      .doc(currentPlayer);
-
-    await db.runTransaction(async transaction => {
-      const snapshot = await transaction.get(playerRef);
-      if (!snapshot.exists) throw new Error("Player not found");
-
-      const data = snapshot.data();
-
-      // Prevent duplicate score updates for the same question index.
-      if (data.questionIndex !== playerData.questionIndex) {
-        throw new Error("Question already submitted");
-      }
-
-      transaction.update(playerRef, {
-        score: (data.score || 0) + points,
-        answered: (data.answered || 0) + 1,
-        correct: (data.correct || 0) + (correct ? 1 : 0),
-        questionIndex: (data.questionIndex || 0) + 1,
-        lastSeen: firebase.firestore.FieldValue.serverTimestamp()
-      });
-    });
-
-    document.getElementById("nextButton").classList.remove("hidden");
-  } catch (error) {
-    showStatus("Could not save answer: " + error.message);
-  }
-}
-
-function nextQuestion() {
-  if (!playerData) return;
-  showNextQuestion();
-}
-
-// --------------------------------------------------
-// LIVE LEADERBOARD AND STATS
-// --------------------------------------------------
-
-function renderPlayers() {
-  const list = document.getElementById("playerList");
-  if (!list) return;
-
-  const sorted = [...playersCache].sort((a, b) => (b.score || 0) - (a.score || 0));
-
-  if (!sorted.length) {
-    list.textContent = t("waiting");
-    return;
-  }
-
-  list.innerHTML = "";
-
-  sorted.forEach((player, index) => {
-    const row = document.createElement("div");
-    row.className = "player-row";
-
-    const name = document.createElement("span");
-    name.className = "player-name";
-    name.textContent =
-      (index + 1) + ". " + (player.name || "Researcher");
-
-    const score = document.createElement("span");
-    score.className = "player-score";
-    score.textContent = (player.score || 0) + " PTS";
-
-    row.appendChild(name);
-    row.appendChild(score);
-    list.appendChild(row);
-  });
-
-  document.getElementById("playerCount").textContent =
-    playersCache.length + " " + t("playersConnected");
-}
-
-function renderStats() {
-  if (!playerData) return;
-
-  document.getElementById("myScore").textContent = playerData.score || 0;
-  document.getElementById("myAnswered").textContent = playerData.answered || 0;
-
-  const answeredCount = playerData.answered || 0;
-  const correctCount = playerData.correct || 0;
-  const accuracy = answeredCount
-    ? Math.round(correctCount / answeredCount * 100)
-    : 0;
-
-  document.getElementById("myAccuracy").textContent = accuracy + "%";
-}
-
-function showStatus(message) {
-  document.getElementById("status").textContent = message;
-}
-</script>
 
 </body>
 </html>
