@@ -2,922 +2,1241 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Ingwerperium Plant Game Online</title>
-  <style>
-    * { box-sizing: border-box; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ingwerperium Plant Game Online</title>
+<style>
+* { box-sizing: border-box; }
 
-    body {
-      margin: 0;
-      padding: 24px;
-      background: #111510;
-      color: #d9e5d3;
-      font-family: Consolas, monospace;
-      font-size: 15px;
-    }
+body {
+  margin: 0;
+  padding: 24px;
+  background: #111510;
+  color: #d9e5d3;
+  font-family: Consolas, monospace;
+  font-size: 15px;
+}
 
-    main {
-      width: 100%;
-      max-width: 850px;
-      margin: 0 auto;
-    }
+main { width: 100%; max-width: 950px; margin: 0 auto; }
 
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      padding-bottom: 14px;
-      border-bottom: 1px solid #46543e;
-      margin-bottom: 22px;
-    }
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #46543e;
+  margin-bottom: 22px;
+}
 
-    h1 {
-      margin: 0;
-      font-size: 22px;
-      font-weight: 600;
-    }
+h1 { margin: 0; font-size: 22px; font-weight: 600; }
+h2 { font-size: 17px; font-weight: 600; margin: 0 0 14px; }
+h3 { font-size: 14px; margin: 18px 0 8px; color: #b8d69e; }
 
-    h2 {
-      font-size: 17px;
-      font-weight: 600;
-      margin: 0 0 14px;
-    }
+button, input, select, textarea {
+  font: inherit;
+  border: 1px solid #627657;
+  border-radius: 0;
+  background: #192019;
+  color: #e2ebdc;
+  padding: 10px 12px;
+}
 
-    button, input, select, textarea {
-      font: inherit;
-      border: 1px solid #627657;
-      border-radius: 0;
-      background: #192019;
-      color: #e2ebdc;
-      padding: 10px 12px;
-    }
+button { cursor: pointer; background: #293a25; }
+button:hover { background: #3a5032; }
+button:disabled { opacity: .45; cursor: not-allowed; }
 
-    button {
-      cursor: pointer;
-      background: #293a25;
-    }
+input, textarea { width: 100%; outline: none; }
+input:focus, textarea:focus { border-color: #a3c18d; }
+textarea { min-height: 110px; resize: vertical; }
 
-    button:hover {
-      background: #3a5032;
-    }
+.panel {
+  border: 1px solid #46543e;
+  padding: 18px;
+  margin-bottom: 16px;
+  background: #151c14;
+}
 
-    button:disabled {
-      opacity: .45;
-      cursor: not-allowed;
-    }
+.row { display: flex; gap: 8px; flex-wrap: wrap; }
+.row > * { flex: 1; }
 
-    input, textarea {
-      width: 100%;
-      outline: none;
-    }
+.small { color: #9eae96; font-size: 12px; }
+.status {
+  color: #b7d69f;
+  min-height: 20px;
+  margin-top: 10px;
+  overflow-wrap: anywhere;
+}
 
-    input:focus, textarea:focus {
-      border-color: #a3c18d;
-    }
+.hidden { display: none !important; }
 
-    textarea {
-      min-height: 110px;
-      resize: vertical;
-    }
+#question { font-size: 20px; line-height: 1.5; margin: 12px 0 20px; }
 
-    .panel {
-      border: 1px solid #46543e;
-      padding: 18px;
-      margin-bottom: 16px;
-      background: #151c14;
-    }
+.answers { display: grid; gap: 8px; }
+.answers button { text-align: left; width: 100%; background: #202a1d; }
+.answers button.correct { background: #31552b; border-color: #9bc58b; }
+.answers button.wrong { background: #542b27; border-color: #bd776e; }
 
-    .row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
+#feedback { min-height: 24px; margin: 14px 0; }
 
-    .row > * {
-      flex: 1;
-    }
+.player {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #303c2b;
+}
 
-    .small {
-      color: #9eae96;
-      font-size: 12px;
-    }
+.online { color: #a9d58c; }
+.offline { color: #879080; }
 
-    .status {
-      color: #b7d69f;
-      min-height: 20px;
-      margin-top: 10px;
-      overflow-wrap: anywhere;
-    }
+.topline {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
 
-    .hidden {
-      display: none !important;
-    }
+a { color: #b8d69e; }
 
-    #question {
-      font-size: 20px;
-      line-height: 1.5;
-      margin: 12px 0 20px;
-    }
+.question-tools {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 8px;
+  margin: 14px 0;
+}
 
-    .answers {
-      display: grid;
-      gap: 8px;
-    }
+.question-package {
+  border: 1px solid #46543e;
+  margin-top: 14px;
+  padding: 12px;
+  background: #111810;
+}
 
-    .answers button {
-      text-align: left;
-      width: 100%;
-      background: #202a1d;
-    }
+.package-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  border-bottom: 1px solid #46543e;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+}
 
-    .answers button.correct {
-      background: #31552b;
-      border-color: #9bc58b;
-    }
+.question-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  border-bottom: 1px solid #303c2b;
+  padding: 12px 0;
+}
 
-    .answers button.wrong {
-      background: #542b27;
-      border-color: #bd776e;
-    }
+.question-entry:last-child { border-bottom: 0; }
 
-    #feedback {
-      min-height: 24px;
-      margin: 14px 0;
-    }
+.question-content { min-width: 0; flex: 1; overflow-wrap: anywhere; }
+.question-content .small { margin-top: 5px; }
 
-    .player {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 8px 0;
-      border-bottom: 1px solid #303c2b;
-    }
+.question-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
 
-    .online {
-      color: #a9d58c;
-    }
+.question-actions button { padding: 7px 9px; font-size: 12px; }
 
-    .offline {
-      color: #879080;
-    }
+.inactive-question { opacity: .55; }
+.inactive-label { color: #d49a8d; }
 
-    .topline {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 12px;
-    }
+.manager-summary { margin: 8px 0 12px; color: #b7d69f; }
 
-    a {
-      color: #b8d69e;
-    }
-
-    @media (max-width: 550px) {
-      body { padding: 12px; }
-      .panel { padding: 13px; }
-      header { align-items: flex-start; }
-      h1 { font-size: 19px; }
-    }
-  </style>
+@media (max-width: 600px) {
+  body { padding: 12px; }
+  .panel { padding: 13px; }
+  header { align-items: flex-start; }
+  h1 { font-size: 19px; }
+  .question-tools { grid-template-columns: 1fr; }
+  .question-entry { flex-direction: column; }
+  .question-actions { width: 100%; }
+  .question-actions button { flex: 1; }
+}
+</style>
 </head>
+
 <body>
 <main>
-  <header>
-    <h1>Ingwerperium</h1>
-    <select id="language" aria-label="Language">
-      <option value="en">English</option>
-      <option value="de">Deutsch</option>
-    </select>
-  </header>
+<header>
+  <h1>Ingwerperium</h1>
+  <select id="language" aria-label="Language">
+    <option value="en">English</option>
+    <option value="de">Deutsch</option>
+  </select>
+</header>
 
-  <section class="panel" id="loginPanel">
-    <h2 id="joinHeading">Join a game</h2>
-    <label for="playerName" id="nameLabel">Player name</label>
-    <input id="playerName" maxlength="25" placeholder="Your name">
-    <br><br>
-    <label for="roomCode" id="codeLabel">Room code (leave empty for World Server)</label>
-    <input id="roomCode" maxlength="5" placeholder="Empty = World Server">
-    <br><br>
+<section class="panel" id="loginPanel">
+  <h2 id="joinHeading">Join a game</h2>
+  <label for="playerName" id="nameLabel">Player name</label>
+  <input id="playerName" maxlength="25" placeholder="Your name">
+  <br><br>
+  <label for="roomCode" id="codeLabel">Room code (leave empty for World Server)</label>
+  <input id="roomCode" maxlength="5" placeholder="Empty = World Server">
+  <br><br>
+  <div class="row">
+    <button id="joinButton">Join</button>
+    <button id="createButton">Create private room</button>
+  </div>
+  <div class="status" id="loginStatus"></div>
+</section>
+
+<section class="hidden" id="gameArea">
+  <div class="panel">
+    <div class="topline">
+      <div><span id="roomLabel">Room:</span> <strong id="currentRoom"></strong></div>
+      <div><span id="scoreLabel">Score:</span> <strong id="myScore">0</strong></div>
+    </div>
     <div class="row">
-      <button id="joinButton">Join</button>
-      <button id="createButton">Create private room</button>
+      <button id="leaveButton">Leave room</button>
+      <button id="nextButton">Next question</button>
     </div>
-    <div class="status" id="loginStatus"></div>
+  </div>
+
+  <section class="panel">
+    <div class="small" id="quizLabel">Plant quiz</div>
+    <div id="question">Loading question...</div>
+    <div class="answers" id="answers"></div>
+    <div id="feedback"></div>
   </section>
 
-  <section class="hidden" id="gameArea">
-    <div class="panel">
-      <div class="topline">
-        <div><span id="roomLabel">Room:</span> <strong id="currentRoom"></strong></div>
-        <div><span id="scoreLabel">Score:</span> <strong id="myScore">0</strong></div>
-      </div>
-      <div class="row">
-        <button id="leaveButton">Leave room</button>
-        <button id="nextButton">Next question</button>
-      </div>
+  <section class="panel">
+    <h2 id="playersHeading">Players</h2>
+    <div id="playerList"></div>
+  </section>
+
+  <section class="panel">
+    <h2 id="importHeading">Add your own questions</h2>
+    <p class="small" id="importHelp">
+      One question per line: question;correct answer-wrong answer-wrong answer
+    </p>
+    <textarea id="questionImport" placeholder="What do plants absorb from the air?;Carbon dioxide-Oxygen-Nitrogen"></textarea>
+    <br><br>
+    <button id="importButton">Import questions</button>
+    <div class="status" id="importStatus"></div>
+
+    <hr style="border:0;border-top:1px solid #46543e;margin:22px 0">
+
+    <h2 id="manageHeading">Imported question library</h2>
+    <p class="small" id="manageHelp">
+      Search imported questions, filter by import month and activate or deactivate individual questions.
+    </p>
+
+    <div class="question-tools">
+      <input id="questionSearch" type="search" placeholder="Search questions and answers...">
+      <select id="packageFilter">
+        <option value="all">All import dates</option>
+      </select>
     </div>
 
-    <section class="panel">
-      <div class="small" id="quizLabel">Plant quiz</div>
-      <div id="question">Loading question...</div>
-      <div class="answers" id="answers"></div>
-      <div id="feedback"></div>
-    </section>
-
-    <section class="panel">
-      <h2 id="playersHeading">Players</h2>
-      <div id="playerList"></div>
-    </section>
-
-    <section class="panel">
-      <h2 id="importHeading">Add questions</h2>
-      <p class="small" id="importHelp">
-        One question per line: question;correct answer-wrong answer-wrong answer
-      </p>
-      <textarea id="questionImport" placeholder="What do plants absorb from the air?;Carbon dioxide-Oxygen-Nitrogen"></textarea>
-      <br><br>
-      <button id="importButton">Import questions</button>
-      <div class="status" id="importStatus"></div>
-    </section>
+    <div class="manager-summary" id="questionSummary"></div>
+    <div id="questionLibrary"></div>
   </section>
+</section>
 </main>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-  import {
-    getAuth,
-    signInAnonymously
-  } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
-  import {
-    getFirestore,
-    collection,
-    doc,
-    getDoc,
-    setDoc,
-    addDoc,
-    updateDoc,
-    onSnapshot,
-    serverTimestamp
-  } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBqkzJEJa94RQd9KYzpwR6rmIcvEouAJ-s",
-    authDomain: "ingwerperium.firebaseapp.com",
-    projectId: "ingwerperium",
-    storageBucket: "ingwerperium.firebasestorage.app",
-    messagingSenderId: "43358415912",
-    appId: "1:43358415912:web:abda437dc5f0905ede591d"
-  };
+import {
+  getAuth,
+  signInAnonymously
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+import {
+  getFirestore,
+  collection,
+  doc,
+  getDoc,
+  setDoc,
+  addDoc,
+  updateDoc,
+  onSnapshot,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-  const $ = id => document.getElementById(id);
+const firebaseConfig = {
+  apiKey: "AIzaSyBqkzJEJa94RQd9KYzpwR6rmIcvEouAJ-s",
+  authDomain: "ingwerperium.firebaseapp.com",
+  projectId: "ingwerperium",
+  storageBucket: "ingwerperium.firebasestorage.app",
+  messagingSenderId: "43358415912",
+  appId: "1:43358415912:web:abda437dc5f0905ede591d"
+};
 
-  let user = null;
-  let roomId = null;
-  let playerRef = null;
-  let myScore = 0;
-  let playerListener = null;
-  let questionListener = null;
-  let heartbeat = null;
-  let customQuestions = [];
-  let usedQuestions = new Set();
-  let currentQuestion = null;
-  let answered = false;
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-  const translations = {
-    en: {
-      joinHeading: "Join a game",
-      nameLabel: "Player name",
-      codeLabel: "Room code (leave empty for World Server)",
-      namePlaceholder: "Your name",
-      codePlaceholder: "Empty = World Server",
-      join: "Join",
-      create: "Create private room",
-      room: "Room:",
-      score: "Score:",
-      leave: "Leave room",
-      next: "Next question",
-      quiz: "Plant quiz",
-      players: "Players",
-      importHeading: "Add your own questions",
-      importHelp: "One question per line: question;correct answer-wrong answer-wrong answer",
-      import: "Import questions",
-      world: "World Server",
-      loading: "Connecting...",
-      joined: "Connected.",
-      roomMissing: "This room does not exist.",
-      enterName: "Please enter a player name.",
-      correct: "Correct!",
-      incorrect: "Incorrect. Correct answer: ",
-      choose: "Choose an answer.",
-      noQuestions: "No questions available.",
-      imported: " questions imported.",
-      badLine: "Invalid line: ",
-      online: "online",
-      offline: "offline",
-      error: "Error: ",
-      privateCreated: "Private room created. Code: ",
-      alreadyAnswered: "You have already answered this question."
-    },
-    de: {
-      joinHeading: "Spiel beitreten",
-      nameLabel: "Spielername",
-      codeLabel: "Raumcode (leer lassen für den Weltserver)",
-      namePlaceholder: "Dein Name",
-      codePlaceholder: "Leer = Weltserver",
-      join: "Beitreten",
-      create: "Privaten Raum erstellen",
-      room: "Raum:",
-      score: "Punkte:",
-      leave: "Raum verlassen",
-      next: "Nächste Frage",
-      quiz: "Pflanzen-Quiz",
-      players: "Spieler",
-      importHeading: "Eigene Fragen hinzufügen",
-      importHelp: "Eine Frage pro Zeile: Frage;richtige Antwort-falsche Antwort-falsche Antwort",
-      import: "Fragen importieren",
-      world: "Weltserver",
-      loading: "Verbinde...",
-      joined: "Verbunden.",
-      roomMissing: "Dieser Raum existiert nicht.",
-      enterName: "Bitte gib einen Spielernamen ein.",
-      correct: "Richtig!",
-      incorrect: "Falsch. Richtige Antwort: ",
-      choose: "Wähle eine Antwort.",
-      noQuestions: "Keine Fragen verfügbar.",
-      imported: " Fragen importiert.",
-      badLine: "Ungültige Zeile: ",
-      online: "online",
-      offline: "offline",
-      error: "Fehler: ",
-      privateCreated: "Privater Raum erstellt. Code: ",
-      alreadyAnswered: "Du hast diese Frage bereits beantwortet."
-    }
-  };
+const $ = id => document.getElementById(id);
 
-  let lang = "en";
-  const t = key => translations[lang][key];
+let user = null;
+let roomId = null;
+let playerRef = null;
+let myScore = 0;
+let playerListener = null;
+let questionListener = null;
+let heartbeat = null;
+let customQuestions = [];
+let usedQuestions = new Set();
+let currentQuestion = null;
+let answered = false;
+let lang = "en";
 
-  const builtInQuestions = [
-    {
-      en: "Which gas do plants absorb during photosynthesis?",
-      de: "Welches Gas nehmen Pflanzen bei der Fotosynthese auf?",
-      answers: ["Carbon dioxide", "Oxygen", "Nitrogen"],
-      deAnswers: ["Kohlenstoffdioxid", "Sauerstoff", "Stickstoff"]
-    },
-    {
-      en: "Which pigment makes most leaves green?",
-      de: "Welcher Farbstoff macht die meisten Blätter grün?",
-      answers: ["Chlorophyll", "Melanin", "Keratin"],
-      deAnswers: ["Chlorophyll", "Melanin", "Keratin"]
-    },
-    {
-      en: "Which plant organ usually absorbs water from soil?",
-      de: "Welches Pflanzenorgan nimmt normalerweise Wasser aus dem Boden auf?",
-      answers: ["Root", "Flower", "Fruit"],
-      deAnswers: ["Wurzel", "Blüte", "Frucht"]
-    },
-    {
-      en: "What is the name of the process plants use to make sugars from light?",
-      de: "Wie heißt der Vorgang, bei dem Pflanzen mithilfe von Licht Zucker herstellen?",
-      answers: ["Photosynthesis", "Fermentation", "Digestion"],
-      deAnswers: ["Fotosynthese", "Gärung", "Verdauung"]
-    },
-    {
-      en: "Which plant tissue transports water from the roots?",
-      de: "Welches Pflanzengewebe transportiert Wasser von den Wurzeln nach oben?",
-      answers: ["Xylem", "Phloem", "Epidermis"],
-      deAnswers: ["Xylem", "Phloem", "Epidermis"]
-    },
-    {
-      en: "Which tissue transports sugars through a plant?",
-      de: "Welches Gewebe transportiert Zucker durch eine Pflanze?",
-      answers: ["Phloem", "Xylem", "Cork"],
-      deAnswers: ["Phloem", "Xylem", "Kork"]
-    },
-    {
-      en: "What are the tiny pores on many leaves called?",
-      de: "Wie heißen die kleinen Poren auf vielen Blättern?",
-      answers: ["Stomata", "Petals", "Nodes"],
-      deAnswers: ["Spaltöffnungen", "Blütenblätter", "Knoten"]
-    },
-    {
-      en: "What is the loss of water vapor from leaves called?",
-      de: "Wie nennt man die Abgabe von Wasserdampf über Blätter?",
-      answers: ["Transpiration", "Pollination", "Germination"],
-      deAnswers: ["Transpiration", "Bestäubung", "Keimung"]
-    },
-    {
-      en: "What do roots commonly take up from the soil besides water?",
-      de: "Was nehmen Wurzeln neben Wasser aus dem Boden auf?",
-      answers: ["Mineral nutrients", "Sunlight", "Oxygen from the air only"],
-      deAnswers: ["Mineralstoffe", "Sonnenlicht", "Nur Sauerstoff aus der Luft"]
-    },
-    {
-      en: "What is the transfer of pollen to a flower's stigma called?",
-      de: "Wie heißt die Übertragung von Pollen auf die Narbe einer Blüte?",
-      answers: ["Pollination", "Germination", "Transpiration"],
-      deAnswers: ["Bestäubung", "Keimung", "Transpiration"]
-    },
-    {
-      en: "Which part of a flower can develop into a fruit?",
-      de: "Welcher Teil einer Blüte kann sich zu einer Frucht entwickeln?",
-      answers: ["Ovary", "Petal", "Anther"],
-      deAnswers: ["Fruchtknoten", "Blütenblatt", "Staubbeutel"]
-    },
-    {
-      en: "What is the first stage of a seed beginning to grow called?",
-      de: "Wie heißt der Beginn des Wachstums eines Samens?",
-      answers: ["Germination", "Pollination", "Dormancy"],
-      deAnswers: ["Keimung", "Bestäubung", "Ruhephase"]
-    },
-    {
-      en: "Which organisms commonly form nitrogen-fixing partnerships with legumes?",
-      de: "Welche Organismen leben häufig in stickstoffbindender Symbiose mit Hülsenfrüchtlern?",
-      answers: ["Rhizobia bacteria", "Yeasts", "Mushroom-forming insects"],
-      deAnswers: ["Knöllchenbakterien", "Hefen", "Pilzbildende Insekten"]
-    },
-    {
-      en: "What is the name for a plant growing toward light?",
-      de: "Wie nennt man das Wachstum einer Pflanze in Richtung Licht?",
-      answers: ["Phototropism", "Hydrotropism", "Geotropism"],
-      deAnswers: ["Phototropismus", "Hydrotropismus", "Geotropismus"]
-    },
-    {
-      en: "Which plant hormone is strongly involved in shoot growth and phototropism?",
-      de: "Welches Pflanzenhormon spielt eine wichtige Rolle beim Sprosswachstum und Phototropismus?",
-      answers: ["Auxin", "Insulin", "Adrenaline"],
-      deAnswers: ["Auxin", "Insulin", "Adrenalin"]
-    },
-    {
-      en: "Which plants are especially adapted to storing water in thick tissues?",
-      de: "Welche Pflanzen sind besonders daran angepasst, Wasser in dicken Geweben zu speichern?",
-      answers: ["Succulents", "Mosses", "Ferns"],
-      deAnswers: ["Sukkulenten", "Moose", "Farne"]
-    },
-    {
-      en: "Which group reproduces using spores and has no flowers?",
-      de: "Welche Pflanzengruppe vermehrt sich über Sporen und bildet keine Blüten?",
-      answers: ["Ferns", "Apple trees", "Sunflowers"],
-      deAnswers: ["Farne", "Apfelbäume", "Sonnenblumen"]
-    },
-    {
-      en: "Which plants produce seeds that are not enclosed in fruits?",
-      de: "Welche Pflanzen bilden Samen, die nicht in Früchten eingeschlossen sind?",
-      answers: ["Gymnosperms", "Mosses", "Flowering plants"],
-      deAnswers: ["Nacktsamer", "Moose", "Bedecktsamer"]
-    },
-    {
-      en: "What is the main function of a flower's petals?",
-      de: "Welche Hauptfunktion haben die Blütenblätter?",
-      answers: ["Attracting pollinators", "Absorbing minerals", "Transporting water"],
-      deAnswers: ["Bestäuber anlocken", "Mineralstoffe aufnehmen", "Wasser transportieren"]
-    },
-    {
-      en: "What do mycorrhizal fungi exchange with many plant roots?",
-      de: "Was tauschen Mykorrhizapilze mit vielen Pflanzenwurzeln aus?",
-      answers: ["Mineral nutrients and sugars", "Pollen and seeds", "Only oxygen"],
-      deAnswers: ["Mineralstoffe und Zucker", "Pollen und Samen", "Nur Sauerstoff"]
-    },
-    {
-      en: "Which part of a seed often stores food for the embryo?",
-      de: "Welcher Teil eines Samens speichert häufig Nährstoffe für den Embryo?",
-      answers: ["Endosperm", "Stigma", "Sepal"],
-      deAnswers: ["Endosperm", "Narbe", "Kelchblatt"]
-    },
-    {
-      en: "What is the main role of chloroplasts?",
-      de: "Was ist die Hauptaufgabe der Chloroplasten?",
-      answers: ["Photosynthesis", "Water absorption", "Seed dispersal"],
-      deAnswers: ["Fotosynthese", "Wasseraufnahme", "Samenverbreitung"]
-    },
-    {
-      en: "Which nutrient is especially important for leaf and protein growth?",
-      de: "Welcher Nährstoff ist besonders wichtig für Blatt- und Proteinwachstum?",
-      answers: ["Nitrogen", "Gold", "Helium"],
-      deAnswers: ["Stickstoff", "Gold", "Helium"]
-    },
-    {
-      en: "What is the name for a plant that obtains nutrients by trapping animals?",
-      de: "Wie nennt man eine Pflanze, die Tiere fängt, um Nährstoffe zu erhalten?",
-      answers: ["Carnivorous plant", "Epiphyte", "Conifer"],
-      deAnswers: ["Fleischfressende Pflanze", "Aufsitzerpflanze", "Nadelbaum"]
-    },
-    {
-      en: "Which part of a plant usually grows above the soil?",
-      de: "Welcher Teil einer Pflanze wächst normalerweise oberhalb des Bodens?",
-      answers: ["Shoot", "Root cap", "Root hair"],
-      deAnswers: ["Spross", "Wurzelhaube", "Wurzelhaar"]
-    },
-    {
-      en: "What is the function of root hairs?",
-      de: "Welche Funktion haben Wurzelhaare?",
-      answers: ["Increase the surface for absorption", "Make seeds", "Attract pollinators"],
-      deAnswers: ["Oberfläche zur Aufnahme vergrößern", "Samen bilden", "Bestäuber anlocken"]
-    },
-    {
-      en: "Which plant group includes grasses, lilies and orchids?",
-      de: "Welche Pflanzengruppe umfasst Gräser, Lilien und Orchideen?",
-      answers: ["Monocots", "Conifers", "Mosses"],
-      deAnswers: ["Einkeimblättrige", "Nadelbäume", "Moose"]
-    },
-    {
-      en: "What is compost mainly used to improve?",
-      de: "Wozu wird Kompost hauptsächlich verwendet?",
-      answers: ["Soil structure and nutrient content", "Sunlight intensity", "Air temperature"],
-      deAnswers: ["Bodenstruktur und Nährstoffgehalt", "Lichtstärke", "Lufttemperatur"]
-    },
-    {
-      en: "Which environmental factor provides the energy for photosynthesis?",
-      de: "Welcher Umweltfaktor liefert die Energie für die Fotosynthese?",
-      answers: ["Light", "Wind", "Sound"],
-      deAnswers: ["Licht", "Wind", "Schall"]
-    },
-    {
-      en: "What is the name of the small plant embryo inside a seed?",
-      de: "Wie nennt man die junge Pflanze im Inneren eines Samens?",
-      answers: ["Embryo", "Pollen", "Stamen"],
-      deAnswers: ["Embryo", "Pollen", "Staubblatt"]
-    }
-  ];
+const translations = {
+  en: {
+    joinHeading: "Join a game",
+    nameLabel: "Player name",
+    codeLabel: "Room code (leave empty for World Server)",
+    namePlaceholder: "Your name",
+    codePlaceholder: "Empty = World Server",
+    join: "Join",
+    create: "Create private room",
+    room: "Room:",
+    score: "Score:",
+    leave: "Leave room",
+    next: "Next question",
+    quiz: "Plant quiz",
+    players: "Players",
+    importHeading: "Add your own questions",
+    importHelp: "One question per line: question;correct answer-wrong answer-wrong answer",
+    import: "Import questions",
+    world: "World Server",
+    loading: "Connecting...",
+    joined: "Connected.",
+    roomMissing: "This room does not exist.",
+    enterName: "Please enter a player name.",
+    correct: "Correct!",
+    incorrect: "Incorrect. Correct answer: ",
+    noQuestions: "No questions available.",
+    imported: " questions imported.",
+    badLine: "Invalid line: ",
+    online: "online",
+    offline: "offline",
+    error: "Error: ",
+    privateCreated: "Private room created. Code: ",
+    alreadyAnswered: "You have already answered this question.",
+    manageHeading: "Imported question library",
+    manageHelp: "Search imported questions, filter by import month and activate or deactivate individual questions.",
+    searchPlaceholder: "Search questions and answers...",
+    allDates: "All import dates",
+    noMatches: "No matching questions found.",
+    active: "Active",
+    inactive: "Disabled",
+    disable: "Disable",
+    enable: "Enable",
+    questions: "questions",
+    packages: "import packages",
+    unknownDate: "Unknown date",
+    package: "Import package",
+    dateLabel: "Imported",
+    noImported: "No imported questions in this room yet.",
+    activeCount: "active",
+    disabledCount: "disabled",
+    updating: "Updating...",
+    toggleError: "Could not update question: "
+  },
 
-  function shuffle(array) {
-    const result = [...array];
-    for (let i = result.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [result[i], result[j]] = [result[j], result[i]];
-    }
-    return result;
+  de: {
+    joinHeading: "Spiel beitreten",
+    nameLabel: "Spielername",
+    codeLabel: "Raumcode (leer lassen für den Weltserver)",
+    namePlaceholder: "Dein Name",
+    codePlaceholder: "Leer = Weltserver",
+    join: "Beitreten",
+    create: "Privaten Raum erstellen",
+    room: "Raum:",
+    score: "Punkte:",
+    leave: "Raum verlassen",
+    next: "Nächste Frage",
+    quiz: "Pflanzen-Quiz",
+    players: "Spieler",
+    importHeading: "Eigene Fragen hinzufügen",
+    importHelp: "Eine Frage pro Zeile: Frage;richtige Antwort-falsche Antwort-falsche Antwort",
+    import: "Fragen importieren",
+    world: "Weltserver",
+    loading: "Verbinde...",
+    joined: "Verbunden.",
+    roomMissing: "Dieser Raum existiert nicht.",
+    enterName: "Bitte gib einen Spielernamen ein.",
+    correct: "Richtig!",
+    incorrect: "Falsch. Richtige Antwort: ",
+    noQuestions: "Keine Fragen verfügbar.",
+    imported: " Fragen importiert.",
+    badLine: "Ungültige Zeile: ",
+    online: "online",
+    offline: "offline",
+    error: "Fehler: ",
+    privateCreated: "Privater Raum erstellt. Code: ",
+    alreadyAnswered: "Du hast diese Frage bereits beantwortet.",
+    manageHeading: "Importierte Fragen",
+    manageHelp: "Suche importierte Fragen, filtere nach Importmonat und aktiviere oder deaktiviere einzelne Fragen.",
+    searchPlaceholder: "Fragen und Antworten durchsuchen...",
+    allDates: "Alle Importdaten",
+    noMatches: "Keine passenden Fragen gefunden.",
+    active: "Aktiv",
+    inactive: "Deaktiviert",
+    disable: "Deaktivieren",
+    enable: "Aktivieren",
+    questions: "Fragen",
+    packages: "Importpakete",
+    unknownDate: "Unbekanntes Datum",
+    package: "Importpaket",
+    dateLabel: "Importiert",
+    noImported: "In diesem Raum wurden noch keine Fragen importiert.",
+    activeCount: "aktiv",
+    disabledCount: "deaktiviert",
+    updating: "Wird aktualisiert...",
+    toggleError: "Frage konnte nicht aktualisiert werden: "
   }
+};
 
-  function showStatus(element, message) {
-    $(element).textContent = message;
+const t = key => translations[lang][key];
+
+const builtInQuestions = [
+  {
+    en: "Which gas do plants absorb during photosynthesis?",
+    de: "Welches Gas nehmen Pflanzen bei der Fotosynthese auf?",
+    answers: ["Carbon dioxide", "Oxygen", "Nitrogen"],
+    deAnswers: ["Kohlenstoffdioxid", "Sauerstoff", "Stickstoff"]
+  },
+  {
+    en: "Which pigment makes most leaves green?",
+    de: "Welcher Farbstoff macht die meisten Blätter grün?",
+    answers: ["Chlorophyll", "Melanin", "Keratin"],
+    deAnswers: ["Chlorophyll", "Melanin", "Keratin"]
+  },
+  {
+    en: "Which plant organ usually absorbs water from soil?",
+    de: "Welches Pflanzenorgan nimmt normalerweise Wasser aus dem Boden auf?",
+    answers: ["Root", "Flower", "Fruit"],
+    deAnswers: ["Wurzel", "Blüte", "Frucht"]
+  },
+  {
+    en: "What is the name of the process plants use to make sugars from light?",
+    de: "Wie heißt der Vorgang, bei dem Pflanzen mithilfe von Licht Zucker herstellen?",
+    answers: ["Photosynthesis", "Fermentation", "Digestion"],
+    deAnswers: ["Fotosynthese", "Gärung", "Verdauung"]
+  },
+  {
+    en: "Which plant tissue transports water from the roots?",
+    de: "Welches Pflanzengewebe transportiert Wasser von den Wurzeln nach oben?",
+    answers: ["Xylem", "Phloem", "Epidermis"],
+    deAnswers: ["Xylem", "Phloem", "Epidermis"]
+  },
+  {
+    en: "Which tissue transports sugars through a plant?",
+    de: "Welches Gewebe transportiert Zucker durch eine Pflanze?",
+    answers: ["Phloem", "Xylem", "Cork"],
+    deAnswers: ["Phloem", "Xylem", "Kork"]
+  },
+  {
+    en: "What are the tiny pores on many leaves called?",
+    de: "Wie heißen die kleinen Poren auf vielen Blättern?",
+    answers: ["Stomata", "Petals", "Nodes"],
+    deAnswers: ["Spaltöffnungen", "Blütenblätter", "Knoten"]
+  },
+  {
+    en: "What is the loss of water vapor from leaves called?",
+    de: "Wie nennt man die Abgabe von Wasserdampf über Blätter?",
+    answers: ["Transpiration", "Pollination", "Germination"],
+    deAnswers: ["Transpiration", "Bestäubung", "Keimung"]
+  },
+  {
+    en: "What do roots commonly take up from the soil besides water?",
+    de: "Was nehmen Wurzeln neben Wasser aus dem Boden auf?",
+    answers: ["Mineral nutrients", "Sunlight", "Oxygen from the air only"],
+    deAnswers: ["Mineralstoffe", "Sonnenlicht", "Nur Sauerstoff aus der Luft"]
+  },
+  {
+    en: "What is the transfer of pollen to a flower's stigma called?",
+    de: "Wie heißt die Übertragung von Pollen auf die Narbe einer Blüte?",
+    answers: ["Pollination", "Germination", "Transpiration"],
+    deAnswers: ["Bestäubung", "Keimung", "Transpiration"]
+  },
+  {
+    en: "Which part of a flower can develop into a fruit?",
+    de: "Welcher Teil einer Blüte kann sich zu einer Frucht entwickeln?",
+    answers: ["Ovary", "Petal", "Anther"],
+    deAnswers: ["Fruchtknoten", "Blütenblatt", "Staubbeutel"]
+  },
+  {
+    en: "What is the first stage of a seed beginning to grow called?",
+    de: "Wie heißt der Beginn des Wachstums eines Samens?",
+    answers: ["Germination", "Pollination", "Dormancy"],
+    deAnswers: ["Keimung", "Bestäubung", "Ruhephase"]
+  },
+  {
+    en: "Which organisms commonly form nitrogen-fixing partnerships with legumes?",
+    de: "Welche Organismen leben häufig in stickstoffbindender Symbiose mit Hülsenfrüchtlern?",
+    answers: ["Rhizobia bacteria", "Yeasts", "Mushroom-forming insects"],
+    deAnswers: ["Knöllchenbakterien", "Hefen", "Pilzbildende Insekten"]
+  },
+  {
+    en: "What is the name for a plant growing toward light?",
+    de: "Wie nennt man das Wachstum einer Pflanze in Richtung Licht?",
+    answers: ["Phototropism", "Hydrotropism", "Geotropism"],
+    deAnswers: ["Phototropismus", "Hydrotropismus", "Geotropismus"]
+  },
+  {
+    en: "Which plant hormone is strongly involved in shoot growth and phototropism?",
+    de: "Welches Pflanzenhormon spielt eine wichtige Rolle beim Sprosswachstum und Phototropismus?",
+    answers: ["Auxin", "Insulin", "Adrenaline"],
+    deAnswers: ["Auxin", "Insulin", "Adrenalin"]
+  },
+  {
+    en: "Which plants are especially adapted to storing water in thick tissues?",
+    de: "Welche Pflanzen sind besonders daran angepasst, Wasser in dicken Geweben zu speichern?",
+    answers: ["Succulents", "Mosses", "Ferns"],
+    deAnswers: ["Sukkulenten", "Moose", "Farne"]
+  },
+  {
+    en: "Which group reproduces using spores and has no flowers?",
+    de: "Welche Pflanzengruppe vermehrt sich über Sporen und bildet keine Blüten?",
+    answers: ["Ferns", "Apple trees", "Sunflowers"],
+    deAnswers: ["Farne", "Apfelbäume", "Sonnenblumen"]
+  },
+  {
+    en: "Which plants produce seeds that are not enclosed in fruits?",
+    de: "Welche Pflanzen bilden Samen, die nicht in Früchten eingeschlossen sind?",
+    answers: ["Gymnosperms", "Mosses", "Flowering plants"],
+    deAnswers: ["Nacktsamer", "Moose", "Bedecktsamer"]
+  },
+  {
+    en: "What is the main function of a flower's petals?",
+    de: "Welche Hauptfunktion haben die Blütenblätter?",
+    answers: ["Attracting pollinators", "Absorbing minerals", "Transporting water"],
+    deAnswers: ["Bestäuber anlocken", "Mineralstoffe aufnehmen", "Wasser transportieren"]
+  },
+  {
+    en: "What do mycorrhizal fungi exchange with many plant roots?",
+    de: "Was tauschen Mykorrhizapilze mit vielen Pflanzenwurzeln aus?",
+    answers: ["Mineral nutrients and sugars", "Pollen and seeds", "Only oxygen"],
+    deAnswers: ["Mineralstoffe und Zucker", "Pollen und Samen", "Nur Sauerstoff"]
+  },
+  {
+    en: "Which part of a seed often stores food for the embryo?",
+    de: "Welcher Teil eines Samens speichert häufig Nährstoffe für den Embryo?",
+    answers: ["Endosperm", "Stigma", "Sepal"],
+    deAnswers: ["Endosperm", "Narbe", "Kelchblatt"]
+  },
+  {
+    en: "What is the main role of chloroplasts?",
+    de: "Was ist die Hauptaufgabe der Chloroplasten?",
+    answers: ["Photosynthesis", "Water absorption", "Seed dispersal"],
+    deAnswers: ["Fotosynthese", "Wasseraufnahme", "Samenverbreitung"]
+  },
+  {
+    en: "Which nutrient is especially important for leaf and protein growth?",
+    de: "Welcher Nährstoff ist besonders wichtig für Blatt- und Proteinwachstum?",
+    answers: ["Nitrogen", "Gold", "Helium"],
+    deAnswers: ["Stickstoff", "Gold", "Helium"]
+  },
+  {
+    en: "What is the name for a plant that obtains nutrients by trapping animals?",
+    de: "Wie nennt man eine Pflanze, die Tiere fängt, um Nährstoffe zu erhalten?",
+    answers: ["Carnivorous plant", "Epiphyte", "Conifer"],
+    deAnswers: ["Fleischfressende Pflanze", "Aufsitzerpflanze", "Nadelbaum"]
+  },
+  {
+    en: "Which part of a plant usually grows above the soil?",
+    de: "Welcher Teil einer Pflanze wächst normalerweise oberhalb des Bodens?",
+    answers: ["Shoot", "Root cap", "Root hair"],
+    deAnswers: ["Spross", "Wurzelhaube", "Wurzelhaar"]
+  },
+  {
+    en: "What is the function of root hairs?",
+    de: "Welche Funktion haben Wurzelhaare?",
+    answers: ["Increase the surface for absorption", "Make seeds", "Attract pollinators"],
+    deAnswers: ["Oberfläche zur Aufnahme vergrößern", "Samen bilden", "Bestäuber anlocken"]
+  },
+  {
+    en: "Which plant group includes grasses, lilies and orchids?",
+    de: "Welche Pflanzengruppe umfasst Gräser, Lilien und Orchideen?",
+    answers: ["Monocots", "Conifers", "Mosses"],
+    deAnswers: ["Einkeimblättrige", "Nadelbäume", "Moose"]
+  },
+  {
+    en: "What is compost mainly used to improve?",
+    de: "Wozu wird Kompost hauptsächlich verwendet?",
+    answers: ["Soil structure and nutrient content", "Sunlight intensity", "Air temperature"],
+    deAnswers: ["Bodenstruktur und Nährstoffgehalt", "Lichtstärke", "Lufttemperatur"]
+  },
+  {
+    en: "Which environmental factor provides the energy for photosynthesis?",
+    de: "Welcher Umweltfaktor liefert die Energie für die Fotosynthese?",
+    answers: ["Light", "Wind", "Sound"],
+    deAnswers: ["Licht", "Wind", "Schall"]
+  },
+  {
+    en: "What is the name of the small plant embryo inside a seed?",
+    de: "Wie nennt man die junge Pflanze im Inneren eines Samens?",
+    answers: ["Embryo", "Pollen", "Stamen"],
+    deAnswers: ["Embryo", "Pollen", "Staubblatt"]
   }
+];
 
-  function getName() {
-    return $("playerName").value.trim().slice(0, 24);
+function shuffle(array) {
+  const result = [...array];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
   }
+  return result;
+}
 
-  function makeRoomCode() {
-    return Math.random().toString(36).slice(2, 8).toUpperCase();
-  }
+function showStatus(element, message) {
+  $(element).textContent = message;
+}
 
-  async function ensureWorldServer() {
-    const ref = doc(db, "quizRooms", "world");
-    const snap = await getDoc(ref);
+function getName() {
+  return $("playerName").value.trim().slice(0, 24);
+}
 
-    if (!snap.exists()) {
-      await setDoc(ref, {
-        name: "World Server",
-        type: "public",
-        createdAt: serverTimestamp()
-      });
-    }
+function makeRoomCode() {
+  return Math.random().toString(36).slice(2, 8).toUpperCase();
+}
 
-    return "world";
-  }
+function makeBatchId() {
+  return "batch_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7);
+}
 
-  async function createPrivateRoom() {
-    const name = getName();
-    if (!name) {
-      showStatus("loginStatus", t("enterName"));
-      return;
-    }
+async function ensureWorldServer() {
+  const ref = doc(db, "quizRooms", "world");
+  const snap = await getDoc(ref);
 
-    showStatus("loginStatus", t("loading"));
-
-    try {
-      let code = makeRoomCode();
-      let ref = doc(db, "quizRooms", code);
-
-      while ((await getDoc(ref)).exists()) {
-        code = makeRoomCode();
-        ref = doc(db, "quizRooms", code);
-      }
-
-      await setDoc(ref, {
-        name: "Private room",
-        type: "private",
-        createdAt: serverTimestamp()
-      });
-
-      await enterRoom(code, name);
-      showStatus("loginStatus", t("privateCreated") + code);
-    } catch (error) {
-      showStatus("loginStatus", t("error") + error.message);
-    }
-  }
-
-  async function joinRoom() {
-    const name = getName();
-    if (!name) {
-      showStatus("loginStatus", t("enterName"));
-      return;
-    }
-
-    showStatus("loginStatus", t("loading"));
-
-    try {
-      const code = $("roomCode").value.trim().toLowerCase();
-
-      if (!code) {
-        const worldId = await ensureWorldServer();
-        await enterRoom(worldId, name);
-        return;
-      }
-
-      const roomRef = doc(db, "quizRooms", code.toUpperCase());
-      const roomSnap = await getDoc(roomRef);
-
-      if (!roomSnap.exists()) {
-        showStatus("loginStatus", t("roomMissing"));
-        return;
-      }
-
-      await enterRoom(code.toUpperCase(), name);
-    } catch (error) {
-      showStatus("loginStatus", t("error") + error.message);
-    }
-  }
-
-  async function enterRoom(code, name) {
-    leaveRoom(false);
-
-    roomId = code;
-    playerRef = doc(db, "quizRooms", roomId, "players", user.uid);
-
-    await setDoc(playerRef, {
-      name,
-      score: 0,
-      lastSeen: Date.now(),
-      joinedAt: serverTimestamp()
-    }, { merge: true });
-
-    myScore = 0;
-    usedQuestions.clear();
-    customQuestions = [];
-
-    $("loginPanel").classList.add("hidden");
-    $("gameArea").classList.remove("hidden");
-    $("currentRoom").textContent = roomId === "world" ? t("world") : roomId;
-    $("myScore").textContent = myScore;
-    $("feedback").textContent = "";
-    showStatus("loginStatus", t("joined"));
-
-    playerListener = onSnapshot(
-      collection(db, "quizRooms", roomId, "players"),
-      snapshot => renderPlayers(snapshot)
-    );
-
-    questionListener = onSnapshot(
-      collection(db, "quizRooms", roomId, "questions"),
-      snapshot => {
-        customQuestions = snapshot.docs.map(item => ({
-          id: item.id,
-          en: item.data().question,
-          de: item.data().question,
-          answers: item.data().answers,
-          deAnswers: item.data().answers,
-          custom: true
-        }));
-      },
-      error => showStatus("importStatus", t("error") + error.message)
-    );
-
-    heartbeat = setInterval(() => {
-      if (playerRef) {
-        updateDoc(playerRef, { lastSeen: Date.now() }).catch(() => {});
-      }
-    }, 30000);
-
-    updateTexts();
-    nextQuestion();
-  }
-
-  function leaveRoom(showLogin = true) {
-    if (playerListener) playerListener();
-    if (questionListener) questionListener();
-    if (heartbeat) clearInterval(heartbeat);
-
-    playerListener = null;
-    questionListener = null;
-    heartbeat = null;
-    roomId = null;
-    playerRef = null;
-
-    if (showLogin) {
-      $("gameArea").classList.add("hidden");
-      $("loginPanel").classList.remove("hidden");
-    }
-  }
-
-  function renderPlayers(snapshot) {
-    const players = snapshot.docs.map(item => item.data());
-    players.sort((a, b) => (b.score || 0) - (a.score || 0));
-
-    const list = $("playerList");
-    list.replaceChildren();
-
-    players.forEach(player => {
-      const line = document.createElement("div");
-      line.className = "player";
-
-      const name = document.createElement("span");
-      name.textContent = player.name || "Player";
-
-      const details = document.createElement("span");
-      const isOnline = Date.now() - (player.lastSeen || 0) < 90000;
-      details.className = isOnline ? "online" : "offline";
-      details.textContent = `${player.score || 0} pts · ${isOnline ? t("online") : t("offline")}`;
-
-      line.append(name, details);
-      list.append(line);
-
-      if (playerRef && player.name === getName() && player.score !== undefined) {
-        // The local score is updated when this player answers.
-      }
+  if (!snap.exists()) {
+    await setDoc(ref, {
+      name: "World Server",
+      type: "public",
+      createdAt: serverTimestamp()
     });
   }
 
-  function allQuestions() {
-    return [
-      ...builtInQuestions.map((q, index) => ({ ...q, id: "built-" + index })),
-      ...customQuestions
-    ];
+  return "world";
+}
+
+async function createPrivateRoom() {
+  const name = getName();
+
+  if (!name) {
+    showStatus("loginStatus", t("enterName"));
+    return;
   }
 
-  function nextQuestion() {
-    const questions = allQuestions();
-
-    if (!questions.length) {
-      $("question").textContent = t("noQuestions");
-      $("answers").replaceChildren();
-      return;
-    }
-
-    let available = questions.filter(q => !usedQuestions.has(q.id));
-
-    if (!available.length) {
-      usedQuestions.clear();
-      available = questions;
-    }
-
-    currentQuestion = available[Math.floor(Math.random() * available.length)];
-    usedQuestions.add(currentQuestion.id);
-    answered = false;
-
-    $("feedback").textContent = "";
-    $("nextButton").disabled = true;
-
-    const questionText = lang === "de" ? currentQuestion.de : currentQuestion.en;
-    $("question").textContent = questionText || currentQuestion.en;
-
-    const answers = lang === "de"
-      ? (currentQuestion.deAnswers || currentQuestion.answers)
-      : currentQuestion.answers;
-
-    const correctAnswer = answers[0];
-    const shuffled = shuffle(answers.map((answer, index) => ({
-      answer,
-      correct: index === 0
-    })));
-
-    const answerBox = $("answers");
-    answerBox.replaceChildren();
-
-    shuffled.forEach(item => {
-      const button = document.createElement("button");
-      button.textContent = item.answer;
-      button.addEventListener("click", () => chooseAnswer(button, item, correctAnswer));
-      answerBox.append(button);
-    });
-  }
-
-  async function chooseAnswer(button, item, correctAnswer) {
-    if (answered) return;
-    answered = true;
-
-    const buttons = $("answers").querySelectorAll("button");
-    buttons.forEach(btn => btn.disabled = true);
-
-    if (item.correct) {
-      button.classList.add("correct");
-      $("feedback").textContent = t("correct");
-      myScore += 1;
-      $("myScore").textContent = myScore;
-
-      try {
-        await updateDoc(playerRef, {
-          score: myScore,
-          lastSeen: Date.now()
-        });
-      } catch (error) {
-        showStatus("importStatus", t("error") + error.message);
-      }
-    } else {
-      button.classList.add("wrong");
-      $("feedback").textContent = t("incorrect") + correctAnswer;
-
-      buttons.forEach(btn => {
-        if (btn.textContent === correctAnswer) btn.classList.add("correct");
-      });
-    }
-
-    $("nextButton").disabled = false;
-  }
-
-  async function importQuestions() {
-    if (!roomId) return;
-
-    const raw = $("questionImport").value.trim();
-    if (!raw) return;
-
-    const lines = raw.split(/\r?\n/).filter(line => line.trim());
-    let imported = 0;
-    const errors = [];
-
-    for (const line of lines.slice(0, 100)) {
-      const separator = line.indexOf(";");
-      if (separator < 1) {
-        errors.push(t("badLine") + line);
-        continue;
-      }
-
-      const question = line.slice(0, separator).trim();
-      const answers = line.slice(separator + 1).split("-").map(x => x.trim());
-
-      if (!question || answers.length !== 3 || answers.some(x => !x)) {
-        errors.push(t("badLine") + line);
-        continue;
-      }
-
-      try {
-        await addDoc(collection(db, "quizRooms", roomId, "questions"), {
-          question,
-          answers,
-          createdBy: user.uid,
-          createdAt: serverTimestamp()
-        });
-        imported++;
-      } catch (error) {
-        errors.push(error.message);
-        break;
-      }
-    }
-
-    $("questionImport").value = "";
-    showStatus("importStatus", imported + t("imported") + (errors.length ? " " + errors.join(" | ") : ""));
-  }
-
-  function updateTexts() {
-    $("joinHeading").textContent = t("joinHeading");
-    $("nameLabel").textContent = t("nameLabel");
-    $("codeLabel").textContent = t("codeLabel");
-    $("playerName").placeholder = t("namePlaceholder");
-    $("roomCode").placeholder = t("codePlaceholder");
-    $("joinButton").textContent = t("join");
-    $("createButton").textContent = t("create");
-    $("roomLabel").textContent = t("room");
-    $("scoreLabel").textContent = t("score");
-    $("leaveButton").textContent = t("leave");
-    $("nextButton").textContent = t("next");
-    $("quizLabel").textContent = t("quiz");
-    $("playersHeading").textContent = t("players");
-    $("importHeading").textContent = t("importHeading");
-    $("importHelp").textContent = t("importHelp");
-    $("importButton").textContent = t("import");
-  }
-
-  $("language").addEventListener("change", event => {
-    lang = event.target.value;
-    updateTexts();
-    if (currentQuestion && roomId) nextQuestion();
-    if (roomId) {
-      $("currentRoom").textContent = roomId === "world" ? t("world") : roomId;
-    }
-  });
-
-  $("joinButton").addEventListener("click", joinRoom);
-  $("createButton").addEventListener("click", createPrivateRoom);
-  $("leaveButton").addEventListener("click", () => leaveRoom(true));
-  $("nextButton").addEventListener("click", nextQuestion);
-  $("importButton").addEventListener("click", importQuestions);
-
-  updateTexts();
+  showStatus("loginStatus", t("loading"));
 
   try {
-    await signInAnonymously(auth);
-    user = auth.currentUser;
-    showStatus("loginStatus", "");
+    let code = makeRoomCode();
+    let ref = doc(db, "quizRooms", code);
+
+    while ((await getDoc(ref)).exists()) {
+      code = makeRoomCode();
+      ref = doc(db, "quizRooms", code);
+    }
+
+    await setDoc(ref, {
+      name: "Private room",
+      type: "private",
+      createdAt: serverTimestamp()
+    });
+
+    await enterRoom(code, name);
+    showStatus("loginStatus", t("privateCreated") + code);
   } catch (error) {
     showStatus("loginStatus", t("error") + error.message);
   }
+}
+
+async function joinRoom() {
+  const name = getName();
+
+  if (!name) {
+    showStatus("loginStatus", t("enterName"));
+    return;
+  }
+
+  showStatus("loginStatus", t("loading"));
+
+  try {
+    const code = $("roomCode").value.trim().toLowerCase();
+
+    if (!code) {
+      const worldId = await ensureWorldServer();
+      await enterRoom(worldId, name);
+      return;
+    }
+
+    const roomCode = code.toUpperCase();
+    const roomRef = doc(db, "quizRooms", roomCode);
+    const roomSnap = await getDoc(roomRef);
+
+    if (!roomSnap.exists()) {
+      showStatus("loginStatus", t("roomMissing"));
+      return;
+    }
+
+    await enterRoom(roomCode, name);
+  } catch (error) {
+    showStatus("loginStatus", t("error") + error.message);
+  }
+}
+
+async function enterRoom(code, name) {
+  leaveRoom(false);
+
+  roomId = code;
+  playerRef = doc(db, "quizRooms", roomId, "players", user.uid);
+
+  await setDoc(playerRef, {
+    name,
+    score: 0,
+    lastSeen: Date.now(),
+    joinedAt: serverTimestamp()
+  }, { merge: true });
+
+  myScore = 0;
+  usedQuestions.clear();
+  customQuestions = [];
+
+  $("loginPanel").classList.add("hidden");
+  $("gameArea").classList.remove("hidden");
+  $("currentRoom").textContent = roomId === "world" ? t("world") : roomId;
+  $("myScore").textContent = myScore;
+  $("feedback").textContent = "";
+
+  playerListener = onSnapshot(
+    collection(db, "quizRooms", roomId, "players"),
+    snapshot => renderPlayers(snapshot)
+  );
+
+  questionListener = onSnapshot(
+    collection(db, "quizRooms", roomId, "questions"),
+    snapshot => {
+      customQuestions = snapshot.docs.map(item => {
+        const data = item.data();
+
+        return {
+          id: item.id,
+          question: data.question || "",
+          answers: Array.isArray(data.answers) ? data.answers : [],
+          active: data.active !== false,
+          createdAt: data.createdAt || null,
+          importedAt: data.importedAt || data.createdAt || null,
+          batchId: data.batchId || null,
+          custom: true
+        };
+      });
+
+      renderQuestionLibrary();
+    },
+    error => showStatus("importStatus", t("error") + error.message)
+  );
+
+  heartbeat = setInterval(() => {
+    if (playerRef) {
+      updateDoc(playerRef, { lastSeen: Date.now() }).catch(() => {});
+    }
+  }, 30000);
+
+  updateTexts();
+  nextQuestion();
+}
+
+function leaveRoom(showLogin = true) {
+  if (playerListener) playerListener();
+  if (questionListener) questionListener();
+  if (heartbeat) clearInterval(heartbeat);
+
+  playerListener = null;
+  questionListener = null;
+  heartbeat = null;
+  roomId = null;
+  playerRef = null;
+  customQuestions = [];
+  usedQuestions.clear();
+
+  if (showLogin) {
+    $("gameArea").classList.add("hidden");
+    $("loginPanel").classList.remove("hidden");
+  }
+}
+
+function renderPlayers(snapshot) {
+  const players = snapshot.docs.map(item => item.data());
+  players.sort((a, b) => (b.score || 0) - (a.score || 0));
+
+  const list = $("playerList");
+  list.replaceChildren();
+
+  players.forEach(player => {
+    const line = document.createElement("div");
+    line.className = "player";
+
+    const name = document.createElement("span");
+    name.textContent = player.name || "Player";
+
+    const details = document.createElement("span");
+    const isOnline = Date.now() - (player.lastSeen || 0) < 90000;
+    details.className = isOnline ? "online" : "offline";
+    details.textContent = `${player.score || 0} pts · ${isOnline ? t("online") : t("offline")}`;
+
+    line.append(name, details);
+    list.append(line);
+  });
+}
+
+function allQuestions() {
+  return [
+    ...builtInQuestions.map((q, index) => ({
+      ...q,
+      id: "built-" + index,
+      active: true
+    })),
+    ...customQuestions.filter(q => q.active)
+  ];
+}
+
+function nextQuestion() {
+  const questions = allQuestions();
+
+  if (!questions.length) {
+    $("question").textContent = t("noQuestions");
+    $("answers").replaceChildren();
+    $("feedback").textContent = "";
+    $("nextButton").disabled = true;
+    return;
+  }
+
+  let available = questions.filter(q => !usedQuestions.has(q.id));
+
+  if (!available.length) {
+    usedQuestions.clear();
+    available = questions;
+  }
+
+  currentQuestion = available[Math.floor(Math.random() * available.length)];
+  usedQuestions.add(currentQuestion.id);
+  answered = false;
+
+  $("feedback").textContent = "";
+  $("nextButton").disabled = true;
+
+  const questionText = currentQuestion.custom
+    ? currentQuestion.question
+    : (lang === "de" ? currentQuestion.de : currentQuestion.en);
+
+  $("question").textContent = questionText || "";
+
+  const answers = currentQuestion.custom
+    ? currentQuestion.answers
+    : (lang === "de" ? currentQuestion.deAnswers : currentQuestion.answers);
+
+  if (!Array.isArray(answers) || answers.length !== 3) {
+    $("question").textContent = t("noQuestions");
+    $("answers").replaceChildren();
+    return;
+  }
+
+  const correctAnswer = answers[0];
+
+  const shuffled = shuffle(answers.map((answer, index) => ({
+    answer,
+    correct: index === 0
+  })));
+
+  const answerBox = $("answers");
+  answerBox.replaceChildren();
+
+  shuffled.forEach(item => {
+    const button = document.createElement("button");
+    button.textContent = item.answer;
+    button.addEventListener("click", () => chooseAnswer(button, item, correctAnswer));
+    answerBox.append(button);
+  });
+}
+
+async function chooseAnswer(button, item, correctAnswer) {
+  if (answered) return;
+  answered = true;
+
+  const buttons = $("answers").querySelectorAll("button");
+  buttons.forEach(btn => btn.disabled = true);
+
+  if (item.correct) {
+    button.classList.add("correct");
+    $("feedback").textContent = t("correct");
+    myScore += 1;
+    $("myScore").textContent = myScore;
+
+    try {
+      await updateDoc(playerRef, {
+        score: myScore,
+        lastSeen: Date.now()
+      });
+    } catch (error) {
+      showStatus("importStatus", t("error") + error.message);
+    }
+  } else {
+    button.classList.add("wrong");
+    $("feedback").textContent = t("incorrect") + correctAnswer;
+
+    buttons.forEach(btn => {
+      if (btn.textContent === correctAnswer) btn.classList.add("correct");
+    });
+  }
+
+  $("nextButton").disabled = false;
+}
+
+/* Import questions as one identifiable package. */
+async function importQuestions() {
+  if (!roomId) return;
+
+  const raw = $("questionImport").value.trim();
+  if (!raw) return;
+
+  const lines = raw.split(/\r?\n/).filter(line => line.trim());
+  let imported = 0;
+  const errors = [];
+  const batchId = makeBatchId();
+
+  for (const line of lines.slice(0, 100)) {
+    const separator = line.indexOf(";");
+
+    if (separator < 1) {
+      errors.push(t("badLine") + line);
+      continue;
+    }
+
+    const question = line.slice(0, separator).trim();
+    const answers = line.slice(separator + 1).split("-").map(x => x.trim());
+
+    if (!question || answers.length !== 3 || answers.some(x => !x)) {
+      errors.push(t("badLine") + line);
+      continue;
+    }
+
+    try {
+      await addDoc(collection(db, "quizRooms", roomId, "questions"), {
+        question,
+        answers,
+        active: true,
+        batchId,
+        createdBy: user.uid,
+        createdAt: serverTimestamp(),
+        importedAt: serverTimestamp()
+      });
+
+      imported++;
+    } catch (error) {
+      errors.push(error.message);
+      break;
+    }
+  }
+
+  $("questionImport").value = "";
+
+  showStatus(
+    "importStatus",
+    imported + t("imported") + (errors.length ? " " + errors.join(" | ") : "")
+  );
+}
+
+/* Convert Firestore timestamps to JavaScript dates. */
+function getQuestionDate(question) {
+  const timestamp = question.importedAt || question.createdAt;
+
+  if (!timestamp) return null;
+
+  if (typeof timestamp.toDate === "function") {
+    return timestamp.toDate();
+  }
+
+  if (timestamp instanceof Date) {
+    return timestamp;
+  }
+
+  return null;
+}
+
+function getMonthKey(question) {
+  const date = getQuestionDate(question);
+
+  if (!date || Number.isNaN(date.getTime())) return "unknown";
+
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function formatDate(question) {
+  const date = getQuestionDate(question);
+
+  if (!date || Number.isNaN(date.getTime())) return t("unknownDate");
+
+  return new Intl.DateTimeFormat(lang === "de" ? "de-DE" : "en-GB", {
+    year: "numeric",
+    month: "long",
+    day: "2-digit"
+  }).format(date);
+}
+
+function formatMonth(key) {
+  if (key === "unknown") return t("unknownDate");
+
+  const [year, month] = key.split("-").map(Number);
+  const date = new Date(year, month - 1, 1);
+
+  return new Intl.DateTimeFormat(lang === "de" ? "de-DE" : "en-GB", {
+    year: "numeric",
+    month: "long"
+  }).format(date);
+}
+
+/* Build the month filter from all imported questions. */
+function renderPackageFilter() {
+  const filter = $("packageFilter");
+  const previousValue = filter.value || "all";
+
+  const months = [...new Set(customQuestions.map(getMonthKey))]
+    .sort((a, b) => {
+      if (a === "unknown") return 1;
+      if (b === "unknown") return -1;
+      return b.localeCompare(a);
+    });
+
+  filter.replaceChildren();
+
+  const allOption = document.createElement("option");
+  allOption.value = "all";
+  allOption.textContent = t("allDates");
+  filter.append(allOption);
+
+  months.forEach(month => {
+    const option = document.createElement("option");
+    option.value = month;
+    option.textContent = formatMonth(month);
+    filter.append(option);
+  });
+
+  if (months.includes(previousValue) || previousValue === "all") {
+    filter.value = previousValue;
+  } else {
+    filter.value = "all";
+  }
+}
+
+/* Display all imported questions, grouped by their import batch. */
+function renderQuestionLibrary() {
+  renderPackageFilter();
+
+  const container = $("questionLibrary");
+  container.replaceChildren();
+
+  const search = $("questionSearch").value.trim().toLowerCase();
+  const selectedMonth = $("packageFilter").value || "all";
+
+  const activeCount = customQuestions.filter(q => q.active).length;
+  const disabledCount = customQuestions.length - activeCount;
+
+  $("questionSummary").textContent =
+    `${customQuestions.length} ${t("questions")} · ` +
+    `${activeCount} ${t("activeCount")} · ` +
+    `${disabledCount} ${t("disabledCount")}`;
+
+  if (!customQuestions.length) {
+    container.textContent = t("noImported");
+    return;
+  }
+
+  const filtered = customQuestions.filter(question => {
+    const monthMatches = selectedMonth === "all" ||
+      getMonthKey(question) === selectedMonth;
+
+    const searchableText = [
+      question.question,
+      ...(question.answers || [])
+    ].join(" ").toLowerCase();
+
+    return monthMatches && searchableText.includes(search);
+  });
+
+  if (!filtered.length) {
+    container.textContent = t("noMatches");
+    return;
+  }
+
+  /* Group by batch ID. Older questions without a batch ID are grouped by month. */
+  const groups = new Map();
+
+  filtered.forEach(question => {
+    const month = getMonthKey(question);
+    const groupKey = question.batchId
+      ? `${month}::${question.batchId}`
+      : `${month}::legacy`;
+
+    if (!groups.has(groupKey)) {
+      groups.set(groupKey, {
+        month,
+        batchId: question.batchId,
+        questions: []
+      });
+    }
+
+    groups.get(groupKey).questions.push(question);
+  });
+
+  const sortedGroups = [...groups.values()].sort((a, b) => {
+    if (a.month === "unknown") return 1;
+    if (b.month === "unknown") return -1;
+    return b.month.localeCompare(a.month);
+  });
+
+  sortedGroups.forEach((group, groupIndex) => {
+    const packageElement = document.createElement("div");
+    packageElement.className = "question-package";
+
+    const heading = document.createElement("div");
+    heading.className = "package-heading";
+
+    const title = document.createElement("strong");
+    title.textContent = `${formatMonth(group.month)} · ${t("package")} ${groupIndex + 1}`;
+
+    const count = document.createElement("span");
+    count.className = "small";
+    count.textContent = `${group.questions.length} ${t("questions")}`;
+
+    heading.append(title, count);
+    packageElement.append(heading);
+
+    group.questions.forEach(question => {
+      const entry = document.createElement("div");
+      entry.className = "question-entry";
+
+      if (!question.active) {
+        entry.classList.add("inactive-question");
+      }
+
+      const content = document.createElement("div");
+      content.className = "question-content";
+
+      const questionText = document.createElement("strong");
+      questionText.textContent = question.question;
+
+      const answers = document.createElement("div");
+      answers.className = "small";
+      answers.textContent = (question.answers || []).join(" · ");
+
+      const date = document.createElement("div");
+      date.className = "small";
+      date.textContent = `${t("dateLabel")}: ${formatDate(question)}`;
+
+      const state = document.createElement("div");
+      state.className = "small";
+      state.textContent = question.active ? t("active") : t("inactive");
+
+      if (!question.active) {
+        state.classList.add("inactive-label");
+      }
+
+      content.append(questionText, answers, date, state);
+
+      const actions = document.createElement("div");
+      actions.className = "question-actions";
+
+      const toggleButton = document.createElement("button");
+      toggleButton.textContent = question.active ? t("disable") : t("enable");
+
+      toggleButton.addEventListener("click", async () => {
+        toggleButton.disabled = true;
+        toggleButton.textContent = t("updating");
+
+        try {
+          await updateDoc(
+            doc(db, "quizRooms", roomId, "questions", question.id),
+            { active: !question.active }
+          );
+
+          /* The Firestore listener will refresh the question list. */
+        } catch (error) {
+          toggleButton.disabled = false;
+          toggleButton.textContent = question.active ? t("disable") : t("enable");
+          showStatus("importStatus", t("toggleError") + error.message);
+        }
+      });
+
+      actions.append(toggleButton);
+      entry.append(content, actions);
+      packageElement.append(entry);
+    });
+
+    container.append(packageElement);
+  });
+}
+
+function updateTexts() {
+  $("joinHeading").textContent = t("joinHeading");
+  $("nameLabel").textContent = t("nameLabel");
+  $("codeLabel").textContent = t("codeLabel");
+  $("playerName").placeholder = t("namePlaceholder");
+  $("roomCode").placeholder = t("codePlaceholder");
+  $("joinButton").textContent = t("join");
+  $("createButton").textContent = t("create");
+  $("roomLabel").textContent = t("room");
+  $("scoreLabel").textContent = t("score");
+  $("leaveButton").textContent = t("leave");
+  $("nextButton").textContent = t("next");
+  $("quizLabel").textContent = t("quiz");
+  $("playersHeading").textContent = t("players");
+  $("importHeading").textContent = t("importHeading");
+  $("importHelp").textContent = t("importHelp");
+  $("importButton").textContent = t("import");
+  $("manageHeading").textContent = t("manageHeading");
+  $("manageHelp").textContent = t("manageHelp");
+  $("questionSearch").placeholder = t("searchPlaceholder");
+
+  if (roomId) {
+    $("currentRoom").textContent = roomId === "world" ? t("world") : roomId;
+    renderQuestionLibrary();
+  }
+}
+
+$("language").addEventListener("change", event => {
+  lang = event.target.value;
+  updateTexts();
+
+  if (currentQuestion && roomId) {
+    nextQuestion();
+  }
+});
+
+$("joinButton").addEventListener("click", joinRoom);
+$("createButton").addEventListener("click", createPrivateRoom);
+$("leaveButton").addEventListener("click", () => leaveRoom(true));
+$("nextButton").addEventListener("click", nextQuestion);
+$("importButton").addEventListener("click", importQuestions);
+
+$("questionSearch").addEventListener("input", renderQuestionLibrary);
+$("packageFilter").addEventListener("change", renderQuestionLibrary);
+
+updateTexts();
+
+try {
+  await signInAnonymously(auth);
+  user = auth.currentUser;
+  showStatus("loginStatus", "");
+} catch (error) {
+  showStatus("loginStatus", t("error") + error.message);
+}
 </script>
 </body>
 </html>
