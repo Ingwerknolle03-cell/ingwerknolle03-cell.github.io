@@ -250,7 +250,9 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/fireba
 
 import {
   getAuth,
-  signInAnonymously
+  signInAnonymously,
+  setPersistence,
+  browserLocalPersistence
 } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 
 import {
@@ -279,6 +281,18 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 const $ = id => document.getElementById(id);
+
+const PLAYER_NAME_STORAGE_KEY = "ingwerperium.playerName.v1";
+
+// Restore the name on this browser. Firebase Auth's local persistence
+// keeps the same anonymous UID on this browser, so Firestore can find
+// the player's existing room record again.
+try {
+  const savedPlayerName = localStorage.getItem(PLAYER_NAME_STORAGE_KEY);
+  if (savedPlayerName) $("playerName").value = savedPlayerName;
+} catch (error) {
+  console.warn("Could not read the saved player name:", error);
+}
 
 let user = null;
 let roomId = null;
@@ -698,14 +712,30 @@ async function enterRoom(code, name) {
   roomId = code;
   playerRef = doc(db, "quizRooms", roomId, "players", user.uid);
 
+  // Reuse the existing score for this player in this room instead of
+  // resetting it whenever the player returns.
+  const existingPlayerSnapshot = await getDoc(playerRef);
+  const existingPlayerData = existingPlayerSnapshot.exists()
+    ? existingPlayerSnapshot.data()
+    : {};
+
+  myScore = Number.isFinite(existingPlayerData.score)
+    ? existingPlayerData.score
+    : 0;
+
   await setDoc(playerRef, {
     name,
-    score: 0,
+    score: myScore,
     lastSeen: Date.now(),
-    joinedAt: serverTimestamp()
+    joinedAt: existingPlayerData.joinedAt || serverTimestamp()
   }, { merge: true });
 
-  myScore = 0;
+  // Remember the chosen display name on this browser.
+  try {
+    localStorage.setItem(PLAYER_NAME_STORAGE_KEY, name);
+  } catch (error) {
+    console.warn("Could not save the player name:", error);
+  }
   usedQuestions.clear();
   customQuestions = [];
 
@@ -1231,6 +1261,8 @@ $("packageFilter").addEventListener("change", renderQuestionLibrary);
 updateTexts();
 
 try {
+  // Keep the anonymous Firebase identity in this browser between visits.
+  await setPersistence(auth, browserLocalPersistence);
   await signInAnonymously(auth);
   user = auth.currentUser;
   showStatus("loginStatus", "");
