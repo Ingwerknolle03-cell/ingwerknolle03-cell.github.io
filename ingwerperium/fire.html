@@ -416,6 +416,9 @@ const translations = {
 };
 
 const t = key => translations[lang][key];
+  
+// Hier später gesperrte Wörter eintragen
+const BLOCKED_QUESTION_WORDS = [];
 
 const builtInQuestions = [
   {
@@ -930,6 +933,26 @@ async function chooseAnswer(button, item, correctAnswer) {
 }
 
 /* Import questions as one identifiable package. */
+function normalizeQuestionText(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim()
+    .replace(/\s+/g, " ");
+}
+
+function containsBlockedQuestionWord(question) {
+  const normalizedQuestion = " " + normalizeQuestionText(question) + " ";
+
+  return BLOCKED_QUESTION_WORDS.some(word => {
+    const normalizedWord = normalizeQuestionText(word);
+    return normalizedWord &&
+      normalizedQuestion.includes(" " + normalizedWord + " ");
+  });
+}
+
 async function importQuestions() {
   if (!roomId) return;
 
@@ -938,8 +961,23 @@ async function importQuestions() {
 
   const lines = raw.split(/\r?\n/).filter(line => line.trim());
   let imported = 0;
+  let skippedDuplicates = 0;
+  let skippedBlocked = 0;
   const errors = [];
   const batchId = makeBatchId();
+
+  // Bereits vorhandene Fragen berücksichtigen
+  const seenQuestions = new Set(
+    customQuestions
+      .map(item => normalizeQuestionText(item.question))
+      .filter(Boolean)
+  );
+
+  // Auch eingebaute Fragen berücksichtigen
+  builtInQuestions.forEach(item => {
+    seenQuestions.add(normalizeQuestionText(item.en));
+    seenQuestions.add(normalizeQuestionText(item.de));
+  });
 
   for (const line of lines.slice(0, 100)) {
     const separator = line.indexOf(";");
@@ -950,23 +988,45 @@ async function importQuestions() {
     }
 
     const question = line.slice(0, separator).trim();
-    const answers = line.slice(separator + 1).split("-").map(x => x.trim());
+    const answers = line.slice(separator + 1)
+      .split("-")
+      .map(x => x.trim());
 
     if (!question || answers.length !== 3 || answers.some(x => !x)) {
       errors.push(t("badLine") + line);
       continue;
     }
 
+    // Gesperrte Wörter prüfen
+    if (containsBlockedQuestionWord(question)) {
+      skippedBlocked++;
+      continue;
+    }
+
+    // Doppelte Fragen prüfen
+    const normalizedQuestion = normalizeQuestionText(question);
+
+    if (seenQuestions.has(normalizedQuestion)) {
+      skippedDuplicates++;
+      continue;
+    }
+
+    // Auch Duplikate innerhalb desselben Imports verhindern
+    seenQuestions.add(normalizedQuestion);
+
     try {
-      await addDoc(collection(db, "quizRooms", roomId, "questions"), {
-        question,
-        answers,
-        active: true,
-        batchId,
-        createdBy: user.uid,
-        createdAt: serverTimestamp(),
-        importedAt: serverTimestamp()
-      });
+      await addDoc(
+        collection(db, "quizRooms", roomId, "questions"),
+        {
+          question,
+          answers,
+          active: true,
+          batchId,
+          createdBy: user.uid,
+          createdAt: serverTimestamp(),
+          importedAt: serverTimestamp()
+        }
+      );
 
       imported++;
     } catch (error) {
@@ -977,9 +1037,25 @@ async function importQuestions() {
 
   $("questionImport").value = "";
 
+  const skippedInfo = [];
+
+  if (skippedDuplicates) {
+    skippedInfo.push(
+      skippedDuplicates + " doppelte Fragen übersprungen"
+    );
+  }
+
+  if (skippedBlocked) {
+    skippedInfo.push(
+      skippedBlocked + " Fragen wegen gesperrter Wörter übersprungen"
+    );
+  }
+
   showStatus(
     "importStatus",
-    imported + t("imported") + (errors.length ? " " + errors.join(" | ") : "")
+    imported + t("imported") +
+    (skippedInfo.length ? " · " + skippedInfo.join(" · ") : "") +
+    (errors.length ? " " + errors.join(" | ") : "")
   );
 }
 
