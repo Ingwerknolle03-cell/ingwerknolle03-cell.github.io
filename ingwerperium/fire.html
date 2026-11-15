@@ -417,8 +417,118 @@ const translations = {
 
 const t = key => translations[lang][key];
   
-// Hier später gesperrte Wörter eintragen
-const BLOCKED_QUESTION_WORDS = [];
+// Hier gesperrte Wörter eintragen  "Content Moderation & Youth Protection"
+const BLOCKED_QUESTION_WORDS = [
+  // German
+  "hurensohn",
+  "wichser",
+  "arschloch",
+  "fotze",
+  "schlampe",
+  "fick dich",
+  "schwuchtel",
+  "missgeburt",
+  "bastard",
+  "verpiss dich",
+
+  // English
+  "fuck",
+  "fucking",
+  "shit",
+  "bitch",
+  "asshole",
+  "motherfucker",
+  "cunt",
+  "whore",
+  "slut",
+  "faggot",
+  "go fuck yourself",
+
+  // French
+  "putain",
+  "merde",
+  "connard",
+  "connasse",
+  "salope",
+  "pute",
+  "enculé",
+
+  // Spanish
+  "mierda",
+  "joder",
+  "cabrón",
+  "cabrona",
+  "puta",
+  "hijo de puta",
+  "maricón",
+  "pendejo",
+
+  // Italian
+  "cazzo",
+  "merda",
+  "stronzo",
+  "puttana",
+  "vaffanculo",
+  "frocio",
+
+  // Portuguese
+  "porra",
+  "caralho",
+  "filho da puta",
+  "puta",
+  "viado",
+
+  // Turkish
+  "orospu",
+  "piç",
+  "siktir",
+  "amk",
+  "sikik",
+
+  // Russian
+  "блядь",
+  "сука",
+  "хуй",
+  "пизда",
+  "ебать",
+
+  // Arabic
+  "كس",
+  "شرموطة",
+  "كلب",
+  "قحبة",
+
+  // Dutch
+  "klootzak",
+  "kanker",
+  "kut",
+  "hoer",
+
+  // Polish
+  "kurwa",
+  "chuj",
+  "dziwka",
+  "spierdalaj",
+
+  // Sexually explicit content
+  "porn",
+  "porno",
+  "pornhub",
+  "nudes",
+  "send nudes",
+  "dick pic",
+  "sexting",
+  "cybersex",
+  "nacktfoto",
+  "onlyfans",
+  "sexchat",
+
+  // Extremism
+  "heil hitler",
+  "sieg heil",
+  "white power",
+  "1488"
+];
 
 const builtInQuestions = [
   {
